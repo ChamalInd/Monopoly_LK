@@ -1,14 +1,23 @@
 // Program entry point
-#include <stdio.h>
 #include "functions.h"
 #include "types.h"
 
 int main(void) {
-    Cell board[40];
+    Cell board[NO_OF_CELLS];
+    int game_round = 0;
+    int players[4][3] = { // set as 5 for sorting process when deciding the player order d
+        {AGGRESSIVE_INVESTOR, 5, -1}, 
+        {CONSERVATIVE_BANKER, 5, -1}, 
+        {RISK_TAKER, 5, -1}, 
+        {OPPORTUNISTIC_TRADER, 5, -1}
+    };
+    char *player_names[] = {"Aggressive Investor", "Conservative Banker", "Risk Taker", "Opportunistic Trader"};
 
+    srand(1);
+
+    print_game(&game_round);
+    decide_player_order(players, player_names);
     generate_board(board);
-    // for (int i = 0; i < 40; i++) {
-    //     printf("%i \tName: %s \n\tType: %i \n\tGroup: %i \n\tOwner: %i \n\tPurchased Price: %i \n\tMarket Price: %i \n\tBase Rent: %i \n\tNo of Houses: %i \n\tPrice of a House: %i \n\tNo og Hotels: %i \n\tPrice of a Hotel: %i \n\tMortgage Status: %i \n\tMortgage Value: %i\n\n", (i + 1), board[i].name, board[i].type, board[i].group, board[i].owner, board[i].value.purchase_price, board[i].value.market_price, board[i].value.base_rent, board[i].buildings.no_of_houses, board[i].buildings.price_of_house, board[i].buildings.no_of_hotels, board[i].buildings.price_of_hotel, board[i].mortgage.status, board[i].mortgage.value);
-    // }
+    // print_board(board);
     return 0;
 }

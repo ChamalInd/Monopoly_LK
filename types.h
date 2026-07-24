@@ -2,6 +2,14 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include <stdio.h>
+#include <stdlib.h>
+
+#define NO_OF_PLAYERS 4
+#define NO_OF_CELLS  40
+#define TRUE          1
+#define FALSE         0
+
 // Declaring data structures required to build the board.
 typedef enum {
     START, PROPERTY, RAILWAY, UTILITY, EVENT, SPECIAL, TAX, BANK, INSURANCE
@@ -38,7 +46,7 @@ typedef struct {
 } Mortgage;
 
 typedef struct {
-    char name[100];
+    char name[50];
     Type type;
     Color group;
     Ownership owner;
