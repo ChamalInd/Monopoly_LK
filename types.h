@@ -46,7 +46,7 @@ typedef struct {
 } Mortgage;
 
 typedef struct {
-    char name[50];
+    char *name;
     Type type;
     Color group;
     Ownership owner;

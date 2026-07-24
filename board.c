@@ -2,886 +2,204 @@
 #include "functions.h"
 
 void generate_board(Cell board[]) {
-    board[0] = (Cell) {
-        .name = "GO",
-        .type = START,
-        .group = NO_COLOR,
-        .owner = NO_OWNER,
-        .value = (Values) {
-            .purchase_price = -1,
-            .market_price = -1,
-            .base_rent = -1
-        },
-        .buildings = (Building) {
-            .no_of_houses = -1,
-            .price_of_house = -1,
-            .no_of_hotels = -1,
-            .price_of_hotel = -1
-        },
-        .mortgage = (Mortgage) {
-            .status = CANNOT_MORTGAGED,
-            .value = -1
-        }
+    char *cell_names[NO_OF_CELLS] = {
+        "GO",
+        "Pettah",
+        "Community Development Fund",
+        "Maradana",
+        "Income Tax",
+        "Colombo Fort Railway Station",
+        "Bambalapitiya",
+        "National Event Cards",
+        "Wellawatta",
+        "Mount Lavinia",
+        "Jail / Just Visiting",
+        "Nugegoda",
+        "Ceylon Electricity Board",
+        "Maharagama",
+        "Kottawa",
+        "Kandy Railway Station",
+        "Negombo",
+        "Sri Lanka Insurance",
+        "Katunayake",
+        "Ja-Ela",
+        "Free Parking",
+        "Kandy City",
+        "National Event Card",
+        "Peradeniya",
+        "Katugastota",
+        "Galle Railway Station",
+        "Galle Fort",
+        "Unawatuna",
+        "National Water Supply and Drainage Board",
+        "Hikkaduwa",
+        "Go To Jail",
+        "Jaffna Town",
+        "Nallur",
+        "Ceylinco Insurance",
+        "Trincomalee",
+        "Jaffna Railway Station",
+        "National Event Card",
+        "Nuwara Eliya",
+        "Bank of Ceylon",
+        "Galle Face"
     };
 
-    board[1] = (Cell) {
-        .name = "Pettah",
-        .type = PROPERTY,
-        .group = BROWN,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 1500,
-            .market_price = 1500,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 500,
-            .no_of_hotels = 0,
-            .price_of_hotel = 2000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 750
-        }
+    Type cell_types[NO_OF_CELLS] = {
+        START,      PROPERTY,   EVENT,          PROPERTY,   TAX,
+        RAILWAY,    PROPERTY,   EVENT,          PROPERTY,   PROPERTY,
+        SPECIAL,    PROPERTY,   UTILITY,        PROPERTY,   PROPERTY,
+        RAILWAY,    PROPERTY,   INSURANCE,      PROPERTY,   PROPERTY,
+        SPECIAL,    PROPERTY,   EVENT,          PROPERTY,   PROPERTY,
+        RAILWAY,    PROPERTY,   PROPERTY,       UTILITY,    PROPERTY,
+        SPECIAL,    PROPERTY,   PROPERTY,       INSURANCE,  PROPERTY,
+        RAILWAY,    EVENT,      PROPERTY,       BANK,       PROPERTY
     };
 
-    board[2] = (Cell) {
-        .name = "Community Development Fund",
-        .type = EVENT,
-        .group = NO_COLOR,
-        .owner = NO_OWNER,
-        .value = (Values) {
-            .purchase_price = -1,
-            .market_price = -1,
-            .base_rent = -1
-        },
-        .buildings = (Building) {
-            .no_of_houses = -1,
-            .price_of_house = -1,
-            .no_of_hotels = -1,
-            .price_of_hotel = -1
-        },
-        .mortgage = (Mortgage) {
-            .status = CANNOT_MORTGAGED,
-            .value = -1
-        }
+    Color cell_groups[NO_OF_CELLS] = {
+        NO_COLOR,   BROWN,      NO_COLOR,    BROWN,      NO_COLOR,
+        NO_COLOR,   LIGHT_BLUE, NO_COLOR,    LIGHT_BLUE, LIGHT_BLUE,
+        NO_COLOR,   PINK,       NO_COLOR,    PINK,       PINK,
+        NO_COLOR,   ORANGE,     NO_COLOR,    ORANGE,     ORANGE,
+        NO_COLOR,   RED,        NO_COLOR,    RED,        RED,
+        NO_COLOR,   YELLOW,     YELLOW,      NO_COLOR,   YELLOW,
+        NO_COLOR,   GREEN,      GREEN,       NO_COLOR,   GREEN,
+        NO_COLOR,   NO_COLOR,   DARK_BLUE,   NO_COLOR,   DARK_BLUE
     };
 
-    board[3] = (Cell) {
-        .name = "Maradana",
-        .type = PROPERTY,
-        .group = BROWN,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 1500,
-            .market_price = 1500,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 500,
-            .no_of_hotels = 0,
-            .price_of_hotel = 2000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 750
-        }
+    Ownership cell_owners[NO_OF_CELLS] = {
+        NO_OWNER,       BANK_OF_CEYLON, NO_OWNER,       BANK_OF_CEYLON, NO_OWNER,
+        BANK_OF_CEYLON, BANK_OF_CEYLON, NO_OWNER,       BANK_OF_CEYLON, BANK_OF_CEYLON,
+        NO_OWNER,       BANK_OF_CEYLON, BANK_OF_CEYLON, BANK_OF_CEYLON, BANK_OF_CEYLON,
+        BANK_OF_CEYLON, BANK_OF_CEYLON, NO_OWNER,       BANK_OF_CEYLON, BANK_OF_CEYLON,
+        NO_OWNER,       BANK_OF_CEYLON, NO_OWNER,       BANK_OF_CEYLON, BANK_OF_CEYLON,
+        BANK_OF_CEYLON, BANK_OF_CEYLON, BANK_OF_CEYLON, BANK_OF_CEYLON, BANK_OF_CEYLON,
+        NO_OWNER,       BANK_OF_CEYLON, BANK_OF_CEYLON, NO_OWNER,       BANK_OF_CEYLON,
+        BANK_OF_CEYLON, NO_OWNER,       BANK_OF_CEYLON, NO_OWNER,       BANK_OF_CEYLON
     };
 
-    board[4] = (Cell) {
-        .name = "Income Tax",
-        .type = TAX,
-        .group = NO_COLOR,
-        .owner = NO_OWNER,
-        .value = (Values) {
-            .purchase_price = -1,
-            .market_price = -1,
-            .base_rent = -1
-        },
-        .buildings = (Building) {
-            .no_of_houses = -1,
-            .price_of_house = -1,
-            .no_of_hotels = -1,
-            .price_of_hotel = -1
-        },
-        .mortgage = (Mortgage) {
-            .status = CANNOT_MORTGAGED,
-            .value = -1
-        }
-    };
-    
-    board[5] = (Cell) {
-        .name = "Colombo Fort Railway Station",
-        .type = RAILWAY,
-        .owner = BANK_OF_CEYLON,
-        .group = NO_COLOR,
-        .value = (Values) {
-            .purchase_price = 1,
-            .market_price = 1,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = -1,
-            .price_of_house = -1,
-            .no_of_hotels = -1,
-            .price_of_hotel = -1
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 1
-        }
+    int cell_purchase_price[NO_OF_CELLS] = {
+        -1,     1500,   -1,     1500,   -1,
+        1,      2500,   -1,     2500,   2500,
+        -1,     3500,   1,      3500,   3500,
+        1,      4500,   -1,     4500,   4500,
+        -1,     5500,   -1,     5500,   5500,
+        1,      6500,   6500,   1,      6500,
+        -1,     8000,   8000,   -1,     8000,
+        1,      -1,     10000,  -1,     10000
     };
 
-    board[6] = (Cell) {
-        .name = "Bambalapitiya",
-        .type = PROPERTY,
-        .group = LIGHT_BLUE,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 2500,
-            .market_price = 2500,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 750,
-            .no_of_hotels = 0,
-            .price_of_hotel = 3000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 1250
-        }
+    int cell_market_price[NO_OF_CELLS] = {
+        -1,     1500,   -1,     1500,   -1,
+        1,      2500,   -1,     2500,   2500,
+        -1,     3500,   1,      3500,   3500,
+        1,      4500,   -1,     4500,   4500,
+        -1,     5500,   -1,     5500,   5500,
+        1,      6500,   6500,   1,      6500,
+        -1,     8000,   8000,   -1,     8000,
+        1,      -1,     10000,  -1,     10000
     };
 
-    board[7] = (Cell) {
-        .name = "National Event Cards",
-        .type = EVENT,
-        .group = NO_COLOR,
-        .owner = NO_OWNER,
-        .value = (Values) {
-            .purchase_price = -1,
-            .market_price = -1,
-            .base_rent = -1
-        },
-        .buildings = (Building) {
-            .no_of_houses = -1,
-            .price_of_house = -1,
-            .no_of_hotels = -1,
-            .price_of_hotel = -1
-        },
-        .mortgage = (Mortgage) {
-            .status = CANNOT_MORTGAGED,
-            .value = -1
-        }
+    int cell_base_rent[NO_OF_CELLS] = {
+        -1, 1, -1, 1, -1,
+         1, 1, -1, 1,  1,
+        -1, 1,  1, 1,  1,
+         1, 1, -1, 1,  1,
+        -1, 1, -1, 1,  1,
+         1, 1,  1, 1,  1,
+        -1, 1,  1,-1,  1,
+         1,-1,  1,-1,  1
     };
 
-    board[8] = (Cell) {
-        .name = "Wellawatta",
-        .type = PROPERTY,
-        .group = LIGHT_BLUE,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 2500,
-            .market_price = 2500,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 750,
-            .no_of_hotels = 0,
-            .price_of_hotel = 3000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 1250
-        }
+    int cell_no_of_houses[NO_OF_CELLS] = {
+        -1, 0, -1, 0, -1,
+        -1, 0, -1, 0,  0,
+        -1, 0, -1, 0,  0,
+        -1, 0, -1, 0,  0,
+        -1, 0, -1, 0,  0,
+        -1, 0,  0,-1,  0,
+        -1, 0,  0,-1,  0,
+        -1,-1,  0,-1,  0
     };
 
-    board[9] = (Cell) {
-        .name = "Mount Lavinia",
-        .type = PROPERTY,
-        .group = LIGHT_BLUE,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 2500,
-            .market_price = 2500,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 750,
-            .no_of_hotels = 0,
-            .price_of_hotel = 3000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 1250
-        }
+    int cell_price_of_house[NO_OF_CELLS] = {
+        -1,   500,  -1,   500,  -1,
+        -1,   750,  -1,   750,  750,
+        -1,  1000,  -1,  1000, 1000,
+        -1,  1250,  -1,  1250, 1250,
+        -1,  1500,  -1,  1500, 1500,
+        -1,  2000,  2000, -1,  2000,
+        -1,  2500,  2500, -1,  2500,
+        -1,   -1,  3000,  -1,  3000
     };
 
-    board[10] = (Cell) {
-        .name = "Jail / Just Visiting",
-        .type = SPECIAL,
-        .group = NO_COLOR,
-        .owner = NO_OWNER,
-        .value = (Values) {
-            .purchase_price = -1,
-            .market_price = -1,
-            .base_rent = -1
-        },
-        .buildings = (Building) {
-            .no_of_houses = -1,
-            .price_of_house = -1,
-            .no_of_hotels = -1,
-            .price_of_hotel = -1
-        },
-        .mortgage = (Mortgage) {
-            .status = CANNOT_MORTGAGED,
-            .value = -1
-        }
+    int cell_no_of_hotels[NO_OF_CELLS] = {
+        -1, 0, -1, 0, -1,
+        -1, 0, -1, 0,  0,
+        -1, 0, -1, 0,  0,
+        -1, 0, -1, 0,  0,
+        -1, 0, -1, 0,  0,
+        -1, 0,  0,-1,  0,
+        -1, 0,  0,-1,  0,
+        -1,-1,  0,-1,  0
     };
 
-    board[11] = (Cell) {
-        .name = "Nugegoda",
-        .type = PROPERTY,
-        .group = PINK,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 3500,
-            .market_price = 3500,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 1000,
-            .no_of_hotels = 0,
-            .price_of_hotel = 4000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 1750
-        }
+    int cell_price_of_hotel[NO_OF_CELLS] = {
+        -1,  2000,  -1,  2000,  -1,
+        -1,  3000,  -1,  3000,  3000,
+        -1,  4000,  -1,  4000,  4000,
+        -1,  5000,  -1,  5000,  5000,
+        -1,  6000,  -1,  6000,  6000,
+        -1,  8000,  8000,  -1,  8000,
+        -1, 10000, 10000,  -1, 10000,
+        -1,   -1, 12000,  -1, 12000
     };
 
-    board[12] = (Cell) {
-        .name = "Ceylon Electricity Board",
-        .type = UTILITY,
-        .group = NO_COLOR,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 1,
-            .market_price = 1,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = -1,
-            .price_of_house = -1,
-            .no_of_hotels = -1,
-            .price_of_hotel = -1
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 1
-        }
+    Mortgage_Status cell_mortgage_status[NO_OF_CELLS] = {
+        CANNOT_MORTGAGED, UNMORTGAGED, CANNOT_MORTGAGED, UNMORTGAGED, CANNOT_MORTGAGED,
+        UNMORTGAGED,      UNMORTGAGED, CANNOT_MORTGAGED, UNMORTGAGED, UNMORTGAGED,
+        CANNOT_MORTGAGED, UNMORTGAGED, UNMORTGAGED,      UNMORTGAGED, UNMORTGAGED,
+        UNMORTGAGED,      UNMORTGAGED, CANNOT_MORTGAGED, UNMORTGAGED, UNMORTGAGED,
+        CANNOT_MORTGAGED, UNMORTGAGED, CANNOT_MORTGAGED, UNMORTGAGED, UNMORTGAGED,
+        UNMORTGAGED,      UNMORTGAGED, UNMORTGAGED,      UNMORTGAGED, UNMORTGAGED,
+        CANNOT_MORTGAGED, UNMORTGAGED, UNMORTGAGED,      CANNOT_MORTGAGED, UNMORTGAGED,
+        UNMORTGAGED,      CANNOT_MORTGAGED, UNMORTGAGED, CANNOT_MORTGAGED, UNMORTGAGED
     };
 
-    board[13] = (Cell) {
-        .name = "Maharagama",
-        .type = PROPERTY,
-        .group = PINK,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 3500,
-            .market_price = 3500,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 1000,
-            .no_of_hotels = 0,
-            .price_of_hotel = 4000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 1750
-        }
+    int cell_mortgage_value[NO_OF_CELLS] = {
+        -1,   750, -1,   750, -1,
+         1,  1250, -1,  1250, 1250,
+        -1,  1750,  1,  1750, 1750,
+         1,  2250, -1,  2250, 2250,
+        -1,  2750, -1,  2750, 2750,
+         1,  3250, 3250,  1,  3250,
+        -1,  4000, 4000, -1,  4000,
+         1,   -1,  5000, -1,  5000
     };
 
-    board[14] = (Cell) {
-        .name = "Kottawa",
-        .type = PROPERTY,
-        .group = PINK,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 3500,
-            .market_price = 3500,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 1000,
-            .no_of_hotels = 0,
-            .price_of_hotel = 4000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 1750
-        }
-    };
-
-    board[15] = (Cell) {
-        .name = "Kandy Railway Station",
-        .type = RAILWAY,
-        .group = NO_COLOR,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 1,
-            .market_price = 1,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = -1,
-            .price_of_house = -1,
-            .no_of_hotels = -1,
-            .price_of_hotel = -1
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 1
-        }
-    };
-
-    board[16] = (Cell) {
-        .name = "Negombo",
-        .type = PROPERTY,
-        .group = ORANGE,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 4500,
-            .market_price = 4500,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 1250,
-            .no_of_hotels = 0,
-            .price_of_hotel = 5000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 2250
-        }
-    };
-
-    board[17] = (Cell) {
-        .name = "Sri Lanka Insurance",
-        .type = INSURANCE,
-        .group = NO_COLOR,
-        .owner = NO_OWNER,
-        .value = (Values) {
-            .purchase_price = -1,
-            .market_price = -1,
-            .base_rent = -1
-        },
-        .buildings = (Building) {
-            .no_of_houses = -1,
-            .price_of_house = -1,
-            .no_of_hotels = -1,
-            .price_of_hotel = -1
-        },
-        .mortgage = (Mortgage) {
-            .status = CANNOT_MORTGAGED,
-            .value = -1
-        }
-    };
-
-    board[18] = (Cell) {
-        .name = "Katunayake",
-        .type = PROPERTY,
-        .group = ORANGE,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 4500,
-            .market_price = 4500,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 1250,
-            .no_of_hotels = 0,
-            .price_of_hotel = 5000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 2250
-        }
-    };
-
-    board[19] = (Cell) {
-        .name = "Ja-Ela",
-        .type = PROPERTY,
-        .group = ORANGE,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 4500,
-            .market_price = 4500,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 1250,
-            .no_of_hotels = 0,
-            .price_of_hotel = 5000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 2250
-        }
-    };
-
-    board[20] = (Cell) {
-        .name = "Free Parking",
-        .type = SPECIAL,
-        .group = NO_COLOR,
-        .owner = NO_OWNER,
-        .value = (Values) {
-            .purchase_price = -1,
-            .market_price = -1,
-            .base_rent = -1
-        },
-        .buildings = (Building) {
-            .no_of_houses = -1,
-            .price_of_house = -1,
-            .no_of_hotels = -1,
-            .price_of_hotel = -1
-        },
-        .mortgage = (Mortgage) {
-            .status = CANNOT_MORTGAGED,
-            .value = -1
-        }
-    };
-
-    board[21] = (Cell) {
-        .name = "Kandy City",
-        .type = PROPERTY,
-        .group = RED,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 5500,
-            .market_price = 5500,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 1500,
-            .no_of_hotels = 0,
-            .price_of_hotel = 6000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 2750
-        }
-    };
-
-    board[22] = (Cell) {
-        .name = "National Event Card",
-        .type = EVENT,
-        .group = NO_COLOR,
-        .owner = NO_OWNER,
-        .value = (Values) {
-            .purchase_price = -1,
-            .market_price = -1,
-            .base_rent = -1
-        },
-        .buildings = (Building) {
-            .no_of_houses = -1,
-            .price_of_house = -1,
-            .no_of_hotels = -1,
-            .price_of_hotel = -1
-        },
-        .mortgage = (Mortgage) {
-            .status = CANNOT_MORTGAGED,
-            .value = -1
-        }
-    };
-
-    board[23] = (Cell) {
-        .name = "Peradeniya",
-        .type = PROPERTY,
-        .group = RED,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 5500,
-            .market_price = 5500,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 1500,
-            .no_of_hotels = 0,
-            .price_of_hotel = 6000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 2750
-        }
-    };
-
-    board[24] = (Cell) {
-        .name = "Katugastota",
-        .type = PROPERTY,
-        .group = RED,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 5500,
-            .market_price = 5500,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 1500,
-            .no_of_hotels = 0,
-            .price_of_hotel = 6000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 2750
-        }
-    };
-
-    board[25] = (Cell) {
-        .name = "Galle Railway Station",
-        .type = RAILWAY,
-        .group = NO_COLOR,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 1,
-            .market_price = 1,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = -1,
-            .price_of_house = -1,
-            .no_of_hotels = -1,
-            .price_of_hotel = -1
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 1
-        }
-    };
-
-    board[26] = (Cell) {
-        .name = "Galle Fort",
-        .type = PROPERTY,
-        .group = YELLOW,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 6500,
-            .market_price = 6500,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 2000,
-            .no_of_hotels = 0,
-            .price_of_hotel = 8000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 3250
-        }
-    };
-
-    board[27] = (Cell) {
-        .name = "Unawatuna",
-        .type = PROPERTY,
-        .group = YELLOW,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 6500,
-            .market_price = 6500,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 2000,
-            .no_of_hotels = 0,
-            .price_of_hotel = 8000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 3250
-        }
-    };
-
-    board[28] = (Cell) {
-        .name = "National Water Supply and Drainage Board",
-        .type = UTILITY,
-        .group = NO_COLOR,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 1,
-            .market_price = 1,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = -1,
-            .price_of_house = -1,
-            .no_of_hotels = -1,
-            .price_of_hotel = -1
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 1
-        }
-    };
-
-    board[29] = (Cell) {
-        .name = "Hikkaduwa",
-        .type = PROPERTY,
-        .group = YELLOW,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 6500,
-            .market_price = 6500,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 2000,
-            .no_of_hotels = 0,
-            .price_of_hotel = 8000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 3250
-        }
-    };
-
-    board[30] = (Cell) {
-        .name = "Go To Jail",
-        .type = SPECIAL,
-        .group = NO_COLOR,
-        .owner = NO_OWNER,
-        .value = (Values) {
-            .purchase_price = -1,
-            .market_price = -1,
-            .base_rent = -1
-        },
-        .buildings = (Building) {
-            .no_of_houses = -1,
-            .price_of_house = -1,
-            .no_of_hotels = -1,
-            .price_of_hotel = -1
-        },
-        .mortgage = (Mortgage) {
-            .status = CANNOT_MORTGAGED,
-            .value = -1
-        }
-    };
-
-    board[31] = (Cell) {
-        .name = "Jaffna Town",
-        .type = PROPERTY,
-        .group = GREEN,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 8000,
-            .market_price = 8000,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 2500,
-            .no_of_hotels = 0,
-            .price_of_hotel = 10000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 4000
-        }
-    };
-
-    board[32] = (Cell) {
-        .name = "Nallur",
-        .type = PROPERTY,
-        .group = GREEN,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 8000,
-            .market_price = 8000,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 2500,
-            .no_of_hotels = 0,
-            .price_of_hotel = 10000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 4000
-        }
-    };
-
-    board[33] = (Cell) {
-        .name = "Ceylinco Insurance",
-        .type = INSURANCE,
-        .group = NO_COLOR,
-        .owner = NO_OWNER,
-        .value = (Values) {
-            .purchase_price = -1,
-            .market_price = -1,
-            .base_rent = -1
-        },
-        .buildings = (Building) {
-            .no_of_houses = -1,
-            .price_of_house = -1,
-            .no_of_hotels = -1,
-            .price_of_hotel = -1
-        },
-        .mortgage = (Mortgage) {
-            .status = CANNOT_MORTGAGED,
-            .value = -1
-        }
-    };
-
-    board[34] = (Cell) {
-        .name = "Trincomalee",
-        .type = PROPERTY,
-        .group = GREEN,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 8000,
-            .market_price = 8000,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 2500,
-            .no_of_hotels = 0,
-            .price_of_hotel = 10000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 4000
-        }
-    };
-
-    board[35] = (Cell) {
-        .name = "Jaffna Railway Station",
-        .type = RAILWAY,
-        .group = NO_COLOR,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 1,
-            .market_price = 1,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = -1,
-            .price_of_house = -1,
-            .no_of_hotels = -1,
-            .price_of_hotel = -1
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 1
-        }
-    };
-
-    board[36] = (Cell) {
-        .name = "National Event Card",
-        .type = EVENT,
-        .group = NO_COLOR,
-        .owner = NO_OWNER,
-        .value = (Values) {
-            .purchase_price = -1,
-            .market_price = -1,
-            .base_rent = -1
-        },
-        .buildings = (Building) {
-            .no_of_houses = -1,
-            .price_of_house = -1,
-            .no_of_hotels = -1,
-            .price_of_hotel = -1
-        },
-        .mortgage = (Mortgage) {
-            .status = CANNOT_MORTGAGED,
-            .value = -1
-        }
-    };
-
-    board[37] = (Cell) {
-        .name = "Nuwara Eliya",
-        .type = PROPERTY,
-        .group = DARK_BLUE,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 10000,
-            .market_price = 10000,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 3000,
-            .no_of_hotels = 0,
-            .price_of_hotel = 12000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 5000
-        }
-    };
-
-    board[38] = (Cell) {
-        .name = "Bank of Ceylon",
-        .type = BANK,
-        .group = NO_COLOR,
-        .owner = NO_OWNER,
-        .value = (Values) {
-            .purchase_price = -1,
-            .market_price = -1,
-            .base_rent = -1
-        },
-        .buildings = (Building) {
-            .no_of_houses = -1,
-            .price_of_house = -1,
-            .no_of_hotels = -1,
-            .price_of_hotel = -1
-        },
-        .mortgage = (Mortgage) {
-            .status = CANNOT_MORTGAGED,
-            .value = -1
-        }
-    };
-
-    board[39] = (Cell) {
-        .name = "Galle Face",
-        .type = PROPERTY,
-        .group = DARK_BLUE,
-        .owner = BANK_OF_CEYLON,
-        .value = (Values) {
-            .purchase_price = 10000,
-            .market_price = 10000,
-            .base_rent = 1
-        },
-        .buildings = (Building) {
-            .no_of_houses = 0,
-            .price_of_house = 3000,
-            .no_of_hotels = 0,
-            .price_of_hotel = 12000
-        },
-        .mortgage = (Mortgage) {
-            .status = UNMORTGAGED,
-            .value = 5000
-        }
-    };
-
+    for (int i = 0; i < NO_OF_CELLS; i++) {
+        board[i] = (Cell) {
+            .name = cell_names[i],
+            .type = cell_types[i],
+            .group = cell_groups[i],
+            .owner = cell_owners[i],
+            .value = (Values) {
+                .purchase_price = cell_purchase_price[i],
+                .market_price = cell_market_price[i],
+                .base_rent = cell_base_rent[i]
+            },
+            .buildings = (Building) {
+                .no_of_houses = cell_no_of_houses[i],
+                .price_of_house = cell_price_of_house[i],
+                .no_of_hotels = cell_no_of_hotels[i],
+                .price_of_hotel = cell_price_of_hotel[i]
+            },
+            .mortgage = (Mortgage) {
+                .status = cell_mortgage_status[i],
+                .value = cell_mortgage_value[i]
+            }
+        };
+    }
 }
 
 void print_board(Cell board[]) {
