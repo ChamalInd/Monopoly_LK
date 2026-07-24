@@ -9,6 +9,7 @@
 #define NO_OF_CELLS  40
 #define TRUE          1
 #define FALSE         0
+#define NONE         -1  
 
 // Declaring data structures required to build the board.
 typedef enum {

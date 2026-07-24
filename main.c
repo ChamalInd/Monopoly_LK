@@ -13,7 +13,7 @@ int main(void) {
     initialize_players(players);
     decide_player_order(players);
     generate_board(board);
-    game_loop(game_round, players, board);
-    // print_board(board);
+    // game_loop(game_round, players, board);
+    print_board(board);
     return 0;
 }
