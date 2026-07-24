@@ -55,5 +55,20 @@ typedef struct {
     Mortgage mortgage;
 } Cell;
 
+typedef struct {
+    char *name;
+    int id;
+    int play_order;
+    int die_roll;
+    int cash;
+    int place;
+    int properties[8][3];
+    int property_owned[8];
+    int railways[4];
+    int railway_owned;
+    int utilities[2];
+    int utilities_owned;
+} Player;
+
 
 #endif
