@@ -13,21 +13,23 @@ void initialize_players(Player players[]) {
             .die_roll = NONE,
             .cash = 30000,
             .place = 0,
-            .properties = {
-                {NONE, NONE, NONE},
-                {NONE, NONE, NONE},
-                {NONE, NONE, NONE},
-                {NONE, NONE, NONE},
-                {NONE, NONE, NONE},
-                {NONE, NONE, NONE},
-                {NONE, NONE, NONE},
-                {NONE, NONE, NONE}
-            },
-            .property_owned = {0, 0, 0, 0, 0, 0, 0, 0},
-            .railways = {NONE, NONE, NONE, NONE},
-            .railway_owned = 0,
-            .utilities = {NONE, NONE},
-            .utilities_owned = 0
+            .owned_properties = (Owned) {
+                .properties = {
+                    {NONE, NONE, NONE},
+                    {NONE, NONE, NONE},
+                    {NONE, NONE, NONE},
+                    {NONE, NONE, NONE},
+                    {NONE, NONE, NONE},
+                    {NONE, NONE, NONE},
+                    {NONE, NONE, NONE},
+                    {NONE, NONE, NONE}
+                },
+                .property_owned = {0, 0, 0, 0, 0, 0, 0, 0},
+                .railways = {NONE, NONE, NONE, NONE},
+                .railway_owned = 0,
+                .utilities = {NONE, NONE},
+                .utilities_owned = 0
+            }
         };
     }
 }
@@ -39,16 +41,16 @@ void print_player(Player players[]) {
         for (int x = 0; x < 8; x++) {
             printf("\n%i\t", x);
             for (int y = 0; y < 3; y++) {
-                printf("%i\t", players[i].properties[x][y]);
+                printf("%i\t", players[i].owned_properties.properties[x][y]);
             }
         }
         printf("\nRailways: ");
         for (int x = 0; x < 4; x++) {
-            printf("%i\t", players[i].railways[x]);
+            printf("%i\t", players[i].owned_properties.railways[x]);
         }
         printf("\nUtilities: ");
         for (int x = 0; x < 2; x++) {
-            printf("%i\t", players[i].utilities[x]);
+            printf("%i\t", players[i].owned_properties.utilities[x]);
         }
         printf("\n\n");
     }
@@ -57,25 +59,25 @@ void print_player(Player players[]) {
 Status calculate_player_status(Player player, Cell *board) {
     int properties = 0, hotels = 0, net_worth = 0;
     for (int j = 0; j < 8; j++) {
-        properties += player.property_owned[j];
+        properties += player.owned_properties.property_owned[j];
         for (int k = 0; k < 3; k++) {
-            if (player.properties[j][k] != NONE) {
-                hotels += board[player.properties[j][k]].buildings.no_of_hotels;
-                net_worth += board[player.properties[j][k]].value.market_price;
-                net_worth += board[player.properties[j][k]].buildings.building_value;
+            if (player.owned_properties.properties[j][k] != NONE) {
+                hotels += board[player.owned_properties.properties[j][k]].buildings.no_of_hotels;
+                net_worth += board[player.owned_properties.properties[j][k]].value.market_price;
+                net_worth += board[player.owned_properties.properties[j][k]].buildings.building_value;
             }
         }
     }
 
     for (int i = 0; i < 4; i++) {
-        if (player.railways[i] != NONE) {
-            net_worth += board[player.railways[i]].value.market_price;
+        if (player.owned_properties.railways[i] != NONE) {
+            net_worth += board[player.owned_properties.railways[i]].value.market_price;
         }
     }
 
     for (int i = 0; i < 2; i++) {
-        if (player.utilities[i] != NONE) {
-            net_worth += board[player.utilities[i]].value.market_price;
+        if (player.owned_properties.utilities[i] != NONE) {
+            net_worth += board[player.owned_properties.utilities[i]].value.market_price;
         }
     }
 
@@ -93,26 +95,55 @@ Status calculate_player_status(Player player, Cell *board) {
 void buy(Player *player, Cell *place) {
     if (place->owner == BANK_OF_CEYLON && player->cash >= place->value.market_price) {
         place->owner = player->id;
+        place->ownerptr = player;
 
         printf("%s purchased %s for LKR %i.\n", player->name, place->name, place->value.market_price);
         player->cash -= place->value.market_price;
         printf("Remaining Balance : LKR %i.\n\n", player->cash);
 
         if (place->type == PROPERTY) { 
-            player->properties[place->group][player->property_owned[place->group]] = player->place;
-            player->property_owned[place->group]++;
+            player->owned_properties.properties[place->group][player->owned_properties.property_owned[place->group]] = player->place;
+            player->owned_properties.property_owned[place->group]++;
         } else if (place->type == RAILWAY) {
-            player->railways[player->railway_owned] = player->place;
-            player->railway_owned++;
+            player->owned_properties.railways[player->owned_properties.railway_owned] = player->place;
+            player->owned_properties.railway_owned++;
         } else if (place->type == UTILITY) {
-            player->utilities[player->utilities_owned] = player->place;
-            player->utilities_owned++;
+            player->owned_properties.utilities[player->owned_properties.utilities_owned] = player->place;
+            player->owned_properties.utilities_owned++;
         }
     }
 }
 
-void rent(Player players[], int player, Cell *place) {
-    if (place->owner != players[player].id) {
+void rent(Player *player, Cell *place) {
+    if (place->owner != player->id && place->type == PROPERTY) {
+        int rent = place->value.base_rent;
 
+        player->cash -= rent;
+        place->ownerptr->cash += rent;
+
+        printf("%s landed on %s.\n", player->name, place->name);
+        printf("Rent Paid : LKR %i.\n", rent);
+        printf("Owner : %s.\n\n", place->ownerptr->name);        
+
+    } else if (place->owner != player->id && place->type == RAILWAY) {
+        int rent_values[] = {250, 500, 1000, 2000};
+        int rent = rent_values[place->ownerptr->owned_properties.railway_owned - 1];
+        
+        player->cash -= rent;
+        place->ownerptr->cash += rent;
+
+        printf("%s landed on %s.\n", player->name, place->name);
+        printf("Rent Paid : LKR %i.\n", rent);
+        printf("Owner : %s.\n\n", place->ownerptr->name);
+    } else if (place->owner != player->id && place->type == UTILITY) {
+        int rent_values[] = {4 * player->die_roll, 10 * player->die_roll};
+        int rent = rent_values[place->ownerptr->owned_properties.utilities_owned - 1];
+        
+        player->cash -= rent;
+        place->ownerptr->cash += rent;
+
+        printf("%s landed on %s.\n", player->name, place->name);
+        printf("Rent Paid : LKR %i.\n", rent);
+        printf("Owner : %s.\n\n", place->ownerptr->name);
     }
 }

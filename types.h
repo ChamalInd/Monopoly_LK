@@ -10,7 +10,33 @@
 #define NO_OF_CELLS  40
 #define TRUE          1
 #define FALSE         0
-#define NONE         -1  
+#define NONE         -1 
+
+// Declaring data structures required for players
+typedef struct{
+    int total_properties;
+    int hotels_built;
+    int net_worth;
+} Status;
+
+typedef struct {
+    int properties[8][3];
+    int property_owned[8];
+    int railways[4];
+    int railway_owned;
+    int utilities[2];
+    int utilities_owned;
+} Owned;
+
+typedef struct {
+    char *name;
+    int id;
+    int play_order;
+    int die_roll;
+    int cash;
+    int place;
+    Owned owned_properties;
+} Player;
 
 // Declaring data structures required to build the board.
 typedef enum {
@@ -53,33 +79,11 @@ typedef struct {
     Type type;
     Color group;
     Ownership owner;
+    Player *ownerptr;
     Values value;
     Building buildings; 
     Mortgage mortgage;
 } Cell;
-
-
-// Declaring data structures required for players
-typedef struct{
-    int total_properties;
-    int hotels_built;
-    int net_worth;
-} Status;
-
-typedef struct {
-    char *name;
-    int id;
-    int play_order;
-    int die_roll;
-    int cash;
-    int place;
-    int properties[8][3];
-    int property_owned[8];
-    int railways[4];
-    int railway_owned;
-    int utilities[2];
-    int utilities_owned;
-} Player;
 
 
 #endif

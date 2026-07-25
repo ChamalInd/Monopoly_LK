@@ -20,6 +20,6 @@ void initialize_players(Player players[]);
 void print_player(Player players[]);
 Status calculate_player_status(Player player, Cell *board);
 void buy(Player *player, Cell *place);
-void rent(Player players[], int player, Cell *place);
+void rent(Player *player, Cell *place);
 
 #endif
