@@ -57,9 +57,15 @@ void print_player(Player players[]) {
 void buy(Player *player, Cell *place) {
     if (place->owner == BANK_OF_CEYLON && player->cash >= place->value.market_price) {
         place->owner = player->id;
-        printf("%s purchased %s for LKR %i.\n", player->name, place->name, place->value.market_price);
+
+        char price[20], cash[20];
+        format_cash_value(place->value.market_price, price);
+        format_cash_value(player->cash, cash);
+
+        printf("%s purchased %s for LKR %s.\n", player->name, place->name, price);
         player->cash -= place->value.market_price;
-        printf("Remaining Balance : LKR %i.\n\n", player->cash);
+        printf("Remaining Balance : LKR %s.\n\n", cash);
+        
         if (place->type == PROPERTY) { 
             player->properties[place->group][player->property_owned[place->group]] = player->place;
             player->property_owned[place->group]++;

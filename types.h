@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define NO_OF_PLAYERS 4
 #define NO_OF_CELLS  40
