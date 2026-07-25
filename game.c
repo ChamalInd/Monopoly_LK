@@ -3,7 +3,7 @@
 
 void print_game(int game_round, Player players[], Cell board[]) {
     if (game_round == 0) {
-        printf("MONOPOLY-LK Simulation\n\nPlayer 1 : Aggressive Investor\nPlayer 2 : Conservative Banker\nPlayer 3 : Risk Taker\nPlayer 4 : Opportunistic Trader\n\nEach player begins with LKR 30,000.\n\n");
+        printf("MONOPOLY-LK Simulation\n\nPlayer 1 : Aggressive Investor\nPlayer 2 : Conservative Banker\nPlayer 3 : Risk Taker\nPlayer 4 : Opportunistic Trader\n\nEach player begins with LKR 30000.\n\n");
     } else {
         for (int i = 0; i < 45; i++) {
             printf("=");
@@ -14,50 +14,15 @@ void print_game(int game_round, Player players[], Cell board[]) {
         }
         printf("\n");
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            int properties = 0, hotels = 0;
-            for (int j = 0; j < 8; j++) {
-                properties += players[i].property_owned[j];
-                for (int k = 0; k < 3; k++) {
-                    if (players[i].properties[j][k] != NONE) {
-                        hotels += board[players[i].properties[j][k]].buildings.no_of_hotels;
-                    }
-                }
-            }
+            Status player_status = calculate_player_status(players[i], board);
 
-            char cash[20], worth[20];
-            format_cash_value(players[i].cash, cash);
-            format_cash_value(players[i].cash, worth);
-
-            printf("\n%s\nCash : LKR %s\nNet Worth : LKR %s\nProperties : %i\nHotels : %i\n\n", players[i].name, cash, worth, properties, hotels);
+            printf("\n%s\nCash : LKR %i\nNet Worth : LKR %i\nProperties : %i\nHotels : %i\n\n", players[i].name, players[i].cash, player_status.net_worth, player_status.total_properties, player_status.hotels_built);
             for (int j = 0; j < 45; j++) {
                 printf("-");
             }
             printf("\n");
         }
         printf("\n");
-    }
-}
-
-void format_cash_value(int amount, char *word) {
-    int temp = amount;
-    int len = 0, total = 0;
-    char temp_word[20];
-
-    sprintf(temp_word, "%i", amount);
-    while (temp > 0) {
-        len++;
-        temp /= 10;
-    }
-    total = len + ((len - 1) / 3);
-    word[total] = '\0';
-
-    for (int i = len - 1, count = 0; i >= 0; i--, count++) {
-        if (count >0 && count % 3 == 0) {
-            total--;
-            word[total] = ',';
-        }
-        total--;
-        word[total] = temp_word[i];
     }
 }
 
@@ -158,9 +123,7 @@ void game_loop(int game_round, Player players[], Cell board[]) {
             players[current_player].cash += 2000;
             round_tracker[current_player] = 1;
             printf("%s passed GO.\n", players[current_player].name);
-            char cash[20];
-            format_cash_value(players[current_player].cash, cash);
-            printf("Collected LKR 2,000.\nCurrent Balance LKR %s.\n\n", cash);
+            printf("Collected LKR 2000.\nCurrent Balance LKR %i.\n\n", players[current_player].cash);
         }
 
         for (int i = 0; i < NO_OF_PLAYERS; i++) {

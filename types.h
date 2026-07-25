@@ -40,6 +40,7 @@ typedef struct {
     int price_of_house;
     int no_of_hotels;
     int price_of_hotel;
+    int building_value;
 } Building;
 
 typedef struct {
@@ -56,6 +57,14 @@ typedef struct {
     Building buildings; 
     Mortgage mortgage;
 } Cell;
+
+
+// Declaring data structures required for players
+typedef struct{
+    int total_properties;
+    int hotels_built;
+    int net_worth;
+} Status;
 
 typedef struct {
     char *name;
