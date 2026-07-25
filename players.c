@@ -10,25 +10,47 @@ void initialize_players(Player players[]) {
             .name = player_names[i],
             .id = plays[i],
             .play_order = 5, // set as 5 for sorting process when deciding the player order
-            .die_roll = 0,
+            .die_roll = NONE,
             .cash = 30000,
             .place = 0,
             .properties = {
-                {0, 0, 0},
-                {0, 0, 0},
-                {0, 0, 0},
-                {0, 0, 0},
-                {0, 0, 0},
-                {0, 0, 0},
-                {0, 0, 0},
-                {0, 0, 0}
+                {NONE, NONE, NONE},
+                {NONE, NONE, NONE},
+                {NONE, NONE, NONE},
+                {NONE, NONE, NONE},
+                {NONE, NONE, NONE},
+                {NONE, NONE, NONE},
+                {NONE, NONE, NONE},
+                {NONE, NONE, NONE}
             },
             .property_owned = {0, 0, 0, 0, 0, 0, 0, 0},
-            .railways = {0, 0, 0, 0},
+            .railways = {NONE, NONE, NONE, NONE},
             .railway_owned = 0,
-            .utilities = {0, 0},
+            .utilities = {NONE, NONE},
             .utilities_owned = 0
         };
+    }
+}
+
+void print_player(Player players[]) {
+    for (int i = 0; i < NO_OF_PLAYERS; i++) {
+        printf("Name: %s\nID: %i\nPlay Order: %i\nCash: %i\nPlace: %i\n", players[i].name, players[i].id, players[i].play_order, players[i].cash, players[i].place);
+        printf("Properties: ");
+        for (int x = 0; x < 8; x++) {
+            printf("\n%i\t", x);
+            for (int y = 0; y < 3; y++) {
+                printf("%i\t", players[i].properties[x][y]);
+            }
+        }
+        printf("\nRailways: ");
+        for (int x = 0; x < 4; x++) {
+            printf("%i\t", players[i].railways[x]);
+        }
+        printf("\nUtilities: ");
+        for (int x = 0; x < 2; x++) {
+            printf("%i\t", players[i].utilities[x]);
+        }
+        printf("\n\n");
     }
 }
 
@@ -40,16 +62,19 @@ void buy(Player *player, Cell *place) {
         printf("Remaining Balance : LKR %i.\n\n", player->cash);
         if (place->type == PROPERTY) { 
             player->properties[place->group][player->property_owned[place->group]] = player->place;
+            player->property_owned[place->group]++;
         } else if (place->type == RAILWAY) {
             player->railways[player->railway_owned] = player->place;
+            player->railway_owned++;
         } else if (place->type == UTILITY) {
             player->utilities[player->utilities_owned] = player->place;
+            player->utilities_owned++;
         }
     }
 }
 
-void rent(Player players[], int player, Cell place) {
-    if (place.owner != players[player].id) {
+void rent(Player players[], int player, Cell *place) {
+    if (place->owner != players[player].id) {
 
     }
 }

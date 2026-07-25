@@ -1,9 +1,36 @@
 // Game controller and simulation engine
 #include "functions.h"
 
-void print_game(int *game_round) {
-    if (*game_round == 0) {
+void print_game(int game_round, Player players[], Cell board[]) {
+    if (game_round == 0) {
         printf("MONOPOLY-LK Simulation\n\nPlayer 1 : Aggressive Investor\nPlayer 2 : Conservative Banker\nPlayer 3 : Risk Taker\nPlayer 4 : Opportunistic Trader\n\nEach player begins with LKR 30,000.\n\n");
+    } else {
+        for (int i = 0; i < 45; i++) {
+            printf("=");
+        }
+        printf("\nRound %i Summary\n", game_round);
+        for (int i = 0; i < 45; i++) {
+            printf("=");
+        }
+        printf("\n");
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
+            int properties = 0, hotels = 0;
+            for (int j = 0; j < 8; j++) {
+                properties += players[i].property_owned[j];
+                for (int k = 0; k < 3; k++) {
+                    if (players[i].properties[j][k] != NONE) {
+                        hotels += board[players[i].properties[j][k]].buildings.no_of_hotels;
+                    }
+                }
+            }
+
+            printf("\n%s\nCash : LKR %i\nNet Worth : LKR %i\nProperties : %i\nHotels : %i\n\n", players[i].name, players[i].cash, players[i].cash, properties, hotels);
+            for (int j = 0; j < 45; j++) {
+                printf("-");
+            }
+            printf("\n");
+        }
+        printf("\n");
     }
 }
 
@@ -83,32 +110,49 @@ void decide_player_order(Player players[]) {
 }
 
 void game_loop(int game_round, Player players[], Cell board[]) {
-    int current_player = 0, pass_go = FALSE;
+    int current_player = 0, pass_go = FALSE, round_done = TRUE;
+    int round_tracker[] = {0, 0, 0, 0};
     while (game_round < 500) {
         pass_go = FALSE;
+        round_done = TRUE;
 
         players[current_player].die_roll = dice_roll();
         printf("%s rolled %i.\n", players[current_player].name, players[current_player].die_roll);
         
         printf("%s moves from Square %i ", players[current_player].name, players[current_player].place + 1);
         players[current_player].place += players[current_player].die_roll;
-        if (players[current_player].place > 39) {
+        if (players[current_player].place >= 39) {
             pass_go = TRUE;
         }
-        players[current_player].place %= 39;
+        players[current_player].place %= NO_OF_CELLS;
         printf("to Square %i.\n\n", players[current_player].place + 1);
 
         if (pass_go) {
             players[current_player].cash += 2000;
+            round_tracker[current_player] = 1;
             printf("%s passed GO.\n", players[current_player].name);
             printf("Collected LKR 2000.\nCurrent Balance LKR %i.\n\n", players[current_player].cash);
         }
+
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
+            if (round_tracker[i] == 0) {
+                round_done = FALSE;
+                break;
+            }
+        }
+
+        if (round_done) {
+            game_round++;
+            for (int i = 0; i < NO_OF_PLAYERS; i++) {
+                round_tracker[i] = 0;
+            }
+            print_game(game_round, players, board);
+        }
         
         buy(&players[current_player], &board[players[current_player].place]);
-        rent(players, current_player, board[players[current_player].place]);
+        rent(players, current_player, &board[players[current_player].place]);
 
         current_player++;
-        current_player %= 4;
-        game_round++;
+        current_player %= NO_OF_PLAYERS;
     } 
 }

@@ -9,11 +9,12 @@ int main(void) {
 
     srand(1);
 
-    print_game(&game_round);
+    print_game(game_round, players, board);
     initialize_players(players);
     decide_player_order(players);
     generate_board(board);
-    // game_loop(game_round, players, board);
-    print_board(board);
+    game_loop(game_round, players, board);
+    // print_board(board);
+    // print_player(players);
     return 0;
 }
