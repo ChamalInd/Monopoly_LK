@@ -56,7 +56,7 @@ void generate_board(Cell board[]) {
         RAILWAY,    EVENT,      PROPERTY,       BANK,       PROPERTY
     };
 
-    Color cell_groups[NO_OF_CELLS] = {
+    Color cell_colors[NO_OF_CELLS] = {
         NO_COLOR,   BROWN,      NO_COLOR,    BROWN,      NO_COLOR,
         NO_COLOR,   LIGHT_BLUE, NO_COLOR,    LIGHT_BLUE, LIGHT_BLUE,
         NO_COLOR,   PINK,       NO_COLOR,    PINK,       PINK,
@@ -192,7 +192,7 @@ void generate_board(Cell board[]) {
         board[i] = (Cell) {
             .name = cell_names[i],
             .type = cell_types[i],
-            .group = cell_groups[i],
+            .group = cell_colors[i],
             .owner = cell_owners[i],
             .ownerptr = NULL,
             .value = (Values) {

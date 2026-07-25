@@ -101,7 +101,7 @@ void decide_player_order(Player players[]) {
 
 }
 
-void game_loop(int game_round, Player players[], Cell board[]) {
+void game_loop(int game_round, Player players[], Cell board[], Cell *property_groups[][3]) {
     int current_player = 0, pass_go = FALSE, round_done = TRUE;
     int round_tracker[] = {0, 0, 0, 0};
     while (TRUE) {
@@ -134,6 +134,7 @@ void game_loop(int game_round, Player players[], Cell board[]) {
         }
 
         buy(&players[current_player], &board[players[current_player].place]);
+        constructions(&players[current_player], &board[players[current_player].place], property_groups);
         rent(&players[current_player], &board[players[current_player].place]);
 
         if (round_done) {
