@@ -31,6 +31,7 @@ typedef struct {
 typedef struct {
     char *name;
     int id;
+    int isBankrupt;
     int play_order;
     int die_roll;
     int cash;

@@ -18,7 +18,8 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
 // Functions player.c
 void initialize_players(Player players[]);
 void print_player(Player players[]);
-Status calculate_player_status(Player player, Cell *board);
+Status calculate_player_status(Player player, Cell board[]);
+void check_for_bankruptcy(Player *player, Cell board[]);
 void buy(Player *player, Cell *place);
 void rent(Player *player, Cell *place);
 void constructions(Player *player, Cell *place, Cell *property_groups[][3]);

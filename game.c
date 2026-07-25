@@ -105,6 +105,29 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
     int current_player = 0, pass_go = FALSE, round_done = TRUE;
     int round_tracker[] = {0, 0, 0, 0};
     while (TRUE) {
+        check_for_bankruptcy(&players[current_player], board);
+
+        if (players[current_player].isBankrupt) {
+            current_player++;
+            current_player %= NO_OF_PLAYERS;
+            continue;
+        }
+
+        int game_over = TRUE;
+
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
+            if (players[i].id != players[current_player].id && !players[i].isBankrupt) {
+                game_over = FALSE;
+                break;
+            }
+        }
+
+        if (game_over) {
+            game_round++;
+            print_game(game_round, players, board);
+            break;
+        }
+
         pass_go = FALSE;
         round_done = TRUE;
 

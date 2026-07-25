@@ -9,6 +9,7 @@ void initialize_players(Player players[]) {
         players[i] = (Player) {
             .name = player_names[i],
             .id = plays[i],
+            .isBankrupt = FALSE,
             .play_order = 5, // set as 5 for sorting process when deciding the player order
             .die_roll = NONE,
             .cash = 30000,
@@ -56,7 +57,7 @@ void print_player(Player players[]) {
     }
 }
 
-Status calculate_player_status(Player player, Cell *board) {
+Status calculate_player_status(Player player, Cell board[]) {
     int properties = 0, hotels = 0, net_worth = 0;
     for (int j = 0; j < 8; j++) {
         properties += player.owned_properties.property_owned[j];
@@ -90,6 +91,35 @@ Status calculate_player_status(Player player, Cell *board) {
     };
 
     return status;
+}
+
+void check_for_bankruptcy(Player *player, Cell board[]) {
+    Status player_status = calculate_player_status(*player, board);
+    if (player_status.net_worth > 0) {
+        return;
+    }
+
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (player->owned_properties.properties[i][j] != NONE && board[player->owned_properties.properties[i][j]].mortgage.status == UNMORTGAGED){
+                return;
+            }
+        }
+    }
+
+    for (int i = 0; i < 4; i++) {
+        if (player->owned_properties.railways[i] != NONE && board[player->owned_properties.railways[i]].mortgage.status == UNMORTGAGED) {
+            return;
+        }
+    }
+
+    for (int i = 0; i < 2; i++) {
+        if (player->owned_properties.utilities[i] != NONE && board[player->owned_properties.utilities[i]].mortgage.status == UNMORTGAGED) {
+            return;
+        }
+    }
+
+    player->isBankrupt = TRUE;
 }
 
 void buy(Player *player, Cell *place) {
