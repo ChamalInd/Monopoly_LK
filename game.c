@@ -105,12 +105,19 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
     int current_player = 0, pass_go = FALSE, round_done = TRUE;
     int round_tracker[] = {0, 0, 0, 0};
     while (TRUE) {
-        check_for_bankruptcy(&players[current_player], board);
-
         if (players[current_player].isBankrupt) {
             current_player++;
             current_player %= NO_OF_PLAYERS;
             continue;
+        }
+
+        if (players[current_player].jail_status.isJailed == TRUE) {
+            check_for_jailed(&players[current_player], board);
+            if (players[current_player].jail_status.isJailed == TRUE) {
+                current_player++;
+                current_player %= NO_OF_PLAYERS;
+                continue;
+            }
         }
 
         int game_over = TRUE;
@@ -142,6 +149,8 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
         players[current_player].place %= NO_OF_CELLS;
         printf("to Square %i.\n\n", players[current_player].place + 1);
 
+        check_for_jailed(&players[current_player], board);
+
         if (pass_go) {
             players[current_player].cash += 2000;
             round_tracker[current_player] = 1;
@@ -159,6 +168,8 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
         buy(&players[current_player], &board[players[current_player].place]);
         constructions(&players[current_player], &board[players[current_player].place], property_groups);
         rent(&players[current_player], &board[players[current_player].place]);
+
+        check_for_bankruptcy(&players[current_player], board);
 
         if (round_done) {
             game_round++;

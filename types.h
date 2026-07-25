@@ -20,6 +20,11 @@ typedef struct{
 } Status;
 
 typedef struct {
+    int isJailed;
+    int no_of_rounds;
+} Jail;
+
+typedef struct {
     int properties[8][3];
     int property_owned[8];
     int railways[4];
@@ -32,6 +37,7 @@ typedef struct {
     char *name;
     int id;
     int isBankrupt;
+    Jail jail_status;
     int play_order;
     int die_roll;
     int cash;

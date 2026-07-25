@@ -10,6 +10,7 @@ void initialize_players(Player players[]) {
             .name = player_names[i],
             .id = plays[i],
             .isBankrupt = FALSE,
+            .jail_status = (Jail) {FALSE, 0},
             .play_order = 5, // set as 5 for sorting process when deciding the player order
             .die_roll = NONE,
             .cash = 30000,
@@ -120,6 +121,41 @@ void check_for_bankruptcy(Player *player, Cell board[]) {
     }
 
     player->isBankrupt = TRUE;
+}
+
+void check_for_jailed(Player *player, Cell board[]) {
+    if (player->place == 30) {
+        player->jail_status.isJailed = TRUE;
+        player->jail_status.no_of_rounds = 0;
+        player->place = 10;
+        printf("%s is in Jail.\n%s moves from Square 31 to 11.\n\n", player->name, player->name);
+
+    } else if (player->jail_status.isJailed == TRUE) {
+        player->jail_status.no_of_rounds++;
+
+        if (player->jail_status.no_of_rounds == 3) {
+            player->jail_status.isJailed = FALSE;
+            player->jail_status.no_of_rounds = 0;
+            printf("%s got out of Jail after spending 3 turns idle.\n\n", player->name);
+
+        } else {
+            int choice = rand() % 3;
+            if (choice == 0 && player->cash >= 300) {
+                player->cash -= 300;
+                player->jail_status.isJailed = FALSE;
+                player->jail_status.no_of_rounds = 0;
+                printf("%s got out of Jail by paying bail of LKR 300.\n\n", player->name);
+            } else if (choice == 1) {
+                int die_1 = (rand() % 6) + 1;
+                int die_2 = (rand() % 6) + 1;
+                if (die_1 == die_2) {
+                    player->jail_status.isJailed = FALSE;
+                    player->jail_status.no_of_rounds = 0;
+                    printf("%s got out of Jail by rolling doubles.\n\n", player->name);
+                }
+            }
+        }
+    }
 }
 
 void buy(Player *player, Cell *place) {
