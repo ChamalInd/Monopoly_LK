@@ -60,7 +60,6 @@ Status calculate_player_status(Player player, Cell *board) {
         properties += player.property_owned[j];
         for (int k = 0; k < 3; k++) {
             if (player.properties[j][k] != NONE) {
-                printf("%i ", player.properties[j][k]);
                 hotels += board[player.properties[j][k]].buildings.no_of_hotels;
                 net_worth += board[player.properties[j][k]].value.market_price;
                 net_worth += board[player.properties[j][k]].buildings.building_value;
@@ -70,14 +69,12 @@ Status calculate_player_status(Player player, Cell *board) {
 
     for (int i = 0; i < 4; i++) {
         if (player.railways[i] != NONE) {
-            printf("%i ", player.railways[i]);
             net_worth += board[player.railways[i]].value.market_price;
         }
     }
 
     for (int i = 0; i < 2; i++) {
         if (player.utilities[i] != NONE) {
-            printf("%i ", player.utilities[i]);
             net_worth += board[player.utilities[i]].value.market_price;
         }
     }
