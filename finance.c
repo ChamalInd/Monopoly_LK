@@ -17,11 +17,12 @@ void obtain_loan(Player *player, Cell board[]) {
 
         player->cash += max_loan;
         player->loan_status.no_of_loans++;
-        player->loan_status.total_payable = max_loan;
+        player->loan_status.total_payable += max_loan;
         player->loan_status.loan_duration = 20;
 
         printf("%s obtained a secured loan.\n", player->name);
         printf("Loan Amount : LKR %i.\n", (int) max_loan);
+        printf("Outstanding Loan Amount : LKR %i.\n", player->loan_status.total_payable);
         printf("\nCollateral : \n");
 
         for (int i = 0; i < NO_OF_CELLS; i++) {
@@ -125,6 +126,7 @@ void increase_loan(Player *player, Cell board[]) {
     Status player_status = calculate_player_status(*player, board);
     if (player_status.unmortgaged_properties > 0) {
         player->loan_status.no_of_loans = 0;
+        printf("%s decided to refinance existing loan of LKR %i.\n\n", player->name, player->loan_status.total_payable);
         obtain_loan(player, board);
     }
 }

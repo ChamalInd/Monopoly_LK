@@ -14,13 +14,15 @@ void print_game(int game_round, Player players[], Cell board[]) {
         }
         printf("\n");
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            Status player_status = calculate_player_status(players[i], board);
+            if (players[i].isBankrupt == FALSE) {
+                Status player_status = calculate_player_status(players[i], board);
 
-            printf("\n%s\nCash : LKR %i\nNet Worth : LKR %i\nProperties : %i\nHotels : %i\n\n", players[i].name, players[i].cash, player_status.net_worth, player_status.total_properties, player_status.hotels_built);
-            for (int j = 0; j < 45; j++) {
-                printf("-");
+                printf("\n%s\nCash : LKR %i\nNet Worth : LKR %i\nProperties : %i\nHotels : %i\n\n", players[i].name, players[i].cash, player_status.net_worth, player_status.total_properties, player_status.hotels_built);
+                for (int j = 0; j < 45; j++) {
+                    printf("-");
+                }
+                printf("\n");
             }
-            printf("\n");
         }
         printf("\n");
     }
@@ -108,7 +110,6 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
     int round_tracker[] = {0, 0, 0, 0};
     while (TRUE) {
         if (players[current_player].isBankrupt == TRUE) {
-            printf("%s's turn got skipped since he is bankrupt.\n\n", players[current_player].name);
             round_tracker[current_player] = 1;
             current_player++;
             current_player %= NO_OF_PLAYERS;
@@ -137,7 +138,6 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
         if (game_over) {
             game_round++;
             print_game(game_round, players, board);
-            printf("Game ended due to bankruptcy of other players.\n");
             break;
         }
 
@@ -176,12 +176,28 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
         constructions(&players[current_player], &board[players[current_player].place], property_groups);
         rent(&players[current_player], &board[players[current_player].place], board);
 
-        if (players[current_player].place == 30) { // Jail square
+        if (players[current_player].place == 2) { // Community Development Fund
+            printf("%s Landed on Community Development Fund.\n\n", players[current_player].name);
+
+        } else if (players[current_player].place == 7 || players[current_player].place == 22) { // National Event Card
+            printf("%s Landed on National Event Card.\n\n", players[current_player].name);
+            
+        } else if (players[current_player].place == 10) { // Just visiting
+            printf("%s Landed on Jail as a visit.\n\n", players[current_player].name);
+            
+        } else if (players[current_player].place == 17 || players[current_player].place == 33) { // Insurance
+            printf("%s Landed on Insurance.\n\n", players[current_player].name);
+            
+        } else if (players[current_player].place == 20) { // Free Parking
+            printf("%s Landed on Free Parking.\n\n", players[current_player].name);
+            
+        } else if (players[current_player].place == 30) { // Jail square
             check_for_jailed(&players[current_player], board);
 
         } else if (players[current_player].place == 38) { // Bank square
             check_for_bank_action(&players[current_player], board);
-        }
+
+        } 
 
         if (round_done) {
             game_round++;

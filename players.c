@@ -133,12 +133,14 @@ void announce_bankruptcy(Player *player, Cell board[]) {
             }
         }
 
+        Player current_players[NO_OF_PLAYERS];
+
         printf("%s has bankrupted.\n\n", player->name);
     }
 }
 
 void check_for_bank_action(Player *player, Cell board[]) {
-    printf("Landed on bank\n");
+    printf("%s Landed on Bank of Ceylon.\n", player->name);
     if (player->loan_status.no_of_loans == 0) {
         obtain_loan(player, board);
     } else {
@@ -169,33 +171,36 @@ void buy(Player *player, Cell *place) {
 void rent(Player *player, Cell *place, Cell board[]) {
     if (place->owner != player->id && place->owner > 0) {
         int rent = 0;
-        Status player_status = calculate_player_status(*player, board);
+        Status owner_status = calculate_player_status(*place->ownerptr, board);
+        Status player_status = calculate_player_status(*place->ownerptr, board);
         
         if (place->type == PROPERTY) {
             rent = place->value.base_rent + place->buildings.building_value;
 
         } else if (place->type == RAILWAY) {
             int rent_values[] = {250, 500, 1000, 2000};
-            rent = rent_values[player_status.total_railways - 1];
+            rent = rent_values[owner_status.total_railways - 1];
 
         } else if (place->type == UTILITY) {
             int rent_values[] = {4 * player->die_roll, 10 * player->die_roll};
-            rent = rent_values[player_status.total_utilities - 1];
+            rent = rent_values[owner_status.total_utilities - 1];
         }
 
-        player->cash -= rent;
-        place->ownerptr->cash += rent;
-
         printf("%s landed on %s.\n", player->name, place->name);
-        printf("Rent Paid : LKR %i.\n", rent);
-        printf("Owner : %s.\n\n", place->ownerptr->name); 
-
-        if (player->cash < 0) {
+        
+        if ((player->cash < 0 || (player->cash - rent) < 0) && player_status.net_worth < 0) {
             player->isBankrupt = TRUE;
             printf("%s is declared bankrupt for not having enough cash to pay rent.\n", player->name);
             printf("Available Balance : LKR %i.\n\n", player->cash);
             announce_bankruptcy(player, board);
-        }       
+            return;
+        }   
+        
+        player->cash -= rent;
+        place->ownerptr->cash += rent;
+
+        printf("Rent Paid : LKR %i.\n", rent);
+        printf("Owner : %s.\n\n", place->ownerptr->name); 
     } 
 }
 
