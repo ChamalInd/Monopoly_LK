@@ -108,7 +108,7 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
     int round_tracker[] = {0, 0, 0, 0};
     while (TRUE) {
         if (players[current_player].isBankrupt == TRUE) {
-            printf("%s turn got skipped since he is bankrupt.\n\n", players[current_player].name);
+            printf("%s's turn got skipped since he is bankrupt.\n\n", players[current_player].name);
             round_tracker[current_player] = 1;
             current_player++;
             current_player %= NO_OF_PLAYERS;
@@ -180,9 +180,7 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
             check_for_jailed(&players[current_player], board);
 
         } else if (players[current_player].place == 38) { // Bank square
-            if (players[current_player].loan_status.no_of_loans == 0) {
-                check_for_bank_action(&players[current_player], board);
-            }
+            check_for_bank_action(&players[current_player], board);
         }
 
         if (round_done) {

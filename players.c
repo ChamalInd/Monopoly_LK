@@ -108,7 +108,7 @@ void check_for_jailed(Player *player, Cell board[]) {
 
 void check_for_bankruptcy(Player *player, Cell board[]) {
     Status player_status = calculate_player_status(*player, board);
-    if (player_status.net_worth < 0) {
+    if (player_status.net_worth < 0 && player->isBankrupt == FALSE) {
         player->isBankrupt = TRUE;
         announce_bankruptcy(player, board);
     } 
@@ -144,7 +144,7 @@ void check_for_bank_action(Player *player, Cell board[]) {
     } else {
         int choice = rand() % 4;
         if (choice == 0) {
-            repay_part_of_loan(player);
+            repay_part_of_loan(player, board);
         } else if (choice == 1) {
             repay_full_loan(player, board);
         } else if (choice == 2) {

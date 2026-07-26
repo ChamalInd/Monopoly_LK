@@ -55,7 +55,7 @@ void check_for_loan_status(Player *player, Cell board[]) {
         player->loan_status.total_payable = 0;
         
         for (int i = 0; i < NO_OF_CELLS; i++) {
-            if (board[i].owner == player->id && board[i].mortgage.status == UNMORTGAGED) {
+            if (board[i].owner == player->id && board[i].mortgage.status == MORTGAGED) {
                 if (board[i].type == PROPERTY) {
                     board[i].mortgage.status = UNMORTGAGED;
                     board[i].owner = BANK_OF_CEYLON;
@@ -76,30 +76,43 @@ void check_for_loan_status(Player *player, Cell board[]) {
     }
 }
 
-void repay_part_of_loan(Player *player) {
+void repay_part_of_loan(Player *player, Cell board[]) {
     // randomly decides the partial payment
     int amount = rand() % player->loan_status.total_payable + 1;
-    player->cash -= amount;
-    player->loan_status.total_payable -= amount;
-    printf("%s repaid LKR %i.\n", player->name, amount);
-    printf("Outstanding Balance : \n\tLKR %i.\n\n", player->loan_status.total_payable);
+    if (player->cash >= amount) {
+        player->cash -= amount;
+        player->loan_status.total_payable -= amount;
+
+        if (player->loan_status.total_payable == 0) {
+            for (int i = 0; i < NO_OF_CELLS; i++) {
+                if (board[i].owner == player->id && board[i].mortgage.status == MORTGAGED) {
+                    board[i].mortgage.status = UNMORTGAGED;
+                }
+            }
+        }
+        
+        printf("%s repaid LKR %i.\n", player->name, amount);
+        printf("Outstanding Balance : \n\tLKR %i.\n\n", player->loan_status.total_payable);
+    }
 }
 
 void repay_full_loan(Player *player, Cell board[]) {
-    for (int i = 0; i < NO_OF_CELLS; i++) {
-        if (board[i].owner == player->id && board[i].mortgage.status == MORTGAGED) {
-            board[i].mortgage.status = UNMORTGAGED;
+    if (player->cash >= player->loan_status.total_payable) {
+        for (int i = 0; i < NO_OF_CELLS; i++) {
+            if (board[i].owner == player->id && board[i].mortgage.status == MORTGAGED) {
+                board[i].mortgage.status = UNMORTGAGED;
+            }
         }
+
+        printf("%s repaid LKR %i.\n", player->name, player->loan_status.total_payable);
+
+        player->cash -= player->loan_status.total_payable;
+        player->loan_status.total_payable = 0;
+        player->loan_status.no_of_loans = 0;
+        player->loan_status.loan_duration = 0;
+
+        printf("Outstanding Balance : \n\tLKR %i.\n\n", player->loan_status.total_payable);
     }
-
-    printf("%s repaid LKR %i.\n", player->name, player->loan_status.total_payable);
-
-    player->cash -= player->loan_status.total_payable;
-    player->loan_status.total_payable = 0;
-    player->loan_status.no_of_loans = 0;
-    player->loan_status.loan_duration = 0;
-
-    printf("Outstanding Balance : \n\tLKR %i.\n\n", player->loan_status.total_payable);
 }
 
 void extend_loan(Player *player) {

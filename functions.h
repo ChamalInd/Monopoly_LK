@@ -31,7 +31,7 @@ void constructions(Player *player, Cell *place, Cell *property_groups[][3]);
 void obtain_loan(Player *player, Cell board[]);
 void accumulated_interest(Player *player);
 void check_for_loan_status(Player *player, Cell board[]);
-void repay_part_of_loan(Player *player);
+void repay_part_of_loan(Player *player, Cell board[]);
 void repay_full_loan(Player *player, Cell board[]);
 void extend_loan(Player *player);
 void increase_loan(Player *player, Cell board[]);
