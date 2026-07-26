@@ -11,6 +11,7 @@ void initialize_players(Player players[]) {
             .id = plays[i],
             .isBankrupt = FALSE,
             .jail_status = (Jail) {FALSE, 0},
+            .loan_status = (Loan) {0, 0, 0, 2}, // 2 is a demo number
             .play_order = 5, // set as 5 for sorting process when deciding the player order
             .die_roll = NONE,
             .cash = 30000,
@@ -59,11 +60,14 @@ void print_player(Player players[]) {
 }
 
 Status calculate_player_status(Player player, Cell board[]) {
-    int properties = 0, hotels = 0, net_worth = 0;
+    int properties = 0, hotels = 0, net_worth = 0, unmortgaged_properties = 0;
     for (int j = 0; j < 8; j++) {
         properties += player.owned_properties.property_owned[j];
         for (int k = 0; k < 3; k++) {
             if (player.owned_properties.properties[j][k] != NONE) {
+                if (board[player.owned_properties.properties[j][k]].mortgage.status == UNMORTGAGED) {
+                    unmortgaged_properties++;
+                }
                 hotels += board[player.owned_properties.properties[j][k]].buildings.no_of_hotels;
                 net_worth += board[player.owned_properties.properties[j][k]].value.market_price;
                 net_worth += board[player.owned_properties.properties[j][k]].buildings.building_value;
@@ -73,12 +77,18 @@ Status calculate_player_status(Player player, Cell board[]) {
 
     for (int i = 0; i < 4; i++) {
         if (player.owned_properties.railways[i] != NONE) {
+            if (board[player.owned_properties.railways[i]].mortgage.status == UNMORTGAGED) {
+                unmortgaged_properties++;
+            }
             net_worth += board[player.owned_properties.railways[i]].value.market_price;
         }
     }
 
     for (int i = 0; i < 2; i++) {
         if (player.owned_properties.utilities[i] != NONE) {
+            if (board[player.owned_properties.utilities[i]].mortgage.status == UNMORTGAGED) {
+                unmortgaged_properties++;
+            }
             net_worth += board[player.owned_properties.utilities[i]].value.market_price;
         }
     }
@@ -87,6 +97,7 @@ Status calculate_player_status(Player player, Cell board[]) {
 
     Status status = (Status) {
         .total_properties = properties,
+        .unmortgaged_properties = unmortgaged_properties,
         .hotels_built = hotels,
         .net_worth = net_worth
     };
@@ -124,7 +135,7 @@ void check_for_bankruptcy(Player *player, Cell board[]) {
 }
 
 void check_for_jailed(Player *player, Cell board[]) {
-    if (player->place == 30) {
+    if (player->jail_status.isJailed == FALSE) {
         player->jail_status.isJailed = TRUE;
         player->jail_status.no_of_rounds = 0;
         player->place = 10;
@@ -158,6 +169,10 @@ void check_for_jailed(Player *player, Cell board[]) {
     }
 }
 
+void check_for_bank_action(Player *player, Cell board[]) {
+    obtain_loan(player, board);
+}
+
 void buy(Player *player, Cell *place) {
     if (place->owner == BANK_OF_CEYLON && player->cash >= place->value.market_price) {
         place->owner = player->id;
@@ -182,7 +197,7 @@ void buy(Player *player, Cell *place) {
 
 void rent(Player *player, Cell *place) {
     if (place->owner != player->id && place->owner > 0) {
-        int rent;
+        int rent = 0;
         if (place->type == PROPERTY) {
             rent = place->value.base_rent;
 
@@ -221,7 +236,7 @@ void constructions(Player *player, Cell *place, Cell *property_groups[][3]) {
                 return;
             }
         }
-        if (place->buildings.no_of_houses < 4 && place->buildings.no_of_hotels == 0 && player->cash > place->buildings.price_of_house) {
+        if (place->buildings.no_of_houses < 4 && place->buildings.no_of_hotels == 0 && player->cash >= place->buildings.price_of_house) {
             for (int i = 0; i < 3; i++) {
                 if (property_groups[place->group][i] == NULL) {
                     continue;
@@ -236,7 +251,7 @@ void constructions(Player *player, Cell *place, Cell *property_groups[][3]) {
             printf("%s constructed one house on %s.\n", player->name, place->name);
             printf("Construction cost : LKR %i.\n\n", place->buildings.price_of_house);
         }
-        if (place->buildings.no_of_houses == 4) {
+        if (place->buildings.no_of_houses == 4 && player->cash >= place->buildings.price_of_hotel) {
             place->buildings.no_of_houses = 0;
             place->buildings.no_of_hotels++;
             player->cash -= place->buildings.price_of_hotel;

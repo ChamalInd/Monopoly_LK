@@ -15,6 +15,7 @@
 // Declaring data structures required for players
 typedef struct{
     int total_properties;
+    int unmortgaged_properties;
     int hotels_built;
     int net_worth;
 } Status;
@@ -23,6 +24,13 @@ typedef struct {
     int isJailed;
     int no_of_rounds;
 } Jail;
+
+typedef struct {
+    int no_of_loans;
+    int loan_duration;
+    int total_payable;
+    int interest_rate;
+} Loan;
 
 typedef struct {
     int properties[8][3];
@@ -38,6 +46,7 @@ typedef struct {
     int id;
     int isBankrupt;
     Jail jail_status;
+    Loan loan_status;
     int play_order;
     int die_roll;
     int cash;

@@ -8,11 +8,8 @@ int main(void) {
     int game_round = 0;
 
     srand(1);
-    // 1 = constructions will occur
-    // 5 = tie occur
+    // 1 = tie occur
 
-
-    print_game(game_round, players, board);
     initialize_players(players);
     decide_player_order(players);
 
@@ -27,6 +24,8 @@ int main(void) {
         {&board[31], &board[32], &board[34]},
         {&board[37], &board[39], NULL}
     };
+
+    print_game(game_round, players, board);
 
     game_loop(game_round, players, board, property_groups);
     // print_board(board);

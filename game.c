@@ -27,7 +27,9 @@ void print_game(int game_round, Player players[], Cell board[]) {
 }
 
 int dice_roll(void) {
-    return (rand() % 11) + 2;
+    int die_1 = (rand() % 6) + 1;
+    int die_2 = (rand() % 6) + 1;
+    return die_1 + die_2;
 }
 
 void sort_players(Player players[]) {
@@ -132,6 +134,7 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
         if (game_over) {
             game_round++;
             print_game(game_round, players, board);
+            printf("Game ended due to bankruptcy of other players.\n");
             break;
         }
 
@@ -149,13 +152,14 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
         players[current_player].place %= NO_OF_CELLS;
         printf("to Square %i.\n\n", players[current_player].place + 1);
 
-        check_for_jailed(&players[current_player], board);
-
         if (pass_go) {
             players[current_player].cash += 2000;
             round_tracker[current_player] = 1;
             printf("%s passed GO.\n", players[current_player].name);
             printf("Collected LKR 2000.\nCurrent Balance LKR %i.\n\n", players[current_player].cash);
+
+            accumulated_interest(&players[current_player]);
+            check_for_loan_status(&players[current_player], board);
         }
 
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
@@ -168,6 +172,15 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
         buy(&players[current_player], &board[players[current_player].place]);
         constructions(&players[current_player], &board[players[current_player].place], property_groups);
         rent(&players[current_player], &board[players[current_player].place]);
+
+        if (players[current_player].place == 30) { // Jail square
+            check_for_jailed(&players[current_player], board);
+
+        } else if (players[current_player].place == 38) { // Bank square
+            if (players[current_player].loan_status.no_of_loans == 0) {
+                check_for_bank_action(&players[current_player], board);
+            }
+        }
 
         check_for_bankruptcy(&players[current_player], board);
 
