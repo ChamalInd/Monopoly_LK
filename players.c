@@ -170,7 +170,20 @@ void check_for_jailed(Player *player, Cell board[]) {
 }
 
 void check_for_bank_action(Player *player, Cell board[]) {
-    obtain_loan(player, board);
+    if (player->loan_status.no_of_loans == 0) {
+        obtain_loan(player, board);
+    } else {
+        int choice = rand() % 4;
+        if (choice == 0) {
+            
+        } else if (choice == 1) {
+
+        } else if (choice == 2) {
+
+        } else {
+            extend_loan(player);
+        }
+    }
 }
 
 void buy(Player *player, Cell *place) {

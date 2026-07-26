@@ -11,8 +11,6 @@ int main(void) {
     // 1 = tie occur
 
     initialize_players(players);
-    decide_player_order(players);
-
     generate_board(board);
     Cell *property_groups[8][3] = {
         {&board[1], &board[3], NULL},
@@ -27,6 +25,7 @@ int main(void) {
 
     print_game(game_round, players, board);
 
+    decide_player_order(players);
     game_loop(game_round, players, board, property_groups);
     // print_board(board);
     // print_player(players);

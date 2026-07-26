@@ -122,3 +122,9 @@ void check_for_loan_status(Player *player, Cell board[]) {
         printf("Collateral has been foreclosed.\nOutstanding debt cleared.\n\n");
     }
 }
+
+void extend_loan(Player *player) {
+    player->loan_status.loan_duration = 20;
+    printf("%s extended the loan of LKR %i.\n", player->name, player->loan_status.total_payable);
+    printf("Duration : %i.\n\n", player->loan_status.loan_duration);
+}

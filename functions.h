@@ -31,4 +31,6 @@ void obtain_loan(Player *player, Cell board[]);
 void accumulated_interest(Player *player);
 void check_for_loan_status(Player *player, Cell board[]);
 
+void extend_loan(Player *player);
+
 #endif

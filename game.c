@@ -84,7 +84,7 @@ void decide_player_order(Player players[]) {
 
         sort_players(players);
 
-        printf("\n\n");
+        printf("\n");
 
         assigned_players = 0;
         for (i = 0; i < NO_OF_PLAYERS; i++) {
