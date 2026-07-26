@@ -134,10 +134,10 @@ gcc *.c -o monopoly
 
 ## Tech Stack
 
-- **Language:** C (C99)
+- **Language:** C
 - **RNG:** `rand()` with seeded randomness (`srand`)
 - **Build:** GCC
 
 ## License
 
-This project was developed as part of the SCS 1301 — Introduction to Computer Programming course.
+This project was developed as part of the SCS 1301 — Data Structures and Program Design using C.
