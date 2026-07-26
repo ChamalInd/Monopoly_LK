@@ -7,7 +7,7 @@ int main(void) {
     Player players[NO_OF_PLAYERS];
     int game_round = 0;
 
-    srand(10);
+    srand(time(NULL));
     // 1 = tie occur
 
     initialize_players(players);
