@@ -19,11 +19,12 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
 void initialize_players(Player players[]);
 void print_player(Player players[]);
 Status calculate_player_status(Player player, Cell board[]);
-void check_for_bankruptcy(Player *player, Cell board[]);
 void check_for_jailed(Player *player, Cell board[]);
+void check_for_bankruptcy(Player *player, Cell board[]);
+void announce_bankruptcy(Player *player, Cell board[]);
 void check_for_bank_action(Player *player, Cell board[]);
 void buy(Player *player, Cell *place);
-void rent(Player *player, Cell *place);
+void rent(Player *player, Cell *place, Cell board[]);
 void constructions(Player *player, Cell *place, Cell *property_groups[][3]);
 
 // functions in finance.c

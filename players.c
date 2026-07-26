@@ -15,24 +15,7 @@ void initialize_players(Player players[]) {
             .play_order = 5, // set as 5 for sorting process when deciding the player order
             .die_roll = NONE,
             .cash = 30000,
-            .place = 0,
-            .owned_properties = (Owned) {
-                .properties = {
-                    {NONE, NONE, NONE},
-                    {NONE, NONE, NONE},
-                    {NONE, NONE, NONE},
-                    {NONE, NONE, NONE},
-                    {NONE, NONE, NONE},
-                    {NONE, NONE, NONE},
-                    {NONE, NONE, NONE},
-                    {NONE, NONE, NONE}
-                },
-                .property_owned = {0, 0, 0, 0, 0, 0, 0, 0},
-                .railways = {NONE, NONE, NONE, NONE},
-                .railway_owned = 0,
-                .utilities = {NONE, NONE},
-                .utilities_owned = 0
-            }
+            .place = 0
         };
     }
 }
@@ -40,99 +23,52 @@ void initialize_players(Player players[]) {
 void print_player(Player players[]) {
     for (int i = 0; i < NO_OF_PLAYERS; i++) {
         printf("Name: %s\nID: %i\nPlay Order: %i\nCash: %i\nPlace: %i\n", players[i].name, players[i].id, players[i].play_order, players[i].cash, players[i].place);
-        printf("Properties: ");
-        for (int x = 0; x < 8; x++) {
-            printf("\n%i\t", x);
-            for (int y = 0; y < 3; y++) {
-                printf("%i\t", players[i].owned_properties.properties[x][y]);
-            }
-        }
-        printf("\nRailways: ");
-        for (int x = 0; x < 4; x++) {
-            printf("%i\t", players[i].owned_properties.railways[x]);
-        }
-        printf("\nUtilities: ");
-        for (int x = 0; x < 2; x++) {
-            printf("%i\t", players[i].owned_properties.utilities[x]);
-        }
         printf("\n\n");
     }
 }
 
 Status calculate_player_status(Player player, Cell board[]) {
-    int properties = 0, hotels = 0, net_worth = 0, unmortgaged_properties = 0;
-    for (int j = 0; j < 8; j++) {
-        properties += player.owned_properties.property_owned[j];
-        for (int k = 0; k < 3; k++) {
-            if (player.owned_properties.properties[j][k] != NONE) {
-                if (board[player.owned_properties.properties[j][k]].mortgage.status == UNMORTGAGED) {
-                    unmortgaged_properties++;
-                }
-                hotels += board[player.owned_properties.properties[j][k]].buildings.no_of_hotels;
-                net_worth += board[player.owned_properties.properties[j][k]].value.market_price;
-                net_worth += board[player.owned_properties.properties[j][k]].buildings.building_value;
-            }
-        }
-    }
-
-    for (int i = 0; i < 4; i++) {
-        if (player.owned_properties.railways[i] != NONE) {
-            if (board[player.owned_properties.railways[i]].mortgage.status == UNMORTGAGED) {
-                unmortgaged_properties++;
-            }
-            net_worth += board[player.owned_properties.railways[i]].value.market_price;
-        }
-    }
-
-    for (int i = 0; i < 2; i++) {
-        if (player.owned_properties.utilities[i] != NONE) {
-            if (board[player.owned_properties.utilities[i]].mortgage.status == UNMORTGAGED) {
-                unmortgaged_properties++;
-            }
-            net_worth += board[player.owned_properties.utilities[i]].value.market_price;
-        }
-    }
+    int properties = 0, railways = 0, utilities = 0, hotels = 0, net_worth = 0, unmortgaged_properties = 0;
+    // Net worth = cash + property value + building value + railway value + utility value + insurance claims receivables - outstanding loans - accrued interest - taxes due
 
     net_worth += player.cash;
+
+    for (int i = 0; i < NO_OF_CELLS; i++) {
+        if (board[i].owner == player.id && board[i].type == PROPERTY) {
+            if (board[i].mortgage.status == UNMORTGAGED) {
+                unmortgaged_properties++;
+            }
+            hotels += board[i].buildings.no_of_hotels;
+            net_worth += board[i].value.market_price;
+            net_worth += board[i].buildings.building_value;
+            properties++;
+        } else if (board[i].owner == player.id && board[i].type == RAILWAY) {
+            if (board[i].mortgage.status == UNMORTGAGED) {
+                unmortgaged_properties++;
+            }
+            net_worth += board[i].value.market_price;
+            railways++;
+        } else if (board[i].owner == player.id && board[i].type == UTILITY) {
+            if (board[i].mortgage.status == UNMORTGAGED) {
+                unmortgaged_properties++;
+            }
+            net_worth += board[i].value.market_price;
+            utilities++;
+        }
+    }
+
     net_worth -= player.loan_status.total_payable;
 
     Status status = (Status) {
         .total_properties = properties,
+        .total_railways = railways,
+        .total_utilities = utilities,
         .unmortgaged_properties = unmortgaged_properties,
         .hotels_built = hotels,
         .net_worth = net_worth
     };
 
     return status;
-}
-
-void check_for_bankruptcy(Player *player, Cell board[]) {
-    Status player_status = calculate_player_status(*player, board);
-    if (player_status.net_worth > 0) {
-        return;
-    }
-
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 3; j++) {
-            if (player->owned_properties.properties[i][j] != NONE && board[player->owned_properties.properties[i][j]].mortgage.status == UNMORTGAGED){
-                return;
-            }
-        }
-    }
-
-    for (int i = 0; i < 4; i++) {
-        if (player->owned_properties.railways[i] != NONE && board[player->owned_properties.railways[i]].mortgage.status == UNMORTGAGED) {
-            return;
-        }
-    }
-
-    for (int i = 0; i < 2; i++) {
-        if (player->owned_properties.utilities[i] != NONE && board[player->owned_properties.utilities[i]].mortgage.status == UNMORTGAGED) {
-            return;
-        }
-    }
-
-    player->isBankrupt = TRUE;
 }
 
 void check_for_jailed(Player *player, Cell board[]) {
@@ -170,6 +106,37 @@ void check_for_jailed(Player *player, Cell board[]) {
     }
 }
 
+void check_for_bankruptcy(Player *player, Cell board[]) {
+    Status player_status = calculate_player_status(*player, board);
+    if (player_status.net_worth < 0) {
+        player->isBankrupt = TRUE;
+        announce_bankruptcy(player, board);
+    } 
+}
+
+void announce_bankruptcy(Player *player, Cell board[]) {
+    if (player->isBankrupt == TRUE) {
+        player->place = 0;
+
+        for (int i = 0; i < NO_OF_CELLS; i++) {
+            if (board[i].owner == player->id && board[i].type == PROPERTY) {
+                board[i].mortgage.status = UNMORTGAGED;
+                board[i].owner = BANK_OF_CEYLON;
+                board[i].ownerptr = NULL;
+                board[i].buildings.building_value = 0;
+                board[i].buildings.no_of_hotels = 0;
+                board[i].buildings.no_of_houses = 0;
+            } else if (board[i].owner == player->id && (board[i].type == UTILITY || board[i].type == RAILWAY)) {
+                board[i].mortgage.status = UNMORTGAGED;
+                board[i].owner = BANK_OF_CEYLON;
+                board[i].ownerptr = NULL;
+            }
+        }
+
+        printf("%s has bankrupted.\n\n", player->name);
+    }
+}
+
 void check_for_bank_action(Player *player, Cell board[]) {
     printf("Landed on bank\n");
     if (player->loan_status.no_of_loans == 0) {
@@ -196,48 +163,39 @@ void buy(Player *player, Cell *place) {
         printf("%s purchased %s for LKR %i.\n", player->name, place->name, place->value.market_price);
         player->cash -= place->value.market_price;
         printf("Remaining Balance : LKR %i.\n\n", player->cash);
-
-        if (place->type == PROPERTY) { 
-            player->owned_properties.properties[place->group][player->owned_properties.property_owned[place->group]] = player->place;
-            player->owned_properties.property_owned[place->group]++;
-        } else if (place->type == RAILWAY) {
-            player->owned_properties.railways[player->owned_properties.railway_owned] = player->place;
-            player->owned_properties.railway_owned++;
-        } else if (place->type == UTILITY) {
-            player->owned_properties.utilities[player->owned_properties.utilities_owned] = player->place;
-            player->owned_properties.utilities_owned++;
-        }
     }
 }
 
-void rent(Player *player, Cell *place) {
+void rent(Player *player, Cell *place, Cell board[]) {
     if (place->owner != player->id && place->owner > 0) {
         int rent = 0;
+        Status player_status = calculate_player_status(*player, board);
+        
         if (place->type == PROPERTY) {
             rent = place->value.base_rent + place->buildings.building_value;
 
-            player->cash -= rent;
-            place->ownerptr->cash += rent;
-
         } else if (place->type == RAILWAY) {
             int rent_values[] = {250, 500, 1000, 2000};
-            rent = rent_values[place->ownerptr->owned_properties.railway_owned - 1];
-        
-            player->cash -= rent;
-            place->ownerptr->cash += rent;
+            rent = rent_values[player_status.total_railways - 1];
 
         } else if (place->type == UTILITY) {
             int rent_values[] = {4 * player->die_roll, 10 * player->die_roll};
-            rent = rent_values[place->ownerptr->owned_properties.utilities_owned - 1];
-            
-            player->cash -= rent;
-            place->ownerptr->cash += rent;
+            rent = rent_values[player_status.total_utilities - 1];
         }
+
+        player->cash -= rent;
+        place->ownerptr->cash += rent;
 
         printf("%s landed on %s.\n", player->name, place->name);
         printf("Rent Paid : LKR %i.\n", rent);
-        printf("Owner : %s.\n\n", place->ownerptr->name);        
+        printf("Owner : %s.\n\n", place->ownerptr->name); 
 
+        if (player->cash < 0) {
+            player->isBankrupt = TRUE;
+            printf("%s is declared bankrupt for not having enough cash to pay rent.\n", player->name);
+            printf("Available Balance : LKR %i.\n\n", player->cash);
+            announce_bankruptcy(player, board);
+        }       
     } 
 }
 

@@ -7,23 +7,9 @@ void obtain_loan(Player *player, Cell board[]) {
     Status player_status = calculate_player_status(*player, board);
 
     if (player->loan_status.no_of_loans == 0 && player_status.unmortgaged_properties > 0) {
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (player->owned_properties.properties[i][j] != NONE && board[player->owned_properties.properties[i][j]].mortgage.status == UNMORTGAGED) {
-                    total_unmortgaged_property_value += board[player->owned_properties.properties[i][j]].mortgage.value;
-                }
-            }
-        }
-
-        for (int i = 0; i < 4; i++) {
-            if (player->owned_properties.railways[i] != NONE && board[player->owned_properties.railways[i]].mortgage.status == UNMORTGAGED) {
-                total_unmortgaged_property_value += board[player->owned_properties.railways[i]].mortgage.value;
-            }
-        }
-
-        for (int i = 0; i < 2; i++) {
-            if (player->owned_properties.utilities[i] != NONE && board[player->owned_properties.utilities[i]].mortgage.status == UNMORTGAGED) {
-                total_unmortgaged_property_value += board[player->owned_properties.utilities[i]].mortgage.value;
+        for (int i = 0; i < NO_OF_CELLS; i++) {
+            if (board[i].owner == player->id && board[i].mortgage.status == UNMORTGAGED) {
+                total_unmortgaged_property_value += board[i].mortgage.value;
             }
         }
 
@@ -37,26 +23,11 @@ void obtain_loan(Player *player, Cell board[]) {
         printf("%s obtained a secured loan.\n", player->name);
         printf("Loan Amount : LKR %i.\n", (int) max_loan);
         printf("\nCollateral : \n");
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (player->owned_properties.properties[i][j] != NONE && board[player->owned_properties.properties[i][j]].mortgage.status == UNMORTGAGED) {
-                    printf("\t%s\n", board[player->owned_properties.properties[i][j]].name);
-                    board[player->owned_properties.properties[i][j]].mortgage.status = MORTGAGED;
-                }
-            }
-        }
 
-        for (int i = 0; i < 4; i++) {
-            if (player->owned_properties.railways[i] != NONE && board[player->owned_properties.railways[i]].mortgage.status == UNMORTGAGED) {
-                printf("\t%s\n", board[player->owned_properties.railways[i]].name);
-                board[player->owned_properties.railways[i]].mortgage.status = MORTGAGED;
-            }
-        }
-
-        for (int i = 0; i < 2; i++) {
-            if (player->owned_properties.utilities[i] != NONE && board[player->owned_properties.utilities[i]].mortgage.status == UNMORTGAGED) {
-                printf("\t%s\n", board[player->owned_properties.utilities[i]].name);
-                board[player->owned_properties.utilities[i]].mortgage.status = MORTGAGED;
+        for (int i = 0; i < NO_OF_CELLS; i++) {
+            if (board[i].owner == player->id && board[i].mortgage.status == UNMORTGAGED) {
+                printf("\t%s\n", board[i].name);
+                board[i].mortgage.status = MORTGAGED;
             }
         }
 
@@ -83,38 +54,20 @@ void check_for_loan_status(Player *player, Cell board[]) {
         player->loan_status.no_of_loans = 0;
         player->loan_status.total_payable = 0;
         
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (player->owned_properties.properties[i][j] != NONE && board[player->owned_properties.properties[i][j]].mortgage.status == MORTGAGED) {
-                    board[player->owned_properties.properties[i][j]].mortgage.status = UNMORTGAGED;
-                    board[player->owned_properties.properties[i][j]].owner = BANK_OF_CEYLON;
-                    board[player->owned_properties.properties[i][j]].ownerptr = NULL;
-                    board[player->owned_properties.properties[i][j]].buildings.building_value = 0;
-                    board[player->owned_properties.properties[i][j]].buildings.no_of_hotels = 0;
-                    board[player->owned_properties.properties[i][j]].buildings.no_of_houses = 0;
-                    player->owned_properties.properties[i][j] = NONE;
-                    player->owned_properties.property_owned[i]--;
+        for (int i = 0; i < NO_OF_CELLS; i++) {
+            if (board[i].owner == player->id && board[i].mortgage.status == UNMORTGAGED) {
+                if (board[i].type == PROPERTY) {
+                    board[i].mortgage.status = UNMORTGAGED;
+                    board[i].owner = BANK_OF_CEYLON;
+                    board[i].ownerptr = NULL;
+                    board[i].buildings.building_value = 0;
+                    board[i].buildings.no_of_hotels = 0;
+                    board[i].buildings.no_of_houses = 0;
+                } else if (board[i].type == RAILWAY || board[i].type == UTILITY) {
+                    board[i].mortgage.status = UNMORTGAGED;
+                    board[i].owner = BANK_OF_CEYLON;
+                    board[i].ownerptr = NULL;
                 }
-            }
-        }
-
-        for (int i = 0; i < 4; i++) {
-            if (player->owned_properties.railways[i] != NONE && board[player->owned_properties.railways[i]].mortgage.status == MORTGAGED) {
-                board[player->owned_properties.railways[i]].mortgage.status = UNMORTGAGED;
-                board[player->owned_properties.railways[i]].owner = BANK_OF_CEYLON;
-                board[player->owned_properties.railways[i]].ownerptr = NULL;
-                player->owned_properties.railways[i] = NONE;
-                player->owned_properties.railway_owned--;
-            }
-        }
-
-        for (int i = 0; i < 2; i++) {
-            if (player->owned_properties.utilities[i] != NONE && board[player->owned_properties.utilities[i]].mortgage.status == MORTGAGED) {
-                board[player->owned_properties.utilities[i]].mortgage.status = UNMORTGAGED;
-                board[player->owned_properties.utilities[i]].owner = BANK_OF_CEYLON;
-                board[player->owned_properties.utilities[i]].ownerptr = NULL;
-                player->owned_properties.utilities[i] = NONE;
-                player->owned_properties.utilities_owned--;
             }
         }
 
@@ -133,23 +86,9 @@ void repay_part_of_loan(Player *player) {
 }
 
 void repay_full_loan(Player *player, Cell board[]) {
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 3; j++) {
-            if (player->owned_properties.properties[i][j] != NONE && board[player->owned_properties.properties[i][j]].mortgage.status == MORTGAGED) {
-                board[player->owned_properties.properties[i][j]].mortgage.status = UNMORTGAGED;
-            }
-        }
-    }
-
-    for (int i = 0; i < 4; i++) {
-        if (player->owned_properties.railways[i] != NONE && board[player->owned_properties.railways[i]].mortgage.status == MORTGAGED) {
-            board[player->owned_properties.railways[i]].mortgage.status = UNMORTGAGED;
-        }
-    }
-
-    for (int i = 0; i < 2; i++) {
-        if (player->owned_properties.utilities[i] != NONE && board[player->owned_properties.utilities[i]].mortgage.status == MORTGAGED) {
-            board[player->owned_properties.utilities[i]].mortgage.status = UNMORTGAGED;
+    for (int i = 0; i < NO_OF_CELLS; i++) {
+        if (board[i].owner == player->id && board[i].mortgage.status == MORTGAGED) {
+            board[i].mortgage.status = UNMORTGAGED;
         }
     }
 

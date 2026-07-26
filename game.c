@@ -107,11 +107,13 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
     int current_player = 0, pass_go = FALSE, round_done = TRUE;
     int round_tracker[] = {0, 0, 0, 0};
     while (TRUE) {
-        if (players[current_player].isBankrupt) {
+        if (players[current_player].isBankrupt == TRUE) {
+            printf("%s turn got skipped since he is bankrupt.\n\n", players[current_player].name);
+            round_tracker[current_player] = 1;
             current_player++;
             current_player %= NO_OF_PLAYERS;
             continue;
-        }
+        } 
 
         if (players[current_player].jail_status.isJailed == TRUE) {
             check_for_jailed(&players[current_player], board);
@@ -125,10 +127,11 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
         int game_over = TRUE;
 
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            if (players[i].id != players[current_player].id && !players[i].isBankrupt) {
+            check_for_bankruptcy(&players[i], board);
+            if (players[i].id != players[current_player].id && players[i].isBankrupt == FALSE) {
                 game_over = FALSE;
                 break;
-            }
+            } 
         }
 
         if (game_over) {
@@ -171,7 +174,7 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
 
         buy(&players[current_player], &board[players[current_player].place]);
         constructions(&players[current_player], &board[players[current_player].place], property_groups);
-        rent(&players[current_player], &board[players[current_player].place]);
+        rent(&players[current_player], &board[players[current_player].place], board);
 
         if (players[current_player].place == 30) { // Jail square
             check_for_jailed(&players[current_player], board);
@@ -181,8 +184,6 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
                 check_for_bank_action(&players[current_player], board);
             }
         }
-
-        check_for_bankruptcy(&players[current_player], board);
 
         if (round_done) {
             game_round++;

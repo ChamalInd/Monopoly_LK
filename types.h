@@ -15,6 +15,8 @@
 // Declaring data structures required for players
 typedef struct{
     int total_properties;
+    int total_railways;
+    int total_utilities;
     int unmortgaged_properties;
     int hotels_built;
     int net_worth;
@@ -33,15 +35,6 @@ typedef struct {
 } Loan;
 
 typedef struct {
-    int properties[8][3];
-    int property_owned[8];
-    int railways[4];
-    int railway_owned;
-    int utilities[2];
-    int utilities_owned;
-} Owned;
-
-typedef struct {
     char *name;
     int id;
     int isBankrupt;
@@ -51,7 +44,6 @@ typedef struct {
     int die_roll;
     int cash;
     int place;
-    Owned owned_properties;
 } Player;
 
 // Declaring data structures required to build the board.
