@@ -123,8 +123,56 @@ void check_for_loan_status(Player *player, Cell board[]) {
     }
 }
 
+void repay_part_of_loan(Player *player) {
+    // randomly decides the partial payment
+    int amount = rand() % player->loan_status.total_payable + 1;
+    player->cash -= amount;
+    player->loan_status.total_payable -= amount;
+    printf("%s repaid LKR %i.\n", player->name, amount);
+    printf("Outstanding Balance : \n\tLKR %i.\n\n", player->loan_status.total_payable);
+}
+
+void repay_full_loan(Player *player, Cell board[]) {
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (player->owned_properties.properties[i][j] != NONE && board[player->owned_properties.properties[i][j]].mortgage.status == MORTGAGED) {
+                board[player->owned_properties.properties[i][j]].mortgage.status = UNMORTGAGED;
+            }
+        }
+    }
+
+    for (int i = 0; i < 4; i++) {
+        if (player->owned_properties.railways[i] != NONE && board[player->owned_properties.railways[i]].mortgage.status == MORTGAGED) {
+            board[player->owned_properties.railways[i]].mortgage.status = UNMORTGAGED;
+        }
+    }
+
+    for (int i = 0; i < 2; i++) {
+        if (player->owned_properties.utilities[i] != NONE && board[player->owned_properties.utilities[i]].mortgage.status == MORTGAGED) {
+            board[player->owned_properties.utilities[i]].mortgage.status = UNMORTGAGED;
+        }
+    }
+
+    printf("%s repaid LKR %i.\n", player->name, player->loan_status.total_payable);
+
+    player->cash -= player->loan_status.total_payable;
+    player->loan_status.total_payable = 0;
+    player->loan_status.no_of_loans = 0;
+    player->loan_status.loan_duration = 0;
+
+    printf("Outstanding Balance : \n\tLKR %i.\n\n", player->loan_status.total_payable);
+}
+
 void extend_loan(Player *player) {
     player->loan_status.loan_duration = 20;
     printf("%s extended the loan of LKR %i.\n", player->name, player->loan_status.total_payable);
     printf("Duration : %i.\n\n", player->loan_status.loan_duration);
+}
+
+void increase_loan(Player *player, Cell board[]) {
+    Status player_status = calculate_player_status(*player, board);
+    if (player_status.unmortgaged_properties > 0) {
+        player->loan_status.no_of_loans = 0;
+        obtain_loan(player, board);
+    }
 }

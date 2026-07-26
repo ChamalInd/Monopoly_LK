@@ -94,6 +94,7 @@ Status calculate_player_status(Player player, Cell board[]) {
     }
 
     net_worth += player.cash;
+    net_worth -= player.loan_status.total_payable;
 
     Status status = (Status) {
         .total_properties = properties,
@@ -170,18 +171,19 @@ void check_for_jailed(Player *player, Cell board[]) {
 }
 
 void check_for_bank_action(Player *player, Cell board[]) {
+    printf("Landed on bank\n");
     if (player->loan_status.no_of_loans == 0) {
         obtain_loan(player, board);
     } else {
         int choice = rand() % 4;
         if (choice == 0) {
-            
+            repay_part_of_loan(player);
         } else if (choice == 1) {
-
+            repay_full_loan(player, board);
         } else if (choice == 2) {
-
-        } else {
             extend_loan(player);
+        } else {
+            increase_loan(player, board);
         }
     }
 }
