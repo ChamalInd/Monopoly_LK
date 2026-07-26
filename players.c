@@ -212,7 +212,7 @@ void rent(Player *player, Cell *place) {
     if (place->owner != player->id && place->owner > 0) {
         int rent = 0;
         if (place->type == PROPERTY) {
-            rent = place->value.base_rent;
+            rent = place->value.base_rent + place->buildings.building_value;
 
             player->cash -= rent;
             place->ownerptr->cash += rent;
@@ -260,7 +260,7 @@ void constructions(Player *player, Cell *place, Cell *property_groups[][3]) {
             }
             place->buildings.no_of_houses++;
             player->cash -= place->buildings.price_of_house;
-            place->buildings.building_value += place->buildings.price_of_house;
+            place->buildings.building_value = place->buildings.price_of_house * place->buildings.no_of_houses;
             printf("%s constructed one house on %s.\n", player->name, place->name);
             printf("Construction cost : LKR %i.\n\n", place->buildings.price_of_house);
         }
@@ -268,7 +268,7 @@ void constructions(Player *player, Cell *place, Cell *property_groups[][3]) {
             place->buildings.no_of_houses = 0;
             place->buildings.no_of_hotels++;
             player->cash -= place->buildings.price_of_hotel;
-            place->buildings.building_value += place->buildings.price_of_hotel;
+            place->buildings.building_value = place->buildings.price_of_hotel * place->buildings.no_of_hotels;
             printf("%s upgraded %s to a Hotel.\n\n", player->name, place->name);
         }
     }
