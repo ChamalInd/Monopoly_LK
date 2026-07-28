@@ -3,13 +3,20 @@
 
 void print_game(int game_round, Player players[], Cell board[]) {
     if (game_round == 0) {
-        printf("MONOPOLY-LK Simulation\n\nPlayer 1 : Aggressive Investor\nPlayer 2 : Conservative Banker\nPlayer 3 : Risk Taker\nPlayer 4 : Opportunistic Trader\n\nEach player begins with LKR 30000.\n\n");
+        for (int i = 0; i < 60; i++) {
+            printf("=");
+        }
+        printf("\nMONOPOLY-LK Simulation\n");
+        for (int i = 0; i < 60; i++) {
+            printf("=");
+        }
+        printf("\nPlayer 1 : Aggressive Investor\nPlayer 2 : Conservative Banker\nPlayer 3 : Risk Taker\nPlayer 4 : Opportunistic Trader\n\nEach player begins with LKR 30000.\n\n");
     } else {
-        for (int i = 0; i < 45; i++) {
+        for (int i = 0; i < 60; i++) {
             printf("=");
         }
         printf("\nRound %i Summary\n", game_round);
-        for (int i = 0; i < 45; i++) {
+        for (int i = 0; i < 60; i++) {
             printf("=");
         }
         printf("\n");
@@ -17,8 +24,8 @@ void print_game(int game_round, Player players[], Cell board[]) {
             if (players[i].isBankrupt == FALSE) {
                 Status player_status = calculate_player_status(players[i], board);
 
-                printf("\n%s\nCash : LKR %i\nNet Worth : LKR %i\nProperties : %i\nHotels : %i\n\n", players[i].name, players[i].cash, player_status.net_worth, player_status.total_properties, player_status.hotels_built);
-                for (int j = 0; j < 45; j++) {
+                printf("\n%s\nCash : LKR %i\nNet Worth : LKR %i\nProperties : %i\nHotels : %i\nOutstanding Loans : LKR %i\n\n", players[i].name, players[i].cash, player_status.net_worth, player_status.total_properties, player_status.hotels_built, players[i].loan_status.total_payable);
+                for (int j = 0; j < 60; j++) {
                     printf("-");
                 }
                 printf("\n");
@@ -172,12 +179,17 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
             }
         }
 
-        buy(&players[current_player], &board[players[current_player].place]);
-        constructions(&players[current_player], &board[players[current_player].place], property_groups);
-        rent(&players[current_player], &board[players[current_player].place], board);
+        if (board[players[current_player].place].type == PROPERTY || board[players[current_player].place].type == RAILWAY || board[players[current_player].place].type == UTILITY) {
+            buy(players, &players[current_player], &board[players[current_player].place]);
+            constructions(&players[current_player], &board[players[current_player].place], property_groups);
+            rent(&players[current_player], &board[players[current_player].place], board);
+        }
 
         if (players[current_player].place == 2) { // Community Development Fund
             printf("%s Landed on Community Development Fund.\n\n", players[current_player].name);
+
+        } else if (players[current_player].place == 4) { // Income Tax
+            printf("%s Landed on Income Tax.\n\n", players[current_player].name);
 
         } else if (players[current_player].place == 7 || players[current_player].place == 22) { // National Event Card
             printf("%s Landed on National Event Card.\n\n", players[current_player].name);

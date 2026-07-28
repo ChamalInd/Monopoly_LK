@@ -8,7 +8,6 @@ int main(void) {
     int game_round = 0;
 
     srand(1);
-    // 1 = tie occur
 
     initialize_players(players);
     generate_board(board);
