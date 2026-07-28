@@ -250,9 +250,6 @@ void auction(Player players[], Cell *place) {
                 withdrawn_count++;
                 printf("%s withdraws.\n", players[i].name);
             }
-            if ((withdrawn_count == bidding_players) || (withdrawn_count >= (bidding_players - 1)) && bid_round >= 1 ) {
-                break;
-            }
         }
         printf("\n");
         bid_round++;
