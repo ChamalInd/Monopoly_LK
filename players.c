@@ -354,7 +354,7 @@ void constructions(Player *player, Cell *place, Cell *property_groups[][3]) {
     }
 }
 
-void renovations(Player *player, Cell *place) {
+void property_renovations(Player *player, Cell *place) {
     if (place->owner == player->id && place->type == PROPERTY && place->depreciation.age >= 50) {
         float renovation_cost = (float) place->value.current_market_price * (10.0 / 100/0);
         player->cash -= (int) renovation_cost;

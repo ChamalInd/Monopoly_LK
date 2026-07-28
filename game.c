@@ -194,33 +194,35 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
             buy(players, &players[current_player], &board[players[current_player].place]);
             constructions(&players[current_player], &board[players[current_player].place], property_groups);
             rent(&players[current_player], &board[players[current_player].place], board);
+            property_renovations(&players[current_player], &board[players[current_player].place]);
+            
+        } else {
+            if (players[current_player].place == 2) { // Community Development Fund
+                printf("%s Landed on Community Development Fund.\n\n", players[current_player].name);
+
+            } else if (players[current_player].place == 4) { // Income Tax
+                printf("%s Landed on Income Tax.\n\n", players[current_player].name);
+
+            } else if (players[current_player].place == 7 || players[current_player].place == 22) { // National Event Card
+                printf("%s Landed on National Event Card.\n\n", players[current_player].name);
+                
+            } else if (players[current_player].place == 10) { // Just visiting
+                printf("%s Landed on Jail as a visit.\n\n", players[current_player].name);
+                
+            } else if (players[current_player].place == 17 || players[current_player].place == 33) { // Insurance
+                printf("%s Landed on Insurance.\n\n", players[current_player].name);
+                
+            } else if (players[current_player].place == 20) { // Free Parking
+                printf("%s Landed on Free Parking.\n\n", players[current_player].name);
+                
+            } else if (players[current_player].place == 30) { // Jail square
+                check_for_jailed(&players[current_player], board);
+
+            } else if (players[current_player].place == 38) { // Bank square
+                check_for_bank_action(&players[current_player], board);
+
+            } 
         }
-
-        if (players[current_player].place == 2) { // Community Development Fund
-            printf("%s Landed on Community Development Fund.\n\n", players[current_player].name);
-
-        } else if (players[current_player].place == 4) { // Income Tax
-            printf("%s Landed on Income Tax.\n\n", players[current_player].name);
-
-        } else if (players[current_player].place == 7 || players[current_player].place == 22) { // National Event Card
-            printf("%s Landed on National Event Card.\n\n", players[current_player].name);
-            
-        } else if (players[current_player].place == 10) { // Just visiting
-            printf("%s Landed on Jail as a visit.\n\n", players[current_player].name);
-            
-        } else if (players[current_player].place == 17 || players[current_player].place == 33) { // Insurance
-            printf("%s Landed on Insurance.\n\n", players[current_player].name);
-            
-        } else if (players[current_player].place == 20) { // Free Parking
-            printf("%s Landed on Free Parking.\n\n", players[current_player].name);
-            
-        } else if (players[current_player].place == 30) { // Jail square
-            check_for_jailed(&players[current_player], board);
-
-        } else if (players[current_player].place == 38) { // Bank square
-            check_for_bank_action(&players[current_player], board);
-
-        } 
 
         if (round_done) {
             game_round++;

@@ -29,7 +29,7 @@ void buy(Player players[], Player *player, Cell *place);
 void auction(Player players[], Cell *place);
 void rent(Player *player, Cell *place, Cell board[]);
 void constructions(Player *player, Cell *place, Cell *property_groups[][3]);
-void renovations(Player *player, Cell *place);
+void property_renovations(Player *player, Cell *place);
 
 // functions in finance.c
 void obtain_loan(Player *player, Cell board[]);
