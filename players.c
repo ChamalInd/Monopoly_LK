@@ -353,3 +353,16 @@ void constructions(Player *player, Cell *place, Cell *property_groups[][3]) {
         }
     }
 }
+
+void renovations(Player *player, Cell *place) {
+    if (place->owner == player->id && place->type == PROPERTY && place->depreciation.age >= 50) {
+        float renovation_cost = (float) place->value.current_market_price * (10.0 / 100/0);
+        player->cash -= (int) renovation_cost;
+        place->depreciation.age = 0;
+        place->depreciation.percentage = 0;
+        place->value.market_price = place->value.current_market_price;
+
+        printf("%s renovated %s for LKR %i.\n", player->name, place->name, (int) renovation_cost);
+        printf("Remaining Balance : LKR %i.\n\n", player->cash);
+    }
+}
