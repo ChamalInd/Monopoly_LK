@@ -232,6 +232,10 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
             accumulated_interest(&players[current_player]);
             check_for_loan_status(&players[current_player], board);
 
+            if (game_round % 5 == 0) {
+                property_depreciation(board);
+            }
+
             if (game_round == 500) {
                 break;
             }

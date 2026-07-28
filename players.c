@@ -204,8 +204,8 @@ void buy(Player players[], Player *player, Cell *place) {
 void auction(Player players[], Cell *place) {
     int starting_price = 0, bidding_players = 0;
 
-    if (place->value.market_price / 2 < place->value.purchase_price) {
-        starting_price = place->value.purchase_price;
+    if (place->value.market_price / 2 < place->value.base_price) {
+        starting_price = place->value.base_price;
     } else {
         starting_price = place->value.market_price / 2;
     }

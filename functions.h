@@ -7,6 +7,7 @@
 // Functions in board.c
 void generate_board(Cell board[]);
 void print_board(Cell board[]);
+void property_depreciation(Cell board[]);
 
 // Functions in game.c
 void print_game(int game_round, Player players[], Cell board[], int game_over);

@@ -6,11 +6,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define NO_OF_PLAYERS 4
-#define NO_OF_CELLS  40
-#define TRUE          1
-#define FALSE         0
-#define NONE         -1 
+#define NO_OF_PLAYERS     4
+#define NO_OF_CELLS      40
+#define TRUE              1
+#define FALSE             0
+#define NONE             -1
+#define MAX_DEPRECIATION 30
 
 // Declaring data structures required for players
 typedef struct{
@@ -65,8 +66,9 @@ typedef enum {
 } Mortgage_Status;
 
 typedef struct {
-    int purchase_price;
+    int base_price;
     int market_price;
+    int current_market_price;
     int base_rent; 
 } Values;
 
@@ -84,7 +86,13 @@ typedef struct {
 } Mortgage;
 
 typedef struct {
+    int age;
+    int percentage;
+} Depreciation;
+
+typedef struct {
     char *name;
+    Depreciation depreciation;
     Type type;
     Color group;
     Ownership owner;
