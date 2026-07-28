@@ -22,7 +22,7 @@ int main(void) {
         {&board[37], &board[39], NULL}
     };
 
-    print_game(game_round, players, board);
+    print_game(game_round, players, board, FALSE);
 
     decide_player_order(players);
     game_loop(game_round, players, board, property_groups);

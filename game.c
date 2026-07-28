@@ -1,7 +1,7 @@
 // Game controller and simulation engine
 #include "functions.h"
 
-void print_game(int game_round, Player players[], Cell board[]) {
+void print_game(int game_round, Player players[], Cell board[], int game_over) {
     if (game_round == 0) {
         for (int i = 0; i < 60; i++) {
             printf("=");
@@ -30,6 +30,20 @@ void print_game(int game_round, Player players[], Cell board[]) {
                 }
                 printf("\n");
             }
+        }
+        printf("\n");
+    }
+    
+    if (game_over == TRUE || game_round == 500) {
+        int winner_id = decide_winner(players, board);
+        Status player_status = calculate_player_status(players[winner_id], board);
+
+        for (int i = 0; i < 60; i++) {
+            printf("=");
+        }
+        printf("\n\nGAME OVER\n\nWinner : %s\nTotal Cash : LKR %i\nTotal Property Value : LKR %i\nOutstanding Loans : LKR %i\nNet Worth : LKR %i\n\n", players[winner_id].name, players[winner_id].cash, player_status.total_property_value, players[winner_id].loan_status.total_payable, player_status.net_worth);
+        for (int i = 0; i < 60; i++) {
+            printf("=");
         }
         printf("\n");
     }
@@ -144,7 +158,7 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
 
         if (game_over) {
             game_round++;
-            print_game(game_round, players, board);
+            print_game(game_round, players, board, game_over);
             break;
         }
 
@@ -167,9 +181,6 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
             round_tracker[current_player] = 1;
             printf("%s passed GO.\n", players[current_player].name);
             printf("Collected LKR 2000.\nCurrent Balance LKR %i.\n\n", players[current_player].cash);
-
-            accumulated_interest(&players[current_player]);
-            check_for_loan_status(&players[current_player], board);
         }
 
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
@@ -216,7 +227,11 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
             for (int i = 0; i < NO_OF_PLAYERS; i++) {
                 round_tracker[i] = 0;
             }
-            print_game(game_round, players, board);
+            print_game(game_round, players, board, game_over);
+
+            accumulated_interest(&players[current_player]);
+            check_for_loan_status(&players[current_player], board);
+
             if (game_round == 500) {
                 break;
             }

@@ -9,7 +9,7 @@ void generate_board(Cell board[]);
 void print_board(Cell board[]);
 
 // Functions in game.c
-void print_game(int game_round, Player players[], Cell board[]);
+void print_game(int game_round, Player players[], Cell board[], int game_over);
 int dice_roll(void);
 void sort_players(Player players[]);
 void decide_player_order(Player players[]);
@@ -19,6 +19,7 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
 void initialize_players(Player players[]);
 void print_player(Player players[]);
 Status calculate_player_status(Player player, Cell board[]);
+int decide_winner(Player players[], Cell board[]);
 void check_for_jailed(Player *player, Cell board[]);
 void check_for_bankruptcy(Player *player, Cell board[]);
 void announce_bankruptcy(Player *player, Cell board[]);

@@ -15,6 +15,7 @@
 // Declaring data structures required for players
 typedef struct{
     int total_properties;
+    int total_property_value;
     int total_railways;
     int total_utilities;
     int unmortgaged_properties;

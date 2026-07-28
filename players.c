@@ -28,7 +28,7 @@ void print_player(Player players[]) {
 }
 
 Status calculate_player_status(Player player, Cell board[]) {
-    int properties = 0, railways = 0, utilities = 0, hotels = 0, net_worth = 0, unmortgaged_properties = 0;
+    int properties = 0, railways = 0, utilities = 0, hotels = 0, net_worth = 0, unmortgaged_properties = 0, total_property_value = 0;
     // Net worth = cash + property value + building value + railway value + utility value + insurance claims receivables - outstanding loans - accrued interest - taxes due
 
     net_worth += player.cash;
@@ -38,21 +38,23 @@ Status calculate_player_status(Player player, Cell board[]) {
             if (board[i].mortgage.status == UNMORTGAGED) {
                 unmortgaged_properties++;
             }
+            total_property_value += board[i].value.market_price;
             hotels += board[i].buildings.no_of_hotels;
-            net_worth += board[i].mortgage.value;
+            net_worth += board[i].value.market_price;
             net_worth += board[i].buildings.building_value;
+
             properties++;
         } else if (board[i].owner == player.id && board[i].type == RAILWAY) {
             if (board[i].mortgage.status == UNMORTGAGED) {
                 unmortgaged_properties++;
             }
-            net_worth += board[i].mortgage.value;
+            net_worth += board[i].value.market_price;
             railways++;
         } else if (board[i].owner == player.id && board[i].type == UTILITY) {
             if (board[i].mortgage.status == UNMORTGAGED) {
                 unmortgaged_properties++;
             }
-            net_worth += board[i].mortgage.value;
+            net_worth += board[i].value.market_price;
             utilities++;
         }
     }
@@ -61,6 +63,7 @@ Status calculate_player_status(Player player, Cell board[]) {
 
     Status status = (Status) {
         .total_properties = properties,
+        .total_property_value = total_property_value,
         .total_railways = railways,
         .total_utilities = utilities,
         .unmortgaged_properties = unmortgaged_properties,
@@ -71,12 +74,36 @@ Status calculate_player_status(Player player, Cell board[]) {
     return status;
 }
 
+int decide_winner(Player players[], Cell board[]) {
+    int winner_id = NONE, non_bankrupt_count = 0, max_net_worth = 0;
+    int non_bankrupt_players[NO_OF_PLAYERS] = {NONE, NONE, NONE, NONE};
+
+    for (int i = 0; i < NO_OF_PLAYERS; i++) {
+        if (players[i].isBankrupt == FALSE) {
+            non_bankrupt_players[non_bankrupt_count] = i;
+            non_bankrupt_count++;
+        }
+    }
+
+    for (int i = 0; i < non_bankrupt_count; i++) {
+        Status player_status = calculate_player_status(players[non_bankrupt_players[i]], board);
+
+        if (max_net_worth < player_status.net_worth) {
+            max_net_worth = player_status.net_worth;
+            winner_id = non_bankrupt_players[i];
+        }
+    }
+
+    return winner_id;
+}
+
 void check_for_jailed(Player *player, Cell board[]) {
     if (player->jail_status.isJailed == FALSE) {
         player->jail_status.isJailed = TRUE;
         player->jail_status.no_of_rounds = 0;
+        printf("%s is in Jail.\n%s moves from Square %i to 11.\n\n", player->name, player->name, player->place + 1);
+
         player->place = 10;
-        printf("%s is in Jail.\n%s moves from Square 31 to 11.\n\n", player->name, player->name);
 
     } else if (player->jail_status.isJailed == TRUE) {
         player->jail_status.no_of_rounds++;
@@ -256,7 +283,18 @@ void rent(Player *player, Cell *place, Cell board[]) {
         Status player_status = calculate_player_status(*place->ownerptr, board);
         
         if (place->type == PROPERTY) {
-            rent = place->value.base_rent + place->buildings.building_value;
+            int house_rent_multiplier[] = {2, 3, 5, 7};
+
+            if (place->buildings.no_of_houses != 0) {
+                rent = place->value.base_rent * house_rent_multiplier[place->buildings.no_of_houses];
+
+            } else if (place->buildings.no_of_hotels != 0) {
+                rent = place->value.base_rent * 10;
+
+            } else {
+                rent = place->value.base_rent;
+
+            }
 
         } else if (place->type == RAILWAY) {
             int rent_values[] = {250, 500, 1000, 2000};

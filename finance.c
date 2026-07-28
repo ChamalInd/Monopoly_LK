@@ -39,7 +39,7 @@ void obtain_loan(Player *player, Cell board[]) {
 
 void accumulated_interest(Player *player) {
     if (player->loan_status.no_of_loans == 1 && player->loan_status.loan_duration > 0) {
-        float interest = (float) player->loan_status.total_payable * (player->loan_status.interest_rate / 100.0);
+        float interest = ((float) player->loan_status.total_payable) * (player->loan_status.interest_rate / 100.0);
         player->loan_status.total_payable += (int) interest;
     }
 }
