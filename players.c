@@ -277,7 +277,6 @@ void rent(Player *player, Cell *place, Cell board[]) {
     if (place->owner != player->id && place->owner > 0) {
         int rent = 0;
         Status owner_status = calculate_player_status(*place->ownerptr, board);
-        Status player_status = calculate_player_status(*place->ownerptr, board);
         
         if (place->type == PROPERTY) {
             int house_rent_multiplier[] = {2, 3, 5, 7};
