@@ -129,6 +129,8 @@ void decide_player_order(Player players[]) {
 void game_loop(int game_round, Player players[], Cell board[], Cell *property_groups[][3]) {
     int current_player = 0, pass_go = FALSE, round_done = TRUE;
     int round_tracker[] = {0, 0, 0, 0};
+    int selected_property_market = NONE;
+    
     while (TRUE) {
         if (players[current_player].isBankrupt == TRUE) {
             round_tracker[current_player] = 1;
@@ -195,7 +197,7 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
             constructions(&players[current_player], &board[players[current_player].place], property_groups);
             rent(&players[current_player], &board[players[current_player].place], board);
             property_renovations(&players[current_player], &board[players[current_player].place]);
-            
+
         } else {
             if (players[current_player].place == 2) { // Community Development Fund
                 printf("%s Landed on Community Development Fund.\n\n", players[current_player].name);

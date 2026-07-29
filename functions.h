@@ -7,7 +7,6 @@
 // Functions in board.c
 void generate_board(Cell board[]);
 void print_board(Cell board[]);
-void property_depreciation(Cell board[]);
 
 // Functions in game.c
 void print_game(int game_round, Player players[], Cell board[], int game_over);
@@ -31,7 +30,7 @@ void rent(Player *player, Cell *place, Cell board[]);
 void constructions(Player *player, Cell *place, Cell *property_groups[][3]);
 void property_renovations(Player *player, Cell *place);
 
-// functions in finance.c
+// Functions in finance.c
 void obtain_loan(Player *player, Cell board[]);
 void accumulated_interest(Player *player);
 void check_for_loan_status(Player *player, Cell board[]);
@@ -39,5 +38,9 @@ void repay_part_of_loan(Player *player, Cell board[]);
 void repay_full_loan(Player *player, Cell board[]);
 void extend_loan(Player *player);
 void increase_loan(Player *player, Cell board[]);
+
+// Functions in events.c
+void property_depreciation(Cell board[]);
+void dynamic_property_market(Cell *property_groups[][3], int selected_property_market);
 
 #endif

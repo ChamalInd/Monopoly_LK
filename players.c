@@ -186,18 +186,20 @@ void check_for_bank_action(Player *player, Cell board[]) {
 }
 
 void buy(Player players[], Player *player, Cell *place) {
-    int choice = rand() % 2;
-    if (choice == 0) {
-        if (place->owner == BANK_OF_CEYLON && player->cash >= place->value.market_price) {
-            place->owner = player->id;
-            place->ownerptr = player;
+    if (place->owner == BANK_OF_CEYLON) {
+        int choice = rand() % 2;
+        if (choice == 0) {
+            if (player->cash >= place->value.market_price) {
+                place->owner = player->id;
+                place->ownerptr = player;
 
-            printf("%s purchased %s for LKR %i.\n", player->name, place->name, place->value.market_price);
-            player->cash -= place->value.market_price;
-            printf("Remaining Balance : LKR %i.\n\n", player->cash);
+                printf("%s purchased %s for LKR %i.\n", player->name, place->name, place->value.market_price);
+                player->cash -= place->value.market_price;
+                printf("Remaining Balance : LKR %i.\n\n", player->cash);
+            }
+        } else {
+            auction(players, place);
         }
-    } else {
-        auction(players, place);
     }
 }
 

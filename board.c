@@ -79,25 +79,25 @@ void generate_board(Cell board[]) {
     };
 
     int cell_base_price[NO_OF_CELLS] = {
-        NONE,     1500,   NONE,     1500,   NONE,
-        1,      2500,   NONE,     2500,   2500,
-        NONE,     3500,   1,      3500,   3500,
-        1,      4500,   NONE,     4500,   4500,
-        NONE,     5500,   NONE,     5500,   5500,
-        1,      6500,   6500,   1,      6500,
-        NONE,     8000,   8000,   NONE,     8000,
-        1,      NONE,     10000,  NONE,     10000
+        NONE,     1500,   NONE,     1800,   NONE,
+        1,      2500,   NONE,     2700,   3000,
+        NONE,     3500,   1,      3800,   4000,
+        1,      4500,   NONE,     4700,   5000,
+        NONE,     5500,   NONE,     5800,   6000,
+        1,      6500,   6800,   1,      7000,
+        NONE,     8000,   8300,   NONE,     8500,
+        1,      NONE,     10000,  NONE,     12000
     };
 
     int cell_base_rent[NO_OF_CELLS] = {
-        NONE, 1, NONE, 1, NONE,
-         1, 1, NONE, 1,  1,
-        NONE, 1,  1, 1,  1,
-         1, 1, NONE, 1,  1,
-        NONE, 1, NONE, 1,  1,
-         1, 1,  1, 1,  1,
-        NONE, 1,  1, NONE,  1,
-         1, NONE,  1, NONE,  1
+        NONE, 100, NONE, 120, NONE,
+        NONE, 180, NONE, 200,  220,
+        NONE, 260,  NONE, 280,  300,
+        NONE, 350, NONE, 370,  400,
+        NONE, 450, NONE, 480,  500,
+        NONE, 600,  620, NONE,  650,
+        NONE, 750,  780, NONE,  800,
+        NONE, NONE,  1000, NONE,  1200
     };
 
     int cell_no_of_houses[NO_OF_CELLS] = {
@@ -209,21 +209,5 @@ void generate_board(Cell board[]) {
 void print_board(Cell board[]) {
     for (int i = 0; i < NO_OF_CELLS; i++) {
         printf("%i \tName: %s \n\tType: %i \n\tGroup: %i \n\tOwner: %i \n\tOwner Pointer: %p \n\tBase Price: %i \n\tMarket Price: %i \n\tBase Rent: %i \n\tNo of Houses: %i \n\tPrice of a House: %i \n\tNo of Hotels: %i \n\tPrice of a Hotel: %i \n\tBuilding Value: %i \n\tMortgage Status: %i \n\tMortgage Value: %i\n\n", (i + 1), board[i].name, board[i].type, board[i].group, board[i].owner, board[i].ownerptr, board[i].value.base_price, board[i].value.market_price, board[i].value.base_rent, board[i].buildings.no_of_houses, board[i].buildings.price_of_house, board[i].buildings.no_of_hotels, board[i].buildings.price_of_hotel, board[i].buildings.building_value, board[i].mortgage.status, board[i].mortgage.value);
-    }
-}
-
-void property_depreciation(Cell board[]) {
-    for (int i = 0; i < NO_OF_CELLS; i++) {
-        if (board[i].type == PROPERTY && board[i].owner != NO_OWNER && board[i].owner != BANK_OF_CEYLON) {
-            board[i].depreciation.age++;
-
-            if (board[i].depreciation.age >= 50 && board[i].depreciation.percentage < MAX_DEPRECIATION) {
-                board[i].depreciation.percentage++;
-                board[i].value.market_price -= (int) ((float) board[i].value.market_price * (board[i].depreciation.percentage / 100.0));
-
-                printf("%s has depreciated by %i%%.\n", board[i].name, board[i].depreciation.percentage);
-                printf("Current Value : LKR %i.\n\n", board[i].value.market_price);
-            }
-        }
     }
 }
