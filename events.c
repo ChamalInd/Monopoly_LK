@@ -8,9 +8,9 @@ void property_depreciation(Cell board[]) {
 
             if (board[i].depreciation.age >= 50 && board[i].depreciation.percentage < MAX_DEPRECIATION) {
                 board[i].depreciation.percentage++;
-                board[i].value.market_price -= (int) ((float) board[i].value.market_price * (board[i].depreciation.percentage / 100.0));
+                board[i].value.market_price -= (int) ((float) board[i].value.market_price * (1.0 / 100.0));
 
-                printf("%s has depreciated by %i%%.\n", board[i].name, board[i].depreciation.percentage);
+                printf("%s has depreciated by 1%%.\n", board[i].name);
                 printf("Current Value : LKR %i.\n\n", board[i].value.market_price);
             }
         }

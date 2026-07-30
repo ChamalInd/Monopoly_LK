@@ -78,7 +78,7 @@ void check_for_jailed(Player *player, Cell board[]) {
     if (player->jail_status.isJailed == FALSE) {
         player->jail_status.isJailed = TRUE;
         player->jail_status.no_of_rounds = 0;
-        printf("%s is in Jail.\n%s moves from Square %i to 11.\n\n", player->name, player->name, player->place + 1);
+        printf("%s is in Jail.\n%s moves from Square %i to Square 11.\n\n", player->name, player->name, player->place + 1);
 
         player->place = 10;
 
@@ -154,20 +154,26 @@ void check_for_insurance_action(Player *player, Cell place, Cell board[]) {
 
     if (player_status.total_properties > 0) {
         int non_insured_properties[player_status.total_properties];
+        Cell *policy_near_expiry[player_status.total_properties];
         int total_non_insured_properties = 0;
+        int total_policy_near_expiry = 0;
 
         for (int i = 0; i < NO_OF_CELLS; i++) {
             if (board[i].owner == player->id && board[i].type == PROPERTY && board[i].insurance.policy == NO_INSURANCE) {
                 non_insured_properties[total_non_insured_properties] = i;
                 total_non_insured_properties++;
+            } else if (board[i].owner == player->id && board[i].type == PROPERTY && board[i].insurance.policy != NO_INSURANCE && board[i].insurance.duration < 3 && board[i].insurance.provider == insurance_company) {
+                policy_near_expiry[total_policy_near_expiry] = &board[i];
+                total_policy_near_expiry++;
             }
         }
 
         if (total_non_insured_properties > 0) {
             int property = rand() % total_non_insured_properties;
             obtain_insurance(player, &board[non_insured_properties[property]], insurance_company);
-        } else {
-
+        } 
+        if (total_policy_near_expiry > 0) {
+            renew_insurance(player, policy_near_expiry, total_policy_near_expiry);
         }
     } else {
         printf("No properties to be insured.\n\n");
@@ -346,8 +352,8 @@ void constructions(Player *player, Cell *place, Cell *property_groups[][3]) {
 }
 
 void property_renovations(Player *player, Cell *place) {
-    if (place->owner == player->id && place->type == PROPERTY && place->depreciation.age >= 50) {
-        float renovation_cost = (float) place->value.current_market_price * (10.0 / 100/0);
+    if (place->owner == player->id && place->depreciation.age >= 50) {
+        float renovation_cost = (float) place->value.current_market_price * (10.0 / 100.0);
         if (player->cash >= (int) renovation_cost) {
             player->cash -= (int) renovation_cost;
             place->depreciation.age = 0;

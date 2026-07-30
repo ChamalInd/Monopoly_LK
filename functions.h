@@ -6,6 +6,7 @@
 
 // Functions in board.c
 void generate_board(Cell board[]);
+void destroy_property(Player player, Cell board[]);
 void print_board(Cell board[]);
 
 // Functions in game.c
@@ -14,7 +15,6 @@ int dice_roll(void);
 void sort_players(Player players[]);
 void decide_player_order(Player players[]);
 int decide_winner(Player players[], Cell board[]);
-void destroy_property(Player player, Cell board[]);
 void game_loop(int game_round, Player players[], Cell board[], Cell *property_groups[][3]);
 
 // Functions in players.c
@@ -34,13 +34,15 @@ void property_renovations(Player *player, Cell *place);
 
 // Functions in finance.c
 void obtain_loan(Player *player, Cell board[]);
-void accumulated_interest(Player *player);
-void check_for_loan_status(Player *player, Cell board[]);
+void accumulated_interest(Player players[]);
+void check_for_loan_status(Player players[], Cell board[]);
 void repay_part_of_loan(Player *player, Cell board[]);
 void repay_full_loan(Player *player, Cell board[]);
 void extend_loan(Player *player);
 void increase_loan(Player *player, Cell board[]);
 void obtain_insurance(Player *player, Cell *place, int provider);
+void check_for_insurance_status(Cell board[]);
+void renew_insurance(Player *player, Cell *board[], int length);
 
 // Functions in events.c
 void property_depreciation(Cell board[]);

@@ -150,21 +150,6 @@ int decide_winner(Player players[], Cell board[]) {
     return winner_id;
 }
 
-void destroy_property(Player player, Cell board[]) {
-    for (int i = 0; i < NO_OF_CELLS; i++) {
-        if (board[i].owner == player.id) {
-            board[i].mortgage.status = UNMORTGAGED;
-            board[i].owner = BANK_OF_CEYLON;
-            board[i].ownerptr = NULL;
-            board[i].insurance = (Insurance) {NO_INSURANCE, NONE, 0};
-            board[i].depreciation = (Depreciation) {0, 0};
-            board[i].buildings.building_value = 0;
-            board[i].buildings.no_of_hotels = 0;
-            board[i].buildings.no_of_houses = 0;
-        }
-    }
-}
-
 void game_loop(int game_round, Player players[], Cell board[], Cell *property_groups[][3]) {
     int current_player = 0, pass_go = FALSE, round_done = TRUE;
     int round_tracker[] = {0, 0, 0, 0};
@@ -230,10 +215,13 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
         }
 
         if (board[players[current_player].place].type == PROPERTY || board[players[current_player].place].type == RAILWAY || board[players[current_player].place].type == UTILITY) {
-            buy(players, &players[current_player], &board[players[current_player].place]);
-            constructions(&players[current_player], &board[players[current_player].place], property_groups);
             rent(&players[current_player], &board[players[current_player].place], board);
-            property_renovations(&players[current_player], &board[players[current_player].place]);
+            buy(players, &players[current_player], &board[players[current_player].place]);
+            
+            if (board[players[current_player].place].type == PROPERTY) {
+                constructions(&players[current_player], &board[players[current_player].place], property_groups);
+                property_renovations(&players[current_player], &board[players[current_player].place]);
+            }
 
         } else {
             if (players[current_player].place == 2) { // Community Development Fund
@@ -270,15 +258,16 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
             }
             print_game(game_round, players, board, game_over);
 
-            accumulated_interest(&players[current_player]);
-            check_for_loan_status(&players[current_player], board);
+            if (game_round == MAX_ROUNDS) {
+                break;
+            }
+
+            accumulated_interest(players);
+            check_for_loan_status(players, board);
+            check_for_insurance_status(board);
 
             if (game_round % 5 == 0) {
                 property_depreciation(board);
-            }
-
-            if (game_round == MAX_ROUNDS) {
-                break;
             }
         }
 
