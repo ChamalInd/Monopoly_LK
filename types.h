@@ -12,6 +12,7 @@
 #define FALSE             0
 #define NONE             -1
 #define MAX_DEPRECIATION 30
+#define MAX_ROUNDS      500
 
 // Declaring data structures required for players
 typedef struct{
@@ -50,7 +51,7 @@ typedef struct {
 
 // Declaring data structures required to build the board.
 typedef enum {
-    START, PROPERTY, RAILWAY, UTILITY, EVENT, SPECIAL, TAX, BANK, INSURANCE
+    START, PROPERTY, RAILWAY, UTILITY, EVENT, SPECIAL, TAX, BANK, SRI_LANKA_INSURANCE, CEYLINCO
 } Type;
 
 typedef enum {
@@ -64,6 +65,10 @@ typedef enum {
 typedef enum {
     CANNOT_MORTGAGED = -1, MORTGAGED, UNMORTGAGED
 } Mortgage_Status;
+
+typedef enum {
+    NO_INSURANCE, BASIC, COMPREHENSIVE, BUSINESS_INTERRUPTION
+} Policy;
 
 typedef struct {
     int base_price;
@@ -91,16 +96,22 @@ typedef struct {
 } Depreciation;
 
 typedef struct {
+    Policy policy;
+    int provider;
+    int duration;
+} Insurance;
+
+typedef struct {
     char *name;
     Depreciation depreciation;
     Type type;
     Color group;
     Ownership owner;
+    Insurance insurance;
     Player *ownerptr;
     Values value;
     Building buildings; 
     Mortgage mortgage;
 } Cell;
-
 
 #endif

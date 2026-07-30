@@ -11,6 +11,7 @@ void print_game(int game_round, Player players[], Cell board[], int game_over) {
             printf("=");
         }
         printf("\nPlayer 1 : Aggressive Investor\nPlayer 2 : Conservative Banker\nPlayer 3 : Risk Taker\nPlayer 4 : Opportunistic Trader\n\nEach player begins with LKR 30000.\n\n");
+
     } else {
         for (int i = 0; i < 60; i++) {
             printf("=");
@@ -34,7 +35,7 @@ void print_game(int game_round, Player players[], Cell board[], int game_over) {
         printf("\n");
     }
     
-    if (game_over == TRUE || game_round == 500) {
+    if (game_over == TRUE || game_round == MAX_ROUNDS) {
         int winner_id = decide_winner(players, board);
         Status player_status = calculate_player_status(players[winner_id], board);
 
@@ -126,24 +127,60 @@ void decide_player_order(Player players[]) {
 
 }
 
+int decide_winner(Player players[], Cell board[]) {
+    int winner_id = NONE, non_bankrupt_count = 0, max_net_worth = 0;
+    int non_bankrupt_players[NO_OF_PLAYERS] = {NONE, NONE, NONE, NONE};
+
+    for (int i = 0; i < NO_OF_PLAYERS; i++) {
+        if (players[i].isBankrupt == FALSE) {
+            non_bankrupt_players[non_bankrupt_count] = i;
+            non_bankrupt_count++;
+        }
+    }
+
+    for (int i = 0; i < non_bankrupt_count; i++) {
+        Status player_status = calculate_player_status(players[non_bankrupt_players[i]], board);
+
+        if (max_net_worth < player_status.net_worth) {
+            max_net_worth = player_status.net_worth;
+            winner_id = non_bankrupt_players[i];
+        }
+    }
+
+    return winner_id;
+}
+
+void destroy_property(Player player, Cell board[]) {
+    for (int i = 0; i < NO_OF_CELLS; i++) {
+        if (board[i].owner == player.id) {
+            board[i].mortgage.status = UNMORTGAGED;
+            board[i].owner = BANK_OF_CEYLON;
+            board[i].ownerptr = NULL;
+            board[i].insurance = (Insurance) {NO_INSURANCE, NONE, 0};
+            board[i].depreciation = (Depreciation) {0, 0};
+            board[i].buildings.building_value = 0;
+            board[i].buildings.no_of_hotels = 0;
+            board[i].buildings.no_of_houses = 0;
+        }
+    }
+}
+
 void game_loop(int game_round, Player players[], Cell board[], Cell *property_groups[][3]) {
     int current_player = 0, pass_go = FALSE, round_done = TRUE;
     int round_tracker[] = {0, 0, 0, 0};
     int selected_property_market = NONE;
-    
+
     while (TRUE) {
         if (players[current_player].isBankrupt == TRUE) {
             round_tracker[current_player] = 1;
-            current_player++;
-            current_player %= NO_OF_PLAYERS;
+            current_player = ((current_player + 1) % NO_OF_PLAYERS);
             continue;
         } 
 
         if (players[current_player].jail_status.isJailed == TRUE) {
             check_for_jailed(&players[current_player], board);
             if (players[current_player].jail_status.isJailed == TRUE) {
-                current_player++;
-                current_player %= NO_OF_PLAYERS;
+                current_player = ((current_player + 1) % NO_OF_PLAYERS);
                 continue;
             }
         }
@@ -212,7 +249,7 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
                 printf("%s Landed on Jail as a visit.\n\n", players[current_player].name);
                 
             } else if (players[current_player].place == 17 || players[current_player].place == 33) { // Insurance
-                printf("%s Landed on Insurance.\n\n", players[current_player].name);
+                check_for_insurance_action(&players[current_player], board[players[current_player].place], board);
                 
             } else if (players[current_player].place == 20) { // Free Parking
                 printf("%s Landed on Free Parking.\n\n", players[current_player].name);
@@ -240,7 +277,7 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
                 property_depreciation(board);
             }
 
-            if (game_round == 500) {
+            if (game_round == MAX_ROUNDS) {
                 break;
             }
         }

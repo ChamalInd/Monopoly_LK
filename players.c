@@ -74,29 +74,6 @@ Status calculate_player_status(Player player, Cell board[]) {
     return status;
 }
 
-int decide_winner(Player players[], Cell board[]) {
-    int winner_id = NONE, non_bankrupt_count = 0, max_net_worth = 0;
-    int non_bankrupt_players[NO_OF_PLAYERS] = {NONE, NONE, NONE, NONE};
-
-    for (int i = 0; i < NO_OF_PLAYERS; i++) {
-        if (players[i].isBankrupt == FALSE) {
-            non_bankrupt_players[non_bankrupt_count] = i;
-            non_bankrupt_count++;
-        }
-    }
-
-    for (int i = 0; i < non_bankrupt_count; i++) {
-        Status player_status = calculate_player_status(players[non_bankrupt_players[i]], board);
-
-        if (max_net_worth < player_status.net_worth) {
-            max_net_worth = player_status.net_worth;
-            winner_id = non_bankrupt_players[i];
-        }
-    }
-
-    return winner_id;
-}
-
 void check_for_jailed(Player *player, Cell board[]) {
     if (player->jail_status.isJailed == FALSE) {
         player->jail_status.isJailed = TRUE;
@@ -144,23 +121,7 @@ void check_for_bankruptcy(Player *player, Cell board[]) {
 void announce_bankruptcy(Player *player, Cell board[]) {
     if (player->isBankrupt == TRUE) {
         player->place = 0;
-
-        for (int i = 0; i < NO_OF_CELLS; i++) {
-            if (board[i].owner == player->id && board[i].type == PROPERTY) {
-                board[i].mortgage.status = UNMORTGAGED;
-                board[i].owner = BANK_OF_CEYLON;
-                board[i].ownerptr = NULL;
-                board[i].buildings.building_value = 0;
-                board[i].buildings.no_of_hotels = 0;
-                board[i].buildings.no_of_houses = 0;
-            } else if (board[i].owner == player->id && (board[i].type == UTILITY || board[i].type == RAILWAY)) {
-                board[i].mortgage.status = UNMORTGAGED;
-                board[i].owner = BANK_OF_CEYLON;
-                board[i].ownerptr = NULL;
-            }
-        }
-
-        Player current_players[NO_OF_PLAYERS];
+        destroy_property(*player, board);
 
         printf("%s has been declared bankrupt.\n", player->name);
         printf("Remaining assets transferred to the Bank.\n\n");
@@ -182,6 +143,34 @@ void check_for_bank_action(Player *player, Cell board[]) {
         } else {
             increase_loan(player, board);
         }
+    }
+}
+
+void check_for_insurance_action(Player *player, Cell place, Cell board[]) {
+    printf("%s landed on %s.\n", player->name, place.name);
+
+    int insurance_company = place.type;
+    Status player_status = calculate_player_status(*player, board);
+
+    if (player_status.total_properties > 0) {
+        int non_insured_properties[player_status.total_properties];
+        int total_non_insured_properties = 0;
+
+        for (int i = 0; i < NO_OF_CELLS; i++) {
+            if (board[i].owner == player->id && board[i].type == PROPERTY && board[i].insurance.policy == NO_INSURANCE) {
+                non_insured_properties[total_non_insured_properties] = i;
+                total_non_insured_properties++;
+            }
+        }
+
+        if (total_non_insured_properties > 0) {
+            int property = rand() % total_non_insured_properties;
+            obtain_insurance(player, &board[non_insured_properties[property]], insurance_company);
+        } else {
+
+        }
+    } else {
+        printf("No properties to be insured.\n\n");
     }
 }
 
@@ -359,12 +348,14 @@ void constructions(Player *player, Cell *place, Cell *property_groups[][3]) {
 void property_renovations(Player *player, Cell *place) {
     if (place->owner == player->id && place->type == PROPERTY && place->depreciation.age >= 50) {
         float renovation_cost = (float) place->value.current_market_price * (10.0 / 100/0);
-        player->cash -= (int) renovation_cost;
-        place->depreciation.age = 0;
-        place->depreciation.percentage = 0;
-        place->value.market_price = place->value.current_market_price;
+        if (player->cash >= (int) renovation_cost) {
+            player->cash -= (int) renovation_cost;
+            place->depreciation.age = 0;
+            place->depreciation.percentage = 0;
+            place->value.market_price = place->value.current_market_price;
 
-        printf("%s renovated %s for LKR %i.\n", player->name, place->name, (int) renovation_cost);
-        printf("Remaining Balance : LKR %i.\n\n", player->cash);
+            printf("%s renovated %s for LKR %i.\n", player->name, place->name, (int) renovation_cost);
+            printf("Remaining Balance : LKR %i.\n\n", player->cash);
+        }
     }
 }

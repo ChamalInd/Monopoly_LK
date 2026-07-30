@@ -50,27 +50,13 @@ void check_for_loan_status(Player *player, Cell board[]) {
         if (player->loan_status.loan_duration == 3) {
             printf("Loan of %s for LKR %i will overdue after 3 rounds.\n\n", player->name, player->loan_status.total_payable);
         }
+        
     } else if (player->loan_status.no_of_loans == 1 && player->loan_status.loan_duration == 0) {
         player->loan_status.loan_duration = 0;
         player->loan_status.no_of_loans = 0;
         player->loan_status.total_payable = 0;
         
-        for (int i = 0; i < NO_OF_CELLS; i++) {
-            if (board[i].owner == player->id && board[i].mortgage.status == MORTGAGED) {
-                if (board[i].type == PROPERTY) {
-                    board[i].mortgage.status = UNMORTGAGED;
-                    board[i].owner = BANK_OF_CEYLON;
-                    board[i].ownerptr = NULL;
-                    board[i].buildings.building_value = 0;
-                    board[i].buildings.no_of_hotels = 0;
-                    board[i].buildings.no_of_houses = 0;
-                } else if (board[i].type == RAILWAY || board[i].type == UTILITY) {
-                    board[i].mortgage.status = UNMORTGAGED;
-                    board[i].owner = BANK_OF_CEYLON;
-                    board[i].ownerptr = NULL;
-                }
-            }
-        }
+        destroy_property(*player, board);
 
         printf("%s has defaulted.\n", player->name);
         printf("Collateral has been foreclosed.\nOutstanding debt cleared.\n\n");
@@ -129,4 +115,44 @@ void increase_loan(Player *player, Cell board[]) {
         printf("%s decided to refinance existing loan of LKR %i.\n\n", player->name, player->loan_status.total_payable);
         obtain_loan(player, board);
     }
+}
+
+void obtain_insurance(Player *player, Cell *place, int provider) {
+    char *insurance_policy_names[] = {"Basic Property Insurance", "Comprehensive Insurance", "Business Interruption Insurance"};
+
+    int policy = rand() % 3;
+
+    while (policy == BUSINESS_INTERRUPTION) {
+        if (place->buildings.no_of_hotels == 0) {
+            policy = rand() % 3;
+        } else {
+            break;
+        }
+    }
+
+    int premium = 0;
+
+    if (policy == BASIC) {
+        premium = (int) ((float) place->value.market_price * (5.0 / 100.0));
+
+    } else if (policy == COMPREHENSIVE) {
+        premium = (int) ((float) place->value.market_price * (10.0 / 100.0));
+
+    } else {
+        premium = (int) ((float) place->value.market_price * (15.0 / 100.0));
+    }
+
+    if (player->cash >= premium) {
+        player->cash -= premium;
+        place->insurance.policy = policy;
+        place->insurance.provider = provider;
+        place->insurance.duration = 20;
+
+        printf("%s purchased.\n", insurance_policy_names[policy]);
+        printf("Property : %s.\n", place->name);
+        printf("Premium : LKR %i.\n\n", premium);
+    } else {
+        printf("Not enough money to purchase insurance premium.\n\n");
+    }
+    
 }
