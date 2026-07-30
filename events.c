@@ -10,11 +10,17 @@ void property_depreciation(Cell board[]) {
                 board[i].depreciation.percentage++;
                 board[i].value.market_price -= (int) ((float) board[i].value.market_price * (1.0 / 100.0));
 
-                printf("%s has depreciated by 1%%.\n", board[i].name);
+                printf("%s has depreciated by %i%%.\n", board[i].name, board[i].depreciation.percentage);
                 printf("Current Value : LKR %i.\n\n", board[i].value.market_price);
             }
         }
     }
+}
+
+void inflation(Player players[], Cell board[], Game *game_status) {
+    int inflation_rates[] = {-3, 0, 2, 5, 8, 12};
+    int choses_rate = inflation_rates[rand() % (sizeof(inflation_rates) / sizeof(int))];
+
 }
 
 // void dynamic_property_market(Cell *property_groups[][3], int selected_property_market) {

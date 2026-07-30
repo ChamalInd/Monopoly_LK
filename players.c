@@ -128,10 +128,10 @@ void announce_bankruptcy(Player *player, Cell board[]) {
     }
 }
 
-void check_for_bank_action(Player *player, Cell board[]) {
+void check_for_bank_action(Player *player, Cell board[], Game game_status) {
     printf("%s Landed on Bank of Ceylon.\n", player->name);
     if (player->loan_status.no_of_loans == 0) {
-        obtain_loan(player, board);
+        obtain_loan(player, board, game_status);
     } else {
         int choice = rand() % 4;
         if (choice == 0) {
@@ -141,7 +141,7 @@ void check_for_bank_action(Player *player, Cell board[]) {
         } else if (choice == 2) {
             extend_loan(player);
         } else {
-            increase_loan(player, board);
+            increase_loan(player, board, game_status);
         }
     }
 }

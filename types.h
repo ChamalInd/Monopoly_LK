@@ -114,4 +114,10 @@ typedef struct {
     Mortgage mortgage;
 } Cell;
 
+typedef struct {
+    int rounds;
+    int inflation_rate;
+    int interest_rate;
+} Game;
+
 #endif

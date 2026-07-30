@@ -1,7 +1,7 @@
 // Loans, banking, insurance, depreciation, taxation
 #include "functions.h"
 
-void obtain_loan(Player *player, Cell board[]) {
+void obtain_loan(Player *player, Cell board[], Game game_status) {
     float max_loan = 0;
     int total_unmortgaged_property_value = 0;
     Status player_status = calculate_player_status(*player, board);
@@ -19,6 +19,7 @@ void obtain_loan(Player *player, Cell board[]) {
         player->loan_status.no_of_loans++;
         player->loan_status.total_payable += max_loan;
         player->loan_status.loan_duration = 20;
+        player->loan_status.interest_rate = game_status.interest_rate;
 
         printf("%s obtained a secured loan.\n", player->name);
         printf("Loan Amount : LKR %i.\n", (int) max_loan);
@@ -115,12 +116,12 @@ void extend_loan(Player *player) {
     printf("Duration : %i.\n\n", player->loan_status.loan_duration);
 }
 
-void increase_loan(Player *player, Cell board[]) {
+void increase_loan(Player *player, Cell board[], Game game_status) {
     Status player_status = calculate_player_status(*player, board);
     if (player_status.unmortgaged_properties > 0) {
         player->loan_status.no_of_loans = 0;
         printf("%s decided to refinance existing loan of LKR %i.\n\n", player->name, player->loan_status.total_payable);
-        obtain_loan(player, board);
+        obtain_loan(player, board, game_status);
     }
 }
 

@@ -1,8 +1,8 @@
 // Game controller and simulation engine
 #include "functions.h"
 
-void print_game(int game_round, Player players[], Cell board[], int game_over) {
-    if (game_round == 0) {
+void print_game(Game game_status, Player players[], Cell board[], int game_over) {
+    if (game_status.rounds == 0) {
         for (int i = 0; i < 60; i++) {
             printf("=");
         }
@@ -16,7 +16,7 @@ void print_game(int game_round, Player players[], Cell board[], int game_over) {
         for (int i = 0; i < 60; i++) {
             printf("=");
         }
-        printf("\nRound %i Summary\n", game_round);
+        printf("\nRound %i Summary\n", game_status.rounds);
         for (int i = 0; i < 60; i++) {
             printf("=");
         }
@@ -35,7 +35,7 @@ void print_game(int game_round, Player players[], Cell board[], int game_over) {
         printf("\n");
     }
     
-    if (game_over == TRUE || game_round == MAX_ROUNDS) {
+    if (game_over == TRUE || game_status.rounds == MAX_ROUNDS) {
         int winner_id = decide_winner(players, board);
         Status player_status = calculate_player_status(players[winner_id], board);
 
@@ -150,7 +150,7 @@ int decide_winner(Player players[], Cell board[]) {
     return winner_id;
 }
 
-void game_loop(int game_round, Player players[], Cell board[], Cell *property_groups[][3]) {
+void game_loop(Game *game_status, Player players[], Cell board[], Cell *property_groups[][3]) {
     int current_player = 0, pass_go = FALSE, round_done = TRUE;
     int round_tracker[] = {0, 0, 0, 0};
     int selected_property_market = NONE;
@@ -181,8 +181,8 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
         }
 
         if (game_over) {
-            game_round++;
-            print_game(game_round, players, board, game_over);
+            game_status->rounds++;
+            print_game(*game_status, players, board, game_over);
             break;
         }
 
@@ -246,19 +246,19 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
                 check_for_jailed(&players[current_player], board);
 
             } else if (players[current_player].place == 38) { // Bank square
-                check_for_bank_action(&players[current_player], board);
+                check_for_bank_action(&players[current_player], board, *game_status);
 
             } 
         }
 
         if (round_done) {
-            game_round++;
+            game_status->rounds++;
             for (int i = 0; i < NO_OF_PLAYERS; i++) {
                 round_tracker[i] = 0;
             }
-            print_game(game_round, players, board, game_over);
+            print_game(*game_status, players, board, game_over);
 
-            if (game_round == MAX_ROUNDS) {
+            if (game_status->rounds == MAX_ROUNDS) {
                 break;
             }
 
@@ -266,8 +266,11 @@ void game_loop(int game_round, Player players[], Cell board[], Cell *property_gr
             check_for_loan_status(players, board);
             check_for_insurance_status(board);
 
-            if (game_round % 5 == 0) {
+            if (game_status->rounds % 5 == 0) {
                 property_depreciation(board);
+            } 
+            if (game_status->rounds % 10 == 0) {
+                inflation(players, board, game_status);
             }
         }
 

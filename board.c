@@ -211,7 +211,6 @@ void generate_board(Cell board[]) {
     }
 
     Player players[NO_OF_PLAYERS];
-    int game_round = 0;
 
     Cell *property_groups[8][3] = {
         {&board[1], &board[3], NULL},
@@ -224,10 +223,16 @@ void generate_board(Cell board[]) {
         {&board[37], &board[39], NULL}
     };
 
+    Game game_status = (Game) {
+        .rounds = 0,
+        .inflation_rate = 0,
+        .interest_rate = 2 // demo value
+    };
+
     initialize_players(players);
-    print_game(game_round, players, board, FALSE);
+    print_game(game_status, players, board, FALSE);
     decide_player_order(players);
-    game_loop(game_round, players, board, property_groups);
+    game_loop(&game_status, players, board, property_groups);
 }
 
 void destroy_property(Player player, Cell board[]) {
