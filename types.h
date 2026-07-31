@@ -34,7 +34,7 @@ typedef struct {
     int no_of_loans;
     int loan_duration;
     int total_payable;
-    int interest_rate;
+    float interest_rate;
 } Loan;
 
 typedef struct {
@@ -117,7 +117,7 @@ typedef struct {
 typedef struct {
     int rounds;
     int inflation_rate;
-    int interest_rate;
+    float interest_rate;
 } Game;
 
 #endif

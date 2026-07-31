@@ -17,10 +17,23 @@ void property_depreciation(Cell board[]) {
     }
 }
 
-void inflation(Player players[], Cell board[], Game *game_status) {
+void inflation(Cell board[], Game *game_status) {
     int inflation_rates[] = {-3, 0, 2, 5, 8, 12};
-    int choses_rate = inflation_rates[rand() % (sizeof(inflation_rates) / sizeof(int))];
+    game_status->inflation_rate = inflation_rates[rand() % (sizeof(inflation_rates) / sizeof(int))];
+    float inflation_value = 1.0 + ((float) game_status->inflation_rate / 100.0);
+    game_status->interest_rate = game_status->interest_rate * inflation_value;
 
+    for (int i = 0; i < NO_OF_CELLS; i++) {
+        if (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY) {
+            board[i].value.market_price = (int) (board[i].value.market_price * inflation_value);
+            board[i].value.base_rent = (int) (board[i].value.base_rent * inflation_value);
+
+            if (board[i].type == PROPERTY) {
+                board[i].buildings.price_of_house = (int) (board[i].buildings.price_of_house * inflation_value);
+                board[i].buildings.price_of_hotel = (int) (board[i].buildings.price_of_hotel * inflation_value);
+            }
+        }
+    }
 }
 
 // void dynamic_property_market(Cell *property_groups[][3], int selected_property_market) {

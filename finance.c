@@ -33,7 +33,7 @@ void obtain_loan(Player *player, Cell board[], Game game_status) {
             }
         }
 
-        printf("\nInterest Rate : %i%%.\n", player->loan_status.interest_rate);
+        printf("\nInterest Rate : %.2f%%.\n", player->loan_status.interest_rate);
         printf("Duration : %i.\n\n", player->loan_status.loan_duration);
     }
 }

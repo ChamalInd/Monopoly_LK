@@ -55,7 +55,7 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over)
         for (int i = 0; i < 23; i++) {
             printf("-");
         }
-        printf("\n%i%%\n\n", game_status.interest_rate);
+        printf("\n%.2f%%\n\n", game_status.interest_rate);
         for (int i = 0; i < 60; i++) {
             printf("=");
         }
@@ -244,13 +244,13 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
         }
 
         if (board[players[current_player].place].type == PROPERTY || board[players[current_player].place].type == RAILWAY || board[players[current_player].place].type == UTILITY) {
-            rent(&players[current_player], &board[players[current_player].place], board);
-            buy(players, &players[current_player], &board[players[current_player].place]);
             
             if (board[players[current_player].place].type == PROPERTY) {
                 constructions(&players[current_player], &board[players[current_player].place], property_groups);
                 property_renovations(&players[current_player], &board[players[current_player].place]);
             }
+            rent(&players[current_player], &board[players[current_player].place], board);
+            buy(players, &players[current_player], &board[players[current_player].place]);
 
         } else {
             if (players[current_player].place == 2) { // Community Development Fund
@@ -299,7 +299,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
                 property_depreciation(board);
             } 
             if (game_status->rounds % 10 == 0) {
-                inflation(players, board, game_status);
+                inflation(board, game_status);
             }
         }
 

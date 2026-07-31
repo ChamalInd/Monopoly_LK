@@ -279,7 +279,7 @@ void rent(Player *player, Cell *place, Cell board[]) {
             int house_rent_multiplier[] = {2, 3, 5, 7};
 
             if (place->buildings.no_of_houses != 0) {
-                rent = place->value.base_rent * house_rent_multiplier[place->buildings.no_of_houses];
+                rent = place->value.base_rent * house_rent_multiplier[place->buildings.no_of_houses - 1];
 
             } else if (place->buildings.no_of_hotels != 0) {
                 rent = place->value.base_rent * 10;

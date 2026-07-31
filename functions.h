@@ -46,8 +46,7 @@ void renew_insurance(Player *player, Cell *board[], int length);
 
 // Functions in events.c
 void property_depreciation(Cell board[]);
-void inflation(Player players[], Cell board[], Game *game_status);
+void inflation(Cell board[], Game *game_status);
 // void dynamic_property_market(Cell *property_groups[][3], int selected_property_market);
-// void inflation(Player players[], Cell board[]);
 
 #endif
