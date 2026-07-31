@@ -121,7 +121,7 @@ void check_for_bankruptcy(Player *player, Cell board[]) {
 void announce_bankruptcy(Player *player, Cell board[]) {
     if (player->isBankrupt == TRUE) {
         player->place = 0;
-        destroy_property(*player, board);
+        destroy_property(*player, board, NO_OF_CELLS);
 
         printf("%s has been declared bankrupt.\n", player->name);
         printf("Remaining assets transferred to the Bank.\n\n");
@@ -193,12 +193,21 @@ void buy(Player players[], Player *player, Cell *place) {
                 printf("Remaining Balance : LKR %i.\n\n", player->cash);
             }
         } else {
-            auction(players, place);
+            auction(players, place, BANK_OF_CEYLON);
         }
     }
 }
 
-void auction(Player players[], Cell *place) {
+void sell(Player players[], Player *player, Cell *place) {
+    if (place->owner == player->id) {
+        int choice = rand() % 2;
+        if (choice == 0) {
+            auction(players, place, player->id);
+        }
+    }
+}
+
+void auction(Player players[], Cell *place, Ownership beneficiary) {
     int starting_price = 0, bidding_players = 0;
 
     if (place->value.market_price / 2 < place->value.base_price) {
@@ -208,7 +217,7 @@ void auction(Player players[], Cell *place) {
     }
 
     for (int i = 0; i < NO_OF_PLAYERS; i++) {
-        if (players[i].isBankrupt == FALSE) {
+        if (players[i].isBankrupt == FALSE && players[i].id != beneficiary) {
             bidding_players++;
         }
     }
@@ -224,12 +233,12 @@ void auction(Player players[], Cell *place) {
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             can_bid = TRUE;
             for (int j = 0; j < withdrawn_count; j++) {
-                if (withdrawn[j] == players[i].id) {
+                if (withdrawn[j] == players[i].id ) {
                     can_bid = FALSE;
                     break;
                 }
             }
-            if (players[i].cash >= highest_bid + 250) {
+            if (players[i].cash >= highest_bid + 250 && players[i].id != beneficiary) {
                 if (can_bid && players[i].isBankrupt == FALSE) {
                     int choice = rand() % 2;
                     if (choice == 0) {
@@ -242,7 +251,7 @@ void auction(Player players[], Cell *place) {
                         printf("%s withdraws.\n", players[i].name);
                     }
                 }
-            } else if (players[i].isBankrupt == FALSE) {
+            } else if (players[i].isBankrupt == FALSE && players[i].id != beneficiary) {
                 withdrawn[withdrawn_count] = players[i].id;
                 withdrawn_count++;
                 printf("%s withdraws.\n", players[i].name);
@@ -257,6 +266,19 @@ void auction(Player players[], Cell *place) {
     }
 
     if (bidder != NONE) {
+        if (beneficiary != BANK_OF_CEYLON) {
+            for (int i = 0; i < NO_OF_PLAYERS; i++) {
+                if (players[i].id == beneficiary) {
+                    players[i].cash += highest_bid;
+                    Cell temp[] = {*place};
+                    destroy_property(players[i], temp, 1);
+                    printf("%s sold %s for LKR %i in the auction.\n", players[i].name, place->name, highest_bid);
+                    printf("Remaining Balance : LKR %i.\n\n", players[i].cash);
+                    break;
+                }
+            }
+        }
+
         place->owner = players[bidder].id;
         place->ownerptr = &players[bidder];
         players[bidder].cash -= highest_bid;
@@ -266,7 +288,11 @@ void auction(Player players[], Cell *place) {
         printf("Remaining Balance : LKR %i.\n\n", players[bidder].cash);
 
     } else {
-        printf("No bidder property goes back to bank.\n\n");
+        if (beneficiary == BANK_OF_CEYLON) {
+            printf("No bidder property goes back to bank.\n\n");
+        } else {
+            printf("No bidder property goes back to owner.\n\n");
+        }
     }
 }
 

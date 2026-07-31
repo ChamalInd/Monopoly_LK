@@ -60,7 +60,7 @@ void check_for_loan_status(Player players[], Cell board[]) {
                 players[i].loan_status.no_of_loans = 0;
                 players[i].loan_status.total_payable = 0;
                 
-                destroy_property(players[i], board);
+                destroy_property(players[i], board, NO_OF_CELLS);
 
                 printf("%s has defaulted.\n", players[i].name);
                 printf("Collateral has been foreclosed.\nOutstanding debt cleared.\n\n");

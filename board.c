@@ -235,8 +235,8 @@ void generate_board(Cell board[]) {
     game_loop(&game_status, players, board, property_groups);
 }
 
-void destroy_property(Player player, Cell board[]) {
-    for (int i = 0; i < NO_OF_CELLS; i++) {
+void destroy_property(Player player, Cell board[], int size) {
+    for (int i = 0; i < size; i++) {
         if (board[i].owner == player.id) {
             board[i].mortgage.status = UNMORTGAGED;
             board[i].owner = BANK_OF_CEYLON;

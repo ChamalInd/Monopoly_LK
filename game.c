@@ -244,6 +244,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
         }
 
         if (board[players[current_player].place].type == PROPERTY || board[players[current_player].place].type == RAILWAY || board[players[current_player].place].type == UTILITY) {
+            sell(players, &players[current_player], &board[players[current_player].place]);
             
             if (board[players[current_player].place].type == PROPERTY) {
                 constructions(&players[current_player], &board[players[current_player].place], property_groups);
