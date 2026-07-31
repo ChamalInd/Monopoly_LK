@@ -182,7 +182,6 @@ int decide_winner(Player players[], Cell board[]) {
 void game_loop(Game *game_status, Player players[], Cell board[], Cell *property_groups[][3]) {
     int current_player = 0, pass_go = FALSE, round_done = TRUE;
     int round_tracker[] = {0, 0, 0, 0};
-    int selected_property_market = NONE;
 
     while (TRUE) {
         if (players[current_player].isBankrupt == TRUE) {
@@ -192,7 +191,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
         } 
 
         if (players[current_player].jail_status.isJailed == TRUE) {
-            check_for_jailed(&players[current_player], board);
+            check_for_jailed(&players[current_player]);
             if (players[current_player].jail_status.isJailed == TRUE) {
                 current_player = ((current_player + 1) % NO_OF_PLAYERS);
                 continue;
@@ -244,13 +243,11 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
         }
 
         if (board[players[current_player].place].type == PROPERTY || board[players[current_player].place].type == RAILWAY || board[players[current_player].place].type == UTILITY) {
-            sell(players, &players[current_player], &board[players[current_player].place]);
-            
             if (board[players[current_player].place].type == PROPERTY) {
                 constructions(&players[current_player], &board[players[current_player].place], property_groups);
                 property_renovations(&players[current_player], &board[players[current_player].place]);
             }
-            rent(&players[current_player], &board[players[current_player].place], board);
+            rent(players, &players[current_player], &board[players[current_player].place], board);
             buy(players, &players[current_player], &board[players[current_player].place]);
 
         } else {
@@ -273,7 +270,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
                 printf("%s Landed on Free Parking.\n\n", players[current_player].name);
                 
             } else if (players[current_player].place == 30) { // Jail square
-                check_for_jailed(&players[current_player], board);
+                check_for_jailed(&players[current_player]);
 
             } else if (players[current_player].place == 38) { // Bank square
                 check_for_bank_action(&players[current_player], board, *game_status);

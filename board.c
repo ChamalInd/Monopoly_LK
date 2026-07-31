@@ -235,17 +235,30 @@ void generate_board(Cell board[]) {
     game_loop(&game_status, players, board, property_groups);
 }
 
-void destroy_property(Player player, Cell board[], int size) {
-    for (int i = 0; i < size; i++) {
-        if (board[i].owner == player.id) {
-            board[i].mortgage.status = UNMORTGAGED;
-            board[i].owner = BANK_OF_CEYLON;
-            board[i].ownerptr = NULL;
-            board[i].insurance = (Insurance) {NO_INSURANCE, NONE, 0};
-            board[i].depreciation = (Depreciation) {0, 0};
-            board[i].buildings.building_value = 0;
-            board[i].buildings.no_of_hotels = 0;
-            board[i].buildings.no_of_houses = 0;
+void destroy_property(Player player, Cell board[], Cell *place, int size) {
+    if (size == 1) {
+        if (place->owner == player.id) {
+            place->mortgage.status = UNMORTGAGED;
+            place->owner = BANK_OF_CEYLON;
+            place->ownerptr = NULL;
+            place->insurance = (Insurance) {NO_INSURANCE, NONE, 0};
+            place->depreciation = (Depreciation) {0, 0};
+            place->buildings.building_value = 0;
+            place->buildings.no_of_hotels = 0;
+            place->buildings.no_of_houses = 0;
+        }
+    } else {
+        for (int i = 0; i < size; i++) {
+            if (board[i].owner == player.id) {
+                board[i].mortgage.status = UNMORTGAGED;
+                board[i].owner = BANK_OF_CEYLON;
+                board[i].ownerptr = NULL;
+                board[i].insurance = (Insurance) {NO_INSURANCE, NONE, 0};
+                board[i].depreciation = (Depreciation) {0, 0};
+                board[i].buildings.building_value = 0;
+                board[i].buildings.no_of_hotels = 0;
+                board[i].buildings.no_of_houses = 0;
+            }
         }
     }
 }

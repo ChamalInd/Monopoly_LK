@@ -6,7 +6,7 @@
 
 // Functions in board.c
 void generate_board(Cell board[]);
-void destroy_property(Player player, Cell board[], int size);
+void destroy_property(Player player, Cell board[], Cell *place, int size);
 void print_board(Cell board[]);
 
 // Functions in game.c
@@ -21,15 +21,14 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 void initialize_players(Player players[]);
 void print_player(Player players[]);
 Status calculate_player_status(Player player, Cell board[]);
-void check_for_jailed(Player *player, Cell board[]);
+void check_for_jailed(Player *player);
 void check_for_bankruptcy(Player *player, Cell board[]);
 void announce_bankruptcy(Player *player, Cell board[]);
 void check_for_bank_action(Player *player, Cell board[], Game game_status);
 void check_for_insurance_action(Player *player, Cell place, Cell board[]);
 void buy(Player players[], Player *player, Cell *place);
-void sell(Player players[], Player *player, Cell *place);
-void auction(Player players[], Cell *place, Ownership beneficiary);
-void rent(Player *player, Cell *place, Cell board[]);
+int auction(Player players[], Cell *place, Ownership beneficiary);
+void rent(Player players[], Player *player, Cell *place, Cell board[]);
 void constructions(Player *player, Cell *place, Cell *property_groups[][3]);
 void property_renovations(Player *player, Cell *place);
 
