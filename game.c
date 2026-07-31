@@ -33,6 +33,35 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over)
             }
         }
         printf("\n");
+
+        for (int i = 0; i < 60; i++) {
+            printf("=");
+        }
+        printf("\nCurrent Market Conditions\n");
+        for (int i = 0; i < 60; i++) {
+            printf("=");
+        }
+
+        printf("\n\nInflation\n");
+        for (int i = 0; i < 11; i++) {
+            printf("-");
+        }
+        if (game_status.inflation_rate > 0) {
+            printf("\n+%i%%\n\n", game_status.inflation_rate);
+        } else {
+            printf("\n%i%%\n\n", game_status.inflation_rate);
+        }
+        printf("Current Loan Interest\n");
+        for (int i = 0; i < 23; i++) {
+            printf("-");
+        }
+        printf("\n%i%%\n\n", game_status.interest_rate);
+        for (int i = 0; i < 60; i++) {
+            printf("=");
+        }
+
+        printf("\n\n");
+
     }
     
     if (game_over == TRUE || game_status.rounds == MAX_ROUNDS) {
