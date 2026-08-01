@@ -414,19 +414,48 @@ void constructions(Player *player, Cell *place, Cell *property_groups[][3]) {
     }
 }
 
-void property_renovations(Player *player, Cell board[]) {
-    for (int i = 0; i < NO_OF_CELLS; i++) {
-        if (board[i].owner == player->id && board[i].depreciation.age >= 50) {
-            float renovation_cost = (float) board[i].value.current_market_price * (10.0 / 100.0);
-            if (player->cash >= (int) renovation_cost) {
-                player->cash -= (int) renovation_cost;
-                board[i].depreciation.age = 0;
-                board[i].depreciation.percentage = 0;
-                board[i].value.market_price = board[i].value.current_market_price;
+void property_renovations(Player *player, Cell *place) {
+    if (place->owner == player->id && place->depreciation.age >= 50) {
+        float renovation_cost = (float) place->value.current_market_price * (10.0 / 100.0);
+        if (player->cash >= (int) renovation_cost) {
+            player->cash -= (int) renovation_cost;
+            place->depreciation.age = 0;
+            place->depreciation.percentage = 0;
+            place->value.market_price = place->value.current_market_price;
 
-                printf("%s renovated %s for LKR %i.\n", player->name, board[i].name, (int) renovation_cost);
-                printf("Remaining Balance : LKR %i.\n\n", player->cash);
+            printf("%s renovated %s for LKR %i.\n", player->name, place->name, (int) renovation_cost);
+            printf("Remaining Balance : LKR %i.\n\n", player->cash);
+        }
+    }
+}
+
+void building_renovations(Player *player, Cell *place) {
+    if (place->owner == player->id && (place->buildings.no_of_houses + place->buildings.no_of_hotels) > 0 && place->buildings.age > 0) {
+        float maintenance_cost = 0.0f;
+
+        if (place->buildings.no_of_hotels > 0) {
+            if (place->buildings.age >= 20) {
+                maintenance_cost = (float) (place->value.hotel_construction_cost * (8.0 / 100.0)) * (25.0 / 100);
+            } else {
+                maintenance_cost = (float) place->value.hotel_construction_cost * (8.0 / 100.0);
             }
+        } else {
+            if (place->buildings.age >= 20) {
+                maintenance_cost = (float) (place->value.house_construction_cost * (5.0 / 100.0)) * (25.0 / 100);
+            } else {
+                maintenance_cost = (float) place->value.house_construction_cost * (5.0 / 100.0);
+            }
+            
+        }
+
+        if (player->cash >= (int) maintenance_cost) {
+            player->cash -= (int) maintenance_cost;
+            place->buildings.age = 0;
+            place->buildings.condition = 100;
+            place->buildings.has_damaged = FALSE;
+            place->buildings.rent_reduction_rate = 0;
+            printf("%s renovated buildings in %s for LKR %i.\n", player->name, place->name, (int) maintenance_cost);
+            printf("Remaining Balance : LKR %i.\n\n", player->cash);
         }
     }
 }

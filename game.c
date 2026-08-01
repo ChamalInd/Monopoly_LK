@@ -166,6 +166,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
         if (pass_go) {
             players[current_player].cash += 2000;
             round_tracker[current_player] = 1;
+            
             printf("%s passed GO.\n", players[current_player].name);
             printf("Collected LKR 2000.\nCurrent Balance LKR %i.\n\n", players[current_player].cash);
         }
@@ -184,7 +185,8 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
         if (board[players[current_player].place].type == PROPERTY || board[players[current_player].place].type == RAILWAY || board[players[current_player].place].type == UTILITY) {
             if (board[players[current_player].place].type == PROPERTY) {
                 constructions(&players[current_player], &board[players[current_player].place], property_groups);
-
+                property_renovations(&players[current_player], &board[players[current_player].place]);
+                building_renovations(&players[current_player], &board[players[current_player].place]);
             }
             rent(players, &players[current_player], &board[players[current_player].place], board, *game_status);
             buy(players, &players[current_player], &board[players[current_player].place]);
@@ -230,7 +232,6 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
             check_for_loan_status(players, board);
             check_for_insurance_status(board);
             building_depreciation(board);
-            property_renovations(&players[current_player], board);
 
             if (game_status->rounds % 5 == 0) {
                 property_depreciation(board);
