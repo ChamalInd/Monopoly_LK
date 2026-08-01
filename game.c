@@ -184,7 +184,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
         if (board[players[current_player].place].type == PROPERTY || board[players[current_player].place].type == RAILWAY || board[players[current_player].place].type == UTILITY) {
             if (board[players[current_player].place].type == PROPERTY) {
                 constructions(&players[current_player], &board[players[current_player].place], property_groups);
-                property_renovations(&players[current_player], &board[players[current_player].place]);
+
             }
             rent(players, &players[current_player], &board[players[current_player].place], board, *game_status);
             buy(players, &players[current_player], &board[players[current_player].place]);
@@ -204,9 +204,6 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
                 
             } else if (players[current_player].place == 17 || players[current_player].place == 33) { // Insurance
                 check_for_insurance_action(&players[current_player], board[players[current_player].place], board);
-                
-            } else if (players[current_player].place == 20) { // Free Parking
-                // printf("%s Landed on Free Parking.\n\n", players[current_player].name);
                 
             } else if (players[current_player].place == 30) { // Jail square
                 check_for_jailed(&players[current_player]);
@@ -233,6 +230,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
             check_for_loan_status(players, board);
             check_for_insurance_status(board);
             building_depreciation(board);
+            property_renovations(&players[current_player], board);
 
             if (game_status->rounds % 5 == 0) {
                 property_depreciation(board);

@@ -414,17 +414,19 @@ void constructions(Player *player, Cell *place, Cell *property_groups[][3]) {
     }
 }
 
-void property_renovations(Player *player, Cell *place) {
-    if (place->owner == player->id && place->depreciation.age >= 50) {
-        float renovation_cost = (float) place->value.current_market_price * (10.0 / 100.0);
-        if (player->cash >= (int) renovation_cost) {
-            player->cash -= (int) renovation_cost;
-            place->depreciation.age = 0;
-            place->depreciation.percentage = 0;
-            place->value.market_price = place->value.current_market_price;
+void property_renovations(Player *player, Cell board[]) {
+    for (int i = 0; i < NO_OF_CELLS; i++) {
+        if (board[i].owner == player->id && board[i].depreciation.age >= 50) {
+            float renovation_cost = (float) board[i].value.current_market_price * (10.0 / 100.0);
+            if (player->cash >= (int) renovation_cost) {
+                player->cash -= (int) renovation_cost;
+                board[i].depreciation.age = 0;
+                board[i].depreciation.percentage = 0;
+                board[i].value.market_price = board[i].value.current_market_price;
 
-            printf("%s renovated %s for LKR %i.\n", player->name, place->name, (int) renovation_cost);
-            printf("Remaining Balance : LKR %i.\n\n", player->cash);
+                printf("%s renovated %s for LKR %i.\n", player->name, board[i].name, (int) renovation_cost);
+                printf("Remaining Balance : LKR %i.\n\n", player->cash);
+            }
         }
     }
 }
