@@ -17,6 +17,38 @@ void property_depreciation(Cell board[]) {
     }
 }
 
+void building_depreciation(Cell board[]) {
+    for (int i = 0; i < NO_OF_CELLS; i++) {
+        if (board[i].type == PROPERTY && board[i].owner != NO_OWNER && board[i].owner != BANK_OF_CEYLON) {
+            if ((board[i].buildings.no_of_houses + board[i].buildings.no_of_hotels) > 0) {
+                board[i].buildings.age++;
+
+                if (board[i].buildings.condition != 0) {
+                    board[i].buildings.condition -= 2;
+                }
+
+                if (board[i].buildings.condition > 90) {
+                    board[i].buildings.rent_reduction_rate = 0;
+
+                } else if (board[i].buildings.condition > 75) {
+                    board[i].buildings.rent_reduction_rate = 10;
+
+                } else if (board[i].buildings.condition > 50) {
+                    board[i].buildings.rent_reduction_rate = 25;
+                    
+                } else if (board[i].buildings.condition > 25) {
+                    board[i].buildings.rent_reduction_rate = 50;
+                    
+                } else {
+                    board[i].buildings.rent_reduction_rate = NONE;
+                    board[i].buildings.has_damaged = TRUE;
+                }
+
+            }
+        }
+    }
+}
+
 void inflation(Cell board[], Game *game_status) {
     int inflation_rates[] = {-3, 0, 2, 5, 8, 12};
     game_status->inflation_rate = inflation_rates[rand() % (sizeof(inflation_rates) / sizeof(int))];
@@ -26,11 +58,11 @@ void inflation(Cell board[], Game *game_status) {
     for (int i = 0; i < NO_OF_CELLS; i++) {
         if (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY) {
             board[i].value.market_price = (int) (board[i].value.market_price * inflation_value);
-            board[i].value.base_rent = (int) (board[i].value.base_rent * inflation_value);
 
             if (board[i].type == PROPERTY) {
-                board[i].buildings.price_of_house = (int) (board[i].buildings.price_of_house * inflation_value);
-                board[i].buildings.price_of_hotel = (int) (board[i].buildings.price_of_hotel * inflation_value);
+                board[i].value.hotel_construction_cost = (int) (board[i].value.hotel_construction_cost * inflation_value);
+                board[i].value.house_construction_cost = (int) (board[i].value.house_construction_cost * inflation_value);
+                board[i].value.building_value = (int) (board[i].value.building_value * inflation_value);
             }
         }
     }

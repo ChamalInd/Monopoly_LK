@@ -3,6 +3,7 @@
 
 void print_game(Game game_status, Player players[], Cell board[], int game_over) {
     if (game_status.rounds == 0) {
+        // declare the start of the game
         for (int i = 0; i < 60; i++) {
             printf("=");
         }
@@ -13,6 +14,7 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over)
         printf("\nPlayer 1 : Aggressive Investor\nPlayer 2 : Conservative Banker\nPlayer 3 : Risk Taker\nPlayer 4 : Opportunistic Trader\n\nEach player begins with LKR 30000.\n\n");
 
     } else {
+        // prints round and market summary
         for (int i = 0; i < 60; i++) {
             printf("=");
         }
@@ -65,6 +67,7 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over)
     }
     
     if (game_over == TRUE || game_status.rounds == MAX_ROUNDS) {
+        // declare the end of the game
         int winner_id = decide_winner(players, board);
         Status player_status = calculate_player_status(players[winner_id], board);
 
@@ -83,77 +86,6 @@ int dice_roll(void) {
     int die_1 = (rand() % 6) + 1;
     int die_2 = (rand() % 6) + 1;
     return die_1 + die_2;
-}
-
-void sort_players(Player players[]) {
-    int swapped = TRUE;
-
-    while (swapped) {
-        swapped = FALSE;
-        for (int i = 0; i < NO_OF_PLAYERS - 1; i++) {
-            if (players[i].play_order > players[i + 1].play_order) {
-                Player temp;
-                temp = players[i];
-                players[i] = players[i + 1];
-                players[i + 1] = temp;
-                swapped = TRUE;
-            }
-        }
-    }
-}
-
-void decide_player_order(Player players[]) {
-    int max[] = {-1, -1};
-    int i = 0, assigned_players = 0, count;
-
-    while (assigned_players < 4) {
-        for (i = 0; i < NO_OF_PLAYERS; i++) {
-            if (players[i].play_order == 5) {
-                players[i].die_roll = dice_roll();
-                printf("%s rolls %i.\n", players[i].name, players[i].die_roll);
-            }
-        }
-    
-        for (int x = assigned_players; x < NO_OF_PLAYERS; x++) {
-            max[0] = 0;
-            for (int y = 0; y < NO_OF_PLAYERS; y++) {
-                if (players[y].play_order == 5 && max[0] < players[y].die_roll) {
-                    max[0] = players[y].die_roll;
-                    max[1] = y;
-                }
-            }
-            count = 0;
-            for (int y = 0; y < NO_OF_PLAYERS; y++) {
-                if (players[y].play_order == 5 && max[0] == players[y].die_roll) {
-                    count++;
-                }
-            }
-            if (count != 1) {
-                continue;
-            }
-            
-            players[max[1]].play_order = x + 1;
-        }
-
-        sort_players(players);
-
-        printf("\n");
-
-        assigned_players = 0;
-        for (i = 0; i < NO_OF_PLAYERS; i++) {
-            if (players[i].play_order != 5) {
-                assigned_players++;
-            }
-        }  
-    }
-
-    printf("%s will begin the game.\n\n", players[0].name);
-    printf("Turn order:\n");
-    for (i = 0; i < NO_OF_PLAYERS; i++) {
-        printf("%s\n", players[i].name);
-    }
-    printf("\n");
-
 }
 
 int decide_winner(Player players[], Cell board[]) {
@@ -184,12 +116,14 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
     int round_tracker[] = {0, 0, 0, 0};
 
     while (TRUE) {
+        // skips bankrupt players
         if (players[current_player].isBankrupt == TRUE) {
             round_tracker[current_player] = 1;
             current_player = ((current_player + 1) % NO_OF_PLAYERS);
             continue;
         } 
 
+        // skips jailed players after giving them a chance to get out
         if (players[current_player].jail_status.isJailed == TRUE) {
             check_for_jailed(&players[current_player]);
             if (players[current_player].jail_status.isJailed == TRUE) {
@@ -200,6 +134,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 
         int game_over = TRUE;
 
+        // checks for game end signal
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             check_for_bankruptcy(&players[i], board);
             if (players[i].id != players[current_player].id && players[i].isBankrupt == FALSE) {
@@ -242,32 +177,36 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
             }
         }
 
+        if (players[current_player].place != 0) {
+            printf("%s Landed on %s.\n\n", players[current_player].name, board[players[current_player].place].name);
+        }
+
         if (board[players[current_player].place].type == PROPERTY || board[players[current_player].place].type == RAILWAY || board[players[current_player].place].type == UTILITY) {
             if (board[players[current_player].place].type == PROPERTY) {
                 constructions(&players[current_player], &board[players[current_player].place], property_groups);
                 property_renovations(&players[current_player], &board[players[current_player].place]);
             }
-            rent(players, &players[current_player], &board[players[current_player].place], board);
+            rent(players, &players[current_player], &board[players[current_player].place], board, *game_status);
             buy(players, &players[current_player], &board[players[current_player].place]);
 
         } else {
             if (players[current_player].place == 2) { // Community Development Fund
-                printf("%s Landed on Community Development Fund.\n\n", players[current_player].name);
+                // printf("%s Landed on Community Development Fund.\n\n", players[current_player].name);
 
             } else if (players[current_player].place == 4) { // Income Tax
-                printf("%s Landed on Income Tax.\n\n", players[current_player].name);
+                // printf("%s Landed on Income Tax.\n\n", players[current_player].name);
 
             } else if (players[current_player].place == 7 || players[current_player].place == 22) { // National Event Card
-                printf("%s Landed on National Event Card.\n\n", players[current_player].name);
+                // printf("%s Landed on National Event Card.\n\n", players[current_player].name);
                 
             } else if (players[current_player].place == 10) { // Just visiting
-                printf("%s Landed on Jail as a visit.\n\n", players[current_player].name);
+                // printf("%s Landed on Jail as a visit.\n\n", players[current_player].name);
                 
             } else if (players[current_player].place == 17 || players[current_player].place == 33) { // Insurance
                 check_for_insurance_action(&players[current_player], board[players[current_player].place], board);
                 
             } else if (players[current_player].place == 20) { // Free Parking
-                printf("%s Landed on Free Parking.\n\n", players[current_player].name);
+                // printf("%s Landed on Free Parking.\n\n", players[current_player].name);
                 
             } else if (players[current_player].place == 30) { // Jail square
                 check_for_jailed(&players[current_player]);
@@ -279,6 +218,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
         }
 
         if (round_done) {
+            // tasks happening at every round
             game_status->rounds++;
             for (int i = 0; i < NO_OF_PLAYERS; i++) {
                 round_tracker[i] = 0;
@@ -292,6 +232,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
             accumulated_interest(players);
             check_for_loan_status(players, board);
             check_for_insurance_status(board);
+            building_depreciation(board);
 
             if (game_status->rounds % 5 == 0) {
                 property_depreciation(board);

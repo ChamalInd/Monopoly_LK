@@ -6,20 +6,18 @@
 
 // Functions in board.c
 void generate_board(Cell board[]);
-void destroy_property(Player player, Cell board[], Cell *place, int size);
-void print_board(Cell board[]);
+void destroy_property(Cell *place);
+void sort_players(Player players[]);
+void decide_player_order(Player players[]);
 
 // Functions in game.c
 void print_game(Game game_status, Player players[], Cell board[], int game_over);
 int dice_roll(void);
-void sort_players(Player players[]);
-void decide_player_order(Player players[]);
 int decide_winner(Player players[], Cell board[]);
 void game_loop(Game *game_status, Player players[], Cell board[], Cell *property_groups[][3]);
 
 // Functions in players.c
 void initialize_players(Player players[]);
-void print_player(Player players[]);
 Status calculate_player_status(Player player, Cell board[]);
 void check_for_jailed(Player *player);
 void check_for_bankruptcy(Player *player, Cell board[]);
@@ -28,7 +26,7 @@ void check_for_bank_action(Player *player, Cell board[], Game game_status);
 void check_for_insurance_action(Player *player, Cell place, Cell board[]);
 void buy(Player players[], Player *player, Cell *place);
 int auction(Player players[], Cell *place, Ownership beneficiary);
-void rent(Player players[], Player *player, Cell *place, Cell board[]);
+void rent(Player players[], Player *player, Cell *place, Cell board[], Game game_status);
 void constructions(Player *player, Cell *place, Cell *property_groups[][3]);
 void property_renovations(Player *player, Cell *place);
 
@@ -46,6 +44,7 @@ void renew_insurance(Player *player, Cell *board[], int length);
 
 // Functions in events.c
 void property_depreciation(Cell board[]);
+void building_depreciation(Cell board[]);
 void inflation(Cell board[], Game *game_status);
 // void dynamic_property_market(Cell *property_groups[][3], int selected_property_market);
 

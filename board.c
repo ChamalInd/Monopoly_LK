@@ -13,7 +13,7 @@ void generate_board(Cell board[]) {
         "National Event Cards",
         "Wellawatta",
         "Mount Lavinia",
-        "Jail / Just Visiting",
+        "Jail (Just Visiting)",
         "Nugegoda",
         "Ceylon Electricity Board",
         "Maharagama",
@@ -100,17 +100,6 @@ void generate_board(Cell board[]) {
         NONE, NONE, 1000, NONE, 1200
     };
 
-    int cell_no_of_houses[NO_OF_CELLS] = {
-        NONE,    0, NONE,    0, NONE,
-        NONE,    0, NONE,    0,    0,
-        NONE,    0, NONE,    0,    0,
-        NONE,    0, NONE,    0,    0,
-        NONE,    0, NONE,    0,    0,
-        NONE,    0,    0, NONE,    0,
-        NONE,    0,    0, NONE,    0,
-        NONE, NONE,    0, NONE,    0
-    };
-
     int cell_price_of_house[NO_OF_CELLS] = {
         NONE,   500,  NONE,   500,  NONE,
         NONE,   750,  NONE,   750,   750,
@@ -122,17 +111,6 @@ void generate_board(Cell board[]) {
         NONE,  NONE,  3000,  NONE,  3000
     };
 
-    int cell_no_of_hotels[NO_OF_CELLS] = {
-        NONE,    0, NONE,    0, NONE,
-        NONE,    0, NONE,    0,    0,
-        NONE,    0, NONE,    0,    0,
-        NONE,    0, NONE,    0,    0,
-        NONE,    0, NONE,    0,    0,
-        NONE,    0,    0, NONE,    0,
-        NONE,    0,    0, NONE,    0,
-        NONE, NONE,    0, NONE,    0
-    };
-
     int cell_price_of_hotel[NO_OF_CELLS] = {
         NONE,  2000,  NONE,  2000,  NONE,
         NONE,  3000,  NONE,  3000,  3000,
@@ -142,17 +120,6 @@ void generate_board(Cell board[]) {
         NONE,  8000,  8000,  NONE,  8000,
         NONE, 10000, 10000,  NONE, 10000,
         NONE,  NONE, 12000,  NONE, 12000
-    };
-
-    int building_value[NO_OF_CELLS] = {
-        NONE,    0, NONE,    0, NONE,
-        NONE,    0, NONE,    0,    0,
-        NONE,    0, NONE,    0,    0,
-        NONE,    0, NONE,    0,    0,
-        NONE,    0, NONE,    0,    0,
-        NONE,    0,    0, NONE,    0,
-        NONE,    0,    0, NONE,    0,
-        NONE, NONE,    0, NONE,    0
     };
 
     Mortgage_Status cell_mortgage_status[NO_OF_CELLS] = {
@@ -194,14 +161,18 @@ void generate_board(Cell board[]) {
                 .base_price = cell_base_price[i],
                 .market_price = cell_base_price[i],
                 .current_market_price = cell_base_price[i],
-                .base_rent = cell_base_rent[i]
+                .base_rent = cell_base_rent[i],
+                .house_construction_cost = cell_price_of_house[i],
+                .hotel_construction_cost = cell_price_of_hotel[i],
+                .building_value = 0
             },
             .buildings = (Building) {
-                .no_of_houses = cell_no_of_houses[i],
-                .price_of_house = cell_price_of_house[i],
-                .no_of_hotels = cell_no_of_hotels[i],
-                .price_of_hotel = cell_price_of_hotel[i],
-                .building_value = building_value[i]
+                .no_of_houses = 0,
+                .no_of_hotels = 0,
+                .condition = 100,
+                .rent_reduction_rate = 0,
+                .age = 0,
+                .has_damaged = FALSE
             },
             .mortgage = (Mortgage) {
                 .status = cell_mortgage_status[i],
@@ -235,36 +206,87 @@ void generate_board(Cell board[]) {
     game_loop(&game_status, players, board, property_groups);
 }
 
-void destroy_property(Player player, Cell board[], Cell *place, int size) {
-    if (size == 1) {
-        if (place->owner == player.id) {
-            place->mortgage.status = UNMORTGAGED;
-            place->owner = BANK_OF_CEYLON;
-            place->ownerptr = NULL;
-            place->insurance = (Insurance) {NO_INSURANCE, NONE, 0};
-            place->depreciation = (Depreciation) {0, 0};
-            place->buildings.building_value = 0;
-            place->buildings.no_of_hotels = 0;
-            place->buildings.no_of_houses = 0;
-        }
-    } else {
-        for (int i = 0; i < size; i++) {
-            if (board[i].owner == player.id) {
-                board[i].mortgage.status = UNMORTGAGED;
-                board[i].owner = BANK_OF_CEYLON;
-                board[i].ownerptr = NULL;
-                board[i].insurance = (Insurance) {NO_INSURANCE, NONE, 0};
-                board[i].depreciation = (Depreciation) {0, 0};
-                board[i].buildings.building_value = 0;
-                board[i].buildings.no_of_hotels = 0;
-                board[i].buildings.no_of_houses = 0;
+void destroy_property(Cell *place) {
+    place->mortgage.status = UNMORTGAGED;
+    place->owner = BANK_OF_CEYLON;
+    place->ownerptr = NULL;
+    place->insurance = (Insurance) {NO_INSURANCE, NONE, 0};
+    place->depreciation = (Depreciation) {0, 0};
+    place->buildings.no_of_hotels = 0;
+    place->buildings.no_of_houses = 0;
+    place->buildings.condition = 100;
+    place->buildings.rent_reduction_rate = 0;
+    place->buildings.age = 0;
+    place->buildings.has_damaged = FALSE;
+}
+
+void sort_players(Player players[]) {
+    int swapped = TRUE;
+
+    while (swapped) {
+        swapped = FALSE;
+        for (int i = 0; i < NO_OF_PLAYERS - 1; i++) {
+            if (players[i].play_order > players[i + 1].play_order) {
+                Player temp;
+                temp = players[i];
+                players[i] = players[i + 1];
+                players[i + 1] = temp;
+                swapped = TRUE;
             }
         }
     }
 }
 
-void print_board(Cell board[]) {
-    for (int i = 0; i < NO_OF_CELLS; i++) {
-        printf("%i \tName: %s \n\tType: %i \n\tGroup: %i \n\tOwner: %i \n\tOwner Pointer: %p \n\tBase Price: %i \n\tMarket Price: %i \n\tBase Rent: %i \n\tNo of Houses: %i \n\tPrice of a House: %i \n\tNo of Hotels: %i \n\tPrice of a Hotel: %i \n\tBuilding Value: %i \n\tMortgage Status: %i \n\tMortgage Value: %i\n\n", (i + 1), board[i].name, board[i].type, board[i].group, board[i].owner, board[i].ownerptr, board[i].value.base_price, board[i].value.market_price, board[i].value.base_rent, board[i].buildings.no_of_houses, board[i].buildings.price_of_house, board[i].buildings.no_of_hotels, board[i].buildings.price_of_hotel, board[i].buildings.building_value, board[i].mortgage.status, board[i].mortgage.value);
+void decide_player_order(Player players[]) {
+    int max[] = {-1, -1};
+    int i = 0, assigned_players = 0, count;
+
+    while (assigned_players < 4) {
+        for (i = 0; i < NO_OF_PLAYERS; i++) {
+            if (players[i].play_order == 5) {
+                players[i].die_roll = dice_roll();
+                printf("%s rolls %i.\n", players[i].name, players[i].die_roll);
+            }
+        }
+    
+        for (int x = assigned_players; x < NO_OF_PLAYERS; x++) {
+            max[0] = 0;
+            for (int y = 0; y < NO_OF_PLAYERS; y++) {
+                if (players[y].play_order == 5 && max[0] < players[y].die_roll) {
+                    max[0] = players[y].die_roll;
+                    max[1] = y;
+                }
+            }
+            count = 0;
+            for (int y = 0; y < NO_OF_PLAYERS; y++) {
+                if (players[y].play_order == 5 && max[0] == players[y].die_roll) {
+                    count++;
+                }
+            }
+            if (count != 1) {
+                continue;
+            }
+            
+            players[max[1]].play_order = x + 1;
+        }
+
+        sort_players(players);
+
+        printf("\n");
+
+        assigned_players = 0;
+        for (i = 0; i < NO_OF_PLAYERS; i++) {
+            if (players[i].play_order != 5) {
+                assigned_players++;
+            }
+        }  
     }
+
+    printf("%s will begin the game.\n\n", players[0].name);
+    printf("Turn order:\n");
+    for (i = 0; i < NO_OF_PLAYERS; i++) {
+        printf("%s\n", players[i].name);
+    }
+    printf("\n");
+
 }

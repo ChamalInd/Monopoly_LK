@@ -75,14 +75,18 @@ typedef struct {
     int market_price;
     int current_market_price;
     int base_rent; 
+    int hotel_construction_cost;
+    int house_construction_cost;
+    int building_value;
 } Values;
 
 typedef struct {
     int no_of_houses;
-    int price_of_house;
     int no_of_hotels;
-    int price_of_hotel;
-    int building_value;
+    int condition;
+    int rent_reduction_rate;
+    int age;
+    int has_damaged;
 } Building;
 
 typedef struct {

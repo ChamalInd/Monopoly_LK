@@ -59,11 +59,16 @@ void check_for_loan_status(Player players[], Cell board[]) {
                 players[i].loan_status.loan_duration = 0;
                 players[i].loan_status.no_of_loans = 0;
                 players[i].loan_status.total_payable = 0;
-                
-                destroy_property(players[i], board, NULL, NO_OF_CELLS);
-
+            
                 printf("%s has defaulted.\n", players[i].name);
                 printf("Collateral has been foreclosed.\nOutstanding debt cleared.\n\n");
+
+                for (int j = 0; j < NO_OF_CELLS; j++) {
+                    if (board[j].owner == players[i].id && board[j].mortgage.status == MORTGAGED) {
+                        destroy_property(&board[j]);
+                        auction(players, &board[j], BANK_OF_CEYLON);
+                    }
+                }
 
                 check_for_bankruptcy(&players[i], board);
             }
@@ -79,6 +84,9 @@ void repay_part_of_loan(Player *player, Cell board[]) {
         player->loan_status.total_payable -= amount;
 
         if (player->loan_status.total_payable == 0) {
+            player->loan_status.no_of_loans = 0;
+            player->loan_status.loan_duration = 0;
+
             for (int i = 0; i < NO_OF_CELLS; i++) {
                 if (board[i].owner == player->id && board[i].mortgage.status == MORTGAGED) {
                     board[i].mortgage.status = UNMORTGAGED;
