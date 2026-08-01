@@ -186,9 +186,9 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
             if (board[players[current_player].place].type == PROPERTY) {
                 constructions(&players[current_player], &board[players[current_player].place], property_groups);
                 property_renovations(&players[current_player], &board[players[current_player].place]);
-                building_renovations(&players[current_player], &board[players[current_player].place]);
+                building_renovations(&players[current_player], board);
             }
-            rent(players, &players[current_player], &board[players[current_player].place], board, *game_status);
+            rent(players, &players[current_player], &board[players[current_player].place], board);
             buy(players, &players[current_player], &board[players[current_player].place]);
 
         } else {

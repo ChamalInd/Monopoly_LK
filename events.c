@@ -58,6 +58,7 @@ void inflation(Cell board[], Game *game_status) {
     for (int i = 0; i < NO_OF_CELLS; i++) {
         if (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY) {
             board[i].value.market_price = (int) (board[i].value.market_price * inflation_value);
+            board[i].value.base_rent = (int) (board[i].value.base_rent * inflation_value);
 
             if (board[i].type == PROPERTY) {
                 board[i].value.hotel_construction_cost = (int) (board[i].value.hotel_construction_cost * inflation_value);
