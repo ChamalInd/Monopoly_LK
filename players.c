@@ -105,25 +105,26 @@ void check_for_jailed(Player *player) {
     }
 }
 
-void check_for_bankruptcy(Player *player, Cell board[]) {
+void check_for_bankruptcy(Player *player, Cell board[], Player players[], Game game_status) {
     Status player_status = calculate_player_status(*player, board);
     if (player_status.net_worth < 0 && player->isBankrupt == FALSE) {
         player->isBankrupt = TRUE;
-        announce_bankruptcy(player, board);
+        announce_bankruptcy(player, board, players, game_status);
     } 
 }
 
-void announce_bankruptcy(Player *player, Cell board[]) {
+void announce_bankruptcy(Player *player, Cell board[], Player players[], Game game_status) {
     if (player->isBankrupt == TRUE) {
         player->place = 0;
+        printf("%s has been declared bankrupt.\n", player->name);
+        printf("Remaining assets transferred to the Bank.\n\n");
+        
         for (int i = 0; i < NO_OF_CELLS; i++) {
             if (board[i].owner == player->id) {
                 destroy_property(&board[i]);
+                auction(players, &board[i], BANK_OF_CEYLON, game_status);
             }
         }
-
-        printf("%s has been declared bankrupt.\n", player->name);
-        printf("Remaining assets transferred to the Bank.\n\n");
     }
 }
 
@@ -332,8 +333,6 @@ void rent(Player players[], Player *player, Cell *place, Cell board[], Game game
             int rent_values[] = {4 * player->die_roll, 10 * player->die_roll};
             rent = rent_values[owner_status.total_utilities - 1];
         }
-
-        // printf("%s landed on %s.\n", player->name, place->name);
         
         // if low on cash sell property to pay rent
         if ((player->cash < 0 || (player->cash - rent) < 0)) {
@@ -359,13 +358,13 @@ void rent(Player players[], Player *player, Cell *place, Cell board[], Game game
                         } 
                     } else { // declared bankrupt if failed to sell property
                         player->isBankrupt = TRUE;
-                        announce_bankruptcy(player, board);
+                        announce_bankruptcy(player, board, players, game_status);
                         return; 
                     }
                 }
             } else { // not enough property so declared bankrupt
                 player->isBankrupt = TRUE;
-                announce_bankruptcy(player, board);
+                announce_bankruptcy(player, board, players, game_status);
                 return;
             }
         }  

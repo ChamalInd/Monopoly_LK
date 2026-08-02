@@ -20,8 +20,8 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 void initialize_players(Player players[]);
 Status calculate_player_status(Player player, Cell board[]);
 void check_for_jailed(Player *player);
-void check_for_bankruptcy(Player *player, Cell board[]);
-void announce_bankruptcy(Player *player, Cell board[]);
+void check_for_bankruptcy(Player *player, Cell board[], Player players[], Game game_status);
+void announce_bankruptcy(Player *player, Cell board[], Player players[], Game game_status);
 void check_for_bank_action(Player *player, Cell board[], Game game_status);
 void check_for_insurance_action(Player *player, Cell place, Cell board[]);
 void buy(Player players[], Player *player, Cell *place, Game game_status);

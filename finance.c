@@ -70,7 +70,7 @@ void check_for_loan_status(Player players[], Cell board[], Game game_status) {
                     }
                 }
 
-                check_for_bankruptcy(&players[i], board);
+                check_for_bankruptcy(&players[i], board, players, game_status);
             }
         }
     }

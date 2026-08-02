@@ -73,10 +73,6 @@ typedef enum {
     NO_INSURANCE, BASIC, COMPREHENSIVE, BUSINESS_INTERRUPTION
 } Policy;
 
-typedef enum {
-    NORMAL = -1, MARKET_BOOM, MARKET_DECLINE
-} Market;
-
 typedef struct {
     int base_price;
     int market_price;
@@ -124,6 +120,11 @@ typedef struct {
     Building buildings; 
     Mortgage mortgage;
 } Cell;
+
+// Declaring data structures for the game
+typedef enum {
+    NORMAL = -1, MARKET_BOOM, MARKET_DECLINE
+} Market;
 
 typedef struct {
     Market event;

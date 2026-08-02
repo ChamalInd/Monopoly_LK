@@ -164,7 +164,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 
         // checks for game end signal
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            check_for_bankruptcy(&players[i], board);
+            check_for_bankruptcy(&players[i], board, players, *game_status);
             if (players[i].id != players[current_player].id && players[i].isBankrupt == FALSE) {
                 game_over = FALSE;
                 break;
