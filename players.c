@@ -14,7 +14,8 @@ void initialize_players(Player players[]) {
             .loan_status = (Loan) {0, 0, 0, 2}, // 2 is a demo number
             .play_order = 5, // set as 5 for sorting process when deciding the player order
             .die_roll = NONE,
-            .cash = 30000,
+            .cash = STARTUP_CASH,
+            .taxes_due = 0,
             .place = 0
         };
     }
@@ -53,6 +54,7 @@ Status calculate_player_status(Player player, Cell board[]) {
     }
 
     net_worth -= player.loan_status.total_payable;
+    net_worth -= player.taxes_due;
 
     Status status = (Status) {
         .total_properties = properties,
@@ -260,7 +262,7 @@ int auction(Player players[], Cell *place, Ownership beneficiary) {
                     players[i].cash += highest_bid;
                     destroy_property(place);
                     printf("%s sold %s for LKR %i in the auction.\n", players[i].name, place->name, highest_bid);
-                    printf("Remaining Balance : LKR %i.\n\n", players[i].cash);
+                    printf("Cash Balance : LKR %i.\n\n", players[i].cash);
                     break;
                 }
             }
@@ -330,7 +332,7 @@ void rent(Player players[], Player *player, Cell *place, Cell board[]) {
         // if low on cash sell property to pay rent
         if ((player->cash < 0 || (player->cash - rent) < 0)) {
             printf("%s do not have enough cash to pay rent.\n", player->name);
-            printf("Available Balance : LKR %i.\nRequired Amount : LKR %i\n\n", player->cash, rent);
+            printf("Cash Balance : LKR %i.\nRequired Amount : LKR %i\n\n", player->cash, rent);
 
             if (player_status.total_property_value >= rent) {
                 int prev_property = 0;

@@ -221,3 +221,18 @@ void renew_insurance(Player *player, Cell *board[], int length) {
         }
     }
 }
+
+void income_tax_payment(Player *player, Game game_status, Cell board[]) {
+    Status player_status = calculate_player_status(*player, board);
+    int amount = (int) ((float) player_status.net_worth * (game_status.income_tax_rate / 100.0));
+
+    printf("Income Tax Amount : LKR %i.\n", amount);
+    if (player->cash >= amount) {
+        player->cash -= amount;
+        printf("%s paid Full Income Tax Amount.\nRemaining Balance : LKR %i.\n\n", player->name, player->cash);
+    } else {
+        player->taxes_due += (amount - player->cash);
+        player->cash = 0;
+        printf("%s partially paid Income Tax.\nRemaining Balance : LKR %i.\n\n", player->name, player->cash);
+    }
+}

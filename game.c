@@ -164,7 +164,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
         printf("to Square %i.\n\n", players[current_player].place + 1);
 
         if (pass_go) {
-            players[current_player].cash += 2000;
+            players[current_player].cash += GO_REWARD;
             round_tracker[current_player] = 1;
             
             printf("%s passed GO.\n", players[current_player].name);
@@ -196,13 +196,10 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
                 // printf("%s Landed on Community Development Fund.\n\n", players[current_player].name);
 
             } else if (players[current_player].place == 4) { // Income Tax
-                // printf("%s Landed on Income Tax.\n\n", players[current_player].name);
+                income_tax_payment(&players[current_player], *game_status, board);
 
             } else if (players[current_player].place == 7 || players[current_player].place == 22) { // National Event Card
                 // printf("%s Landed on National Event Card.\n\n", players[current_player].name);
-                
-            } else if (players[current_player].place == 10) { // Just visiting
-                // printf("%s Landed on Jail as a visit.\n\n", players[current_player].name);
                 
             } else if (players[current_player].place == 17 || players[current_player].place == 33) { // Insurance
                 check_for_insurance_action(&players[current_player], board[players[current_player].place], board);

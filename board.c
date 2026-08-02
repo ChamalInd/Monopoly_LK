@@ -197,7 +197,8 @@ void generate_board(Cell board[]) {
     Game game_status = (Game) {
         .rounds = 0,
         .inflation_rate = 0,
-        .interest_rate = 2 // demo value
+        .interest_rate = 2.0f,  // demo value
+        .income_tax_rate = 10   // demo value
     };
 
     initialize_players(players);

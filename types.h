@@ -6,13 +6,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define NO_OF_PLAYERS     4
-#define NO_OF_CELLS      40
-#define TRUE              1
-#define FALSE             0
-#define NONE             -1
-#define MAX_DEPRECIATION 30
-#define MAX_ROUNDS      500
+#define NO_OF_PLAYERS        4
+#define NO_OF_CELLS         40
+#define TRUE                 1
+#define FALSE                0
+#define NONE                -1
+#define MAX_DEPRECIATION    30
+#define MAX_ROUNDS         500
+#define STARTUP_CASH     30000
+#define GO_REWARD         2000
 
 // Declaring data structures required for players
 typedef struct{
@@ -46,6 +48,7 @@ typedef struct {
     int play_order;
     int die_roll;
     int cash;
+    int taxes_due;
     int place;
 } Player;
 
@@ -122,6 +125,7 @@ typedef struct {
     int rounds;
     int inflation_rate;
     float interest_rate;
+    int income_tax_rate;
 } Game;
 
 #endif
