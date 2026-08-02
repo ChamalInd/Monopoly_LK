@@ -179,7 +179,7 @@ void check_for_insurance_action(Player *player, Cell place, Cell board[]) {
     }
 }
 
-void buy(Player players[], Player *player, Cell *place) {
+void buy(Player players[], Player *player, Cell *place, Game game_status) {
     if (place->owner == BANK_OF_CEYLON) {
         int choice = rand() % 2;
         if (choice == 0) {
@@ -192,18 +192,24 @@ void buy(Player players[], Player *player, Cell *place) {
                 printf("Remaining Balance : LKR %i.\n\n", player->cash);
             }
         } else {
-            auction(players, place, BANK_OF_CEYLON);
+            auction(players, place, BANK_OF_CEYLON, game_status);
         }
     }
 }
 
-int auction(Player players[], Cell *place, Ownership beneficiary) {
+int auction(Player players[], Cell *place, Ownership beneficiary, Game game_status) {
     int starting_price = 0, bidding_players = 0;
 
     if (place->value.market_price / 2 < place->value.base_price) {
         starting_price = place->value.base_price;
     } else {
         starting_price = place->value.market_price / 2;
+    }
+
+    if (game_status.dynamic_market.event == MARKET_DECLINE) {
+        if ((starting_price * 75.0 / 100.0) > place->value.base_price) {
+            starting_price = (int) ((float) starting_price * 75.0 / 100.0);
+        }
     }
 
     for (int i = 0; i < NO_OF_PLAYERS; i++) {
@@ -289,7 +295,7 @@ int auction(Player players[], Cell *place, Ownership beneficiary) {
     }
 }
 
-void rent(Player players[], Player *player, Cell *place, Cell board[]) {
+void rent(Player players[], Player *player, Cell *place, Cell board[], Game game_status) {
     if (place->owner != player->id && place->owner > 0) {
         int rent = 0;
         Status owner_status = calculate_player_status(*place->ownerptr, board);
@@ -347,7 +353,7 @@ void rent(Player players[], Player *player, Cell *place, Cell board[]) {
                     }
                     if (temp != NULL) {
                         printf("%s decided to sell a property.\n\n", player->name);
-                        int result = auction(players, temp, player->id);
+                        int result = auction(players, temp, player->id, game_status);
                         if (result == TRUE && player->cash >= rent) {
                             break;
                         } 

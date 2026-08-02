@@ -69,28 +69,46 @@ void inflation(Cell board[], Game *game_status) {
     }
 }
 
-// void dynamic_property_market(Cell *property_groups[][3], int selected_property_market) {
-//     if (selected_property_market == NONE) {
-//         selected_property_market = rand() % 8;
-//     } else {
-//         int new_market = NONE;
-//         while (selected_property_market != new_market) {
-//             new_market = rand() % 8;
-//         }
-//         selected_property_market = new_market;
-//     }
+void dynamic_property_market(Cell *property_groups[][3], Game *game_status) {
+    if (game_status->dynamic_market.property_group == NONE) {
+        game_status->dynamic_market.property_group = rand() % 8;
 
-//     int event = rand() % 2;
-//     if (event == 0) {
-//         for (int i = 0; i < 3; i++) {
-//             if (property_groups[selected_property_market][i] != NULL) {
-//                 property_groups[selected_property_market][i]->value.market_price += (int) ((float) property_groups[selected_property_market][i]->value.market_price * (15.0 / 100.0));
-//                 property_groups[selected_property_market][i]->value.current_market_price += (int) ((float) property_groups[selected_property_market][i]->value.current_market_price * (15.0 / 100.0));
-//                 property_groups[selected_property_market][i]->mortgage.value += (int) ((float) property_groups[selected_property_market][i]->mortgage.value * (15.0 / 100.0));
-//                 property_groups[selected_property_market][i]->value.base_rent += (int) ((float) property_groups[selected_property_market][i]->value.base_rent * (25.0 / 100.0));
-//                 property_groups[selected_property_market][i]->buildings.price_of_house += (int) ((float) property_groups[selected_property_market][i]->buildings.price_of_house * (10.0 / 100.0));
-//                 property_groups[selected_property_market][i]->buildings.price_of_hotel += (int) ((float) property_groups[selected_property_market][i]->buildings.price_of_hotel * (10.0 / 100.0));
-//             }
-//         }
-//     }
-// }
+    } else {
+        int new_market = NONE;
+
+        while (TRUE) {
+            new_market = rand() % 8;
+
+            if (game_status->dynamic_market.property_group != new_market) {
+                game_status->dynamic_market.property_group = new_market;
+                break;
+            }
+        }
+    }
+
+    int event = rand() % 2;
+    game_status->dynamic_market.event = event;
+
+    if (event == MARKET_BOOM) {
+        for (int i = 0; i < 3; i++) {
+            if (property_groups[game_status->dynamic_market.property_group][i] != NULL) {
+                property_groups[game_status->dynamic_market.property_group][i]->value.market_price += (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->value.market_price * (15.0 / 100.0));
+                property_groups[game_status->dynamic_market.property_group][i]->value.current_market_price += (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->value.current_market_price * (15.0 / 100.0));
+                property_groups[game_status->dynamic_market.property_group][i]->mortgage.value += (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->mortgage.value * (15.0 / 100.0));
+                property_groups[game_status->dynamic_market.property_group][i]->value.base_rent += (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->value.base_rent * (25.0 / 100.0));
+                property_groups[game_status->dynamic_market.property_group][i]->value.house_construction_cost += (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->value.house_construction_cost * (10.0 / 100.0));
+                property_groups[game_status->dynamic_market.property_group][i]->value.hotel_construction_cost += (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->value.hotel_construction_cost * (10.0 / 100.0));
+                property_groups[game_status->dynamic_market.property_group][i]->value.base_price += (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->value.base_price * (20.0 / 100.0));
+            }
+        }
+    } else {
+        for (int i = 0; i < 3; i++) {
+            if (property_groups[game_status->dynamic_market.property_group][i] != NULL) {
+                property_groups[game_status->dynamic_market.property_group][i]->value.market_price -= (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->value.market_price * (15.0 / 100.0));
+                property_groups[game_status->dynamic_market.property_group][i]->value.current_market_price -= (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->value.current_market_price * (15.0 / 100.0));
+                property_groups[game_status->dynamic_market.property_group][i]->mortgage.value -= (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->mortgage.value * (10.0 / 100.0));
+                property_groups[game_status->dynamic_market.property_group][i]->value.base_rent -= (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->value.base_rent * (20.0 / 100.0));
+            }
+        }
+    }
+}

@@ -47,7 +47,7 @@ void accumulated_interest(Player players[]) {
     }
 }
 
-void check_for_loan_status(Player players[], Cell board[]) {
+void check_for_loan_status(Player players[], Cell board[], Game game_status) {
     for (int i = 0; i < NO_OF_PLAYERS; i++) {
         if (players[i].isBankrupt == FALSE) {
             if (players[i].loan_status.loan_duration > 0) {
@@ -66,7 +66,7 @@ void check_for_loan_status(Player players[], Cell board[]) {
                 for (int j = 0; j < NO_OF_CELLS; j++) {
                     if (board[j].owner == players[i].id && board[j].mortgage.status == MORTGAGED) {
                         destroy_property(&board[j]);
-                        auction(players, &board[j], BANK_OF_CEYLON);
+                        auction(players, &board[j], BANK_OF_CEYLON, game_status);
                     }
                 }
 

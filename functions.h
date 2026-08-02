@@ -24,9 +24,9 @@ void check_for_bankruptcy(Player *player, Cell board[]);
 void announce_bankruptcy(Player *player, Cell board[]);
 void check_for_bank_action(Player *player, Cell board[], Game game_status);
 void check_for_insurance_action(Player *player, Cell place, Cell board[]);
-void buy(Player players[], Player *player, Cell *place);
-int auction(Player players[], Cell *place, Ownership beneficiary);
-void rent(Player players[], Player *player, Cell *place, Cell board[]);
+void buy(Player players[], Player *player, Cell *place, Game game_status);
+int auction(Player players[], Cell *place, Ownership beneficiary, Game game_status);
+void rent(Player players[], Player *player, Cell *place, Cell board[], Game game_status);
 void constructions(Player *player, Cell *place, Cell *property_groups[][3]);
 void property_renovations(Player *player, Cell *place);
 void building_renovations(Player *player, Cell board[]);
@@ -34,7 +34,7 @@ void building_renovations(Player *player, Cell board[]);
 // Functions in finance.c
 void obtain_loan(Player *player, Cell board[], Game game_status);
 void accumulated_interest(Player players[]);
-void check_for_loan_status(Player players[], Cell board[]);
+void check_for_loan_status(Player players[], Cell board[], Game game_status);
 void repay_part_of_loan(Player *player, Cell board[]);
 void repay_full_loan(Player *player, Cell board[]);
 void extend_loan(Player *player);
@@ -48,6 +48,6 @@ void income_tax_payment(Player *player, Game game_status, Cell board[]);
 void property_depreciation(Cell board[]);
 void building_depreciation(Cell board[]);
 void inflation(Cell board[], Game *game_status);
-// void dynamic_property_market(Cell *property_groups[][3], int selected_property_market);
+void dynamic_property_market(Cell *property_groups[][3], Game *game_status);
 
 #endif

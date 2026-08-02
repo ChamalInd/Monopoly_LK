@@ -73,6 +73,10 @@ typedef enum {
     NO_INSURANCE, BASIC, COMPREHENSIVE, BUSINESS_INTERRUPTION
 } Policy;
 
+typedef enum {
+    NORMAL = -1, MARKET_BOOM, MARKET_DECLINE
+} Market;
+
 typedef struct {
     int base_price;
     int market_price;
@@ -122,7 +126,13 @@ typedef struct {
 } Cell;
 
 typedef struct {
+    Market event;
+    int property_group;
+} Dynamic_Market;
+
+typedef struct {
     int rounds;
+    Dynamic_Market dynamic_market;
     int inflation_rate;
     float interest_rate;
     int income_tax_rate;

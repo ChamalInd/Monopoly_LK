@@ -196,6 +196,10 @@ void generate_board(Cell board[]) {
 
     Game game_status = (Game) {
         .rounds = 0,
+        .dynamic_market = (Dynamic_Market) {
+            .event = NORMAL,
+            .property_group = NONE
+        },
         .inflation_rate = 0,
         .interest_rate = 2.0f,  // demo value
         .income_tax_rate = 10   // demo value
