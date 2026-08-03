@@ -20,6 +20,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 // Functions in players.c
 void initialize_players(Player players[]);
 Status calculate_player_status(Player player, Cell board[]);
+void player_actions(Player players[], Player *player, Cell board[], Cell *property_groups[][3], Game *game_status, Events national_events[]);
 void check_for_jailed(Player *player);
 void check_for_bankruptcy(Player *player, Cell board[], Player players[], Game game_status);
 void announce_bankruptcy(Player *player, Cell board[], Player players[], Game game_status);

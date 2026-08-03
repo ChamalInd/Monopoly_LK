@@ -74,6 +74,39 @@ Status calculate_player_status(Player player, Cell board[]) {
     return status;
 }
 
+void player_actions(Player players[], Player *player, Cell board[], Cell *property_groups[][3], Game *game_status, Events national_events[]) {
+    if (player->place != 0) {
+        printf("%s Landed on %s.\n\n", player->name, board[player->place].name);
+    }
+
+    if (board[player->place].type == PROPERTY || board[player->place].type == RAILWAY || board[player->place].type == UTILITY) {
+        if (board[player->place].type == PROPERTY) {
+            constructions(player, &board[player->place], property_groups);
+            property_renovations(player, &board[player->place]);
+            building_renovations(player, board);
+        }
+        rent(players, player, &board[player->place], board, *game_status);
+        buy(players, player, &board[player->place], *game_status);
+
+    } else {
+        if (player->place == 2) { // Community Development Fund
+            // printf("%s Landed on Community Development Fund.\n\n", players[current_player].name);
+        } else if (player->place == 4) { // Income Tax
+            income_tax_payment(player, *game_status, board);
+        } else if (player->place == 7 || player->place == 22 || player->place == 36) { // National Event Card
+            national_event_card_draw(player, board, national_events, game_status);
+            
+        } else if (player->place == 17 || player->place == 33) { // Insurance
+            check_for_insurance_action(player, board[player->place], board);
+            
+        } else if (player->place == 30) { // Jail square
+            check_for_jailed(player);
+        } else if (player->place == 38) { // Bank square
+            check_for_bank_action(player, board, *game_status);
+        } 
+    }
+}
+
 void check_for_jailed(Player *player) {
     if (player->jail_status.isJailed == FALSE) {
         player->jail_status.isJailed = TRUE;

@@ -219,40 +219,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
             }
         }
 
-        if (players[current_player].place != 0) {
-            printf("%s Landed on %s.\n\n", players[current_player].name, board[players[current_player].place].name);
-        }
-
-        if (board[players[current_player].place].type == PROPERTY || board[players[current_player].place].type == RAILWAY || board[players[current_player].place].type == UTILITY) {
-            if (board[players[current_player].place].type == PROPERTY) {
-                constructions(&players[current_player], &board[players[current_player].place], property_groups);
-                property_renovations(&players[current_player], &board[players[current_player].place]);
-                building_renovations(&players[current_player], board);
-            }
-            rent(players, &players[current_player], &board[players[current_player].place], board, *game_status);
-            buy(players, &players[current_player], &board[players[current_player].place], *game_status);
-
-        } else {
-            if (players[current_player].place == 2) { // Community Development Fund
-                // printf("%s Landed on Community Development Fund.\n\n", players[current_player].name);
-
-            } else if (players[current_player].place == 4) { // Income Tax
-                income_tax_payment(&players[current_player], *game_status, board);
-
-            } else if (players[current_player].place == 7 || players[current_player].place == 22 || players[current_player].place == 36) { // National Event Card
-                national_event_card_draw(&players[current_player], board, national_events, game_status);
-                
-            } else if (players[current_player].place == 17 || players[current_player].place == 33) { // Insurance
-                check_for_insurance_action(&players[current_player], board[players[current_player].place], board);
-                
-            } else if (players[current_player].place == 30) { // Jail square
-                check_for_jailed(&players[current_player]);
-
-            } else if (players[current_player].place == 38) { // Bank square
-                check_for_bank_action(&players[current_player], board, *game_status);
-
-            } 
-        }
+        player_actions(players, &players[current_player], board, property_groups, game_status, national_events);
 
         if (round_done) {
             // tasks happening at every round
