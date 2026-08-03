@@ -58,6 +58,7 @@ void inflation(Cell board[], Game *game_status) {
     for (int i = 0; i < NO_OF_CELLS; i++) {
         if (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY) {
             board[i].value.market_price = (int) (board[i].value.market_price * inflation_value);
+            board[i].value.current_market_price = (int) (board[i].value.current_market_price * inflation_value);
             board[i].value.base_rent = (int) (board[i].value.base_rent * inflation_value);
 
             if (board[i].type == PROPERTY) {
@@ -113,15 +114,40 @@ void dynamic_property_market(Cell *property_groups[][3], Game *game_status) {
     }
 }
 
-void national_event_card_draw(Player *player, Cell board[], Events national_events[], Game *game_status) {
-    printf("%s draws %s Card.\n", player->name, national_events[game_status->national_event_pointer].name);
+void national_event_card_draw(Player players[], Cell board[], Events national_events[], Game *game_status) {
+    printf("%s draws %s Card.\n", players[game_status->current_player].name, national_events[game_status->national_event_pointer].name);
     printf("%s.\n\n", national_events[game_status->national_event_pointer].event);
-    
-    player->events[game_status->national_event_pointer].remaining_effect = 15;
 
     switch (game_status->national_event_pointer) {
         case TOURISM_HYPE :
-            player->events[game_status->national_event_pointer].remaining_effect = 5;
+            players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 5;
+            break;
+        case FUEL_SHORTAGE :
+            players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 5;
+            break;
+        case HEAVY_FLOODS :
+            players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 0;
+            // to be implemented
+            break;
+        case POLITICAL_RALLY :
+            players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 2;
+            break;
+        case TAX_AMNESTY :
+            players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 0;
+            for (int i = 0; i < NO_OF_PLAYERS; i++) {
+                if (players[i].isBankrupt == FALSE) {
+                    players[i].cash += 2000;
+                }
+            }
+            break;
+        case POWER_FAILURE :
+            players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 3;
+            break;
+        case LABOUR_STRIKE :
+            players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 2;
+            break;
+        default :
+            players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 15;
             break;
     }
 
