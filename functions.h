@@ -8,6 +8,7 @@
 void generate_board(Cell board[]);
 void generate_event_cards(Events national_events[]);
 void destroy_property(Cell *place);
+int round_off(float num);
 void sort_players(Player players[]);
 void decide_player_order(Player players[]);
 

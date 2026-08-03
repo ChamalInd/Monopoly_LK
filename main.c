@@ -2,6 +2,8 @@
 #include "functions.h"
 #include "types.h"
 
+
+
 int main(void) {
     Cell board[NO_OF_CELLS];
     srand(1);

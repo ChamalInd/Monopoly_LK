@@ -281,6 +281,14 @@ void destroy_property(Cell *place) {
     place->buildings.has_damaged = FALSE;
 }
 
+int round_off(float num) {
+    if ((num + 0.5) >= ((int) num + 1)) {
+        return (int) num + 1;
+    } else {
+        return (int) num;
+    }
+}
+
 void sort_players(Player players[]) {
     int swapped = TRUE;
 

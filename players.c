@@ -249,7 +249,7 @@ int auction(Player players[], Cell *place, Ownership beneficiary, Game game_stat
     int starting_price = place->value.market_price / 2;
 
     if (game_status.dynamic_market.event == MARKET_DECLINE && place->group == game_status.dynamic_market.property_group) {
-        starting_price = (int) ((float) starting_price * 75.0 / 100.0);
+        starting_price = round_off((float) starting_price * 75.0 / 100.0);
     }
 
     highest_bid = starting_price;
@@ -368,9 +368,9 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
         if (place->buildings.has_damaged == TRUE) {
             rent = 0;
         } else if (place->buildings.age >= 20) {
-            rent -= (int) ((float) rent * (25.0 / 100.0));
+            rent -= round_off((float) rent * (25.0 / 100.0));
         } else {
-            rent -= (int) ((float) rent * (place->buildings.rent_reduction_rate / 100.0));
+            rent -= round_off((float) rent * (place->buildings.rent_reduction_rate / 100.0));
         }
 
     } else if (place->type == RAILWAY) {
@@ -470,8 +470,8 @@ void constructions(Player *player, Cell *place, Cell *property_groups[][3]) {
 void property_renovations(Player *player, Cell *place) {
     if (place->owner == player->id && place->depreciation.age >= 50) {
         float renovation_cost = (float) place->value.current_market_price * (10.0 / 100.0);
-        if (player->cash >= (int) renovation_cost) {
-            player->cash -= (int) renovation_cost;
+        if (player->cash >= round_off(renovation_cost)) {
+            player->cash -= round_off(renovation_cost);
             place->depreciation.age = 0;
             place->depreciation.percentage = 0;
             place->value.market_price = place->value.current_market_price;
@@ -502,8 +502,8 @@ void building_renovations(Player *player, Cell board[]) {
                 
             }
 
-            if (player->cash >= (int) maintenance_cost) {
-                player->cash -= (int) maintenance_cost;
+            if (player->cash >= round_off(maintenance_cost)) {
+                player->cash -= round_off(maintenance_cost);
                 board[i].buildings.age = 0;
                 board[i].buildings.condition = 100;
                 board[i].buildings.has_damaged = FALSE;

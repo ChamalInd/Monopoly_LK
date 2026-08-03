@@ -15,14 +15,14 @@ void obtain_loan(Player *player, Cell board[], Game game_status) {
 
         max_loan = ((float) total_unmortgaged_property_value) * (75.0 / 100.0);
 
-        player->cash += max_loan;
+        player->cash += round_off(max_loan);
         player->loan_status.no_of_loans++;
-        player->loan_status.total_payable += max_loan;
+        player->loan_status.total_payable += round_off(max_loan);
         player->loan_status.loan_duration = 20;
         player->loan_status.interest_rate = game_status.interest_rate;
 
         printf("%s obtained a secured loan.\n", player->name);
-        printf("Loan Amount : LKR %i.\n", (int) max_loan);
+        printf("Loan Amount : LKR %i.\n", round_off(max_loan));
         printf("Outstanding Loan Amount : LKR %i.\n", player->loan_status.total_payable);
         printf("\nCollateral : \n");
 
@@ -41,7 +41,7 @@ void obtain_loan(Player *player, Cell board[], Game game_status) {
 void accumulated_interest(Player *player) {
     if (player->isBankrupt == FALSE && player->loan_status.no_of_loans == 1 && player->loan_status.loan_duration > 0) {
         float interest = ((float) player->loan_status.total_payable) * (player->loan_status.interest_rate / 100.0);
-        player->loan_status.total_payable += (int) interest;
+        player->loan_status.total_payable += round_off(interest);
     }
 }
 
@@ -144,13 +144,13 @@ void obtain_insurance(Player *player, Cell *place, int provider) {
 
     switch (policy) {
         case BASIC:
-            premium = (int) ((float) place->value.market_price * (5.0 / 100.0));
+            premium = round_off((float) place->value.market_price * (5.0 / 100.0));
             break;
         case COMPREHENSIVE:
-            premium = (int) ((float) place->value.market_price * (10.0 / 100.0));
+            premium = round_off((float) place->value.market_price * (10.0 / 100.0));
             break;
         case BUSINESS_INTERRUPTION:
-            premium = (int) ((float) place->value.market_price * (15.0 / 100.0));
+            premium = round_off((float) place->value.market_price * (15.0 / 100.0));
             break;
     }
 
@@ -191,13 +191,13 @@ void renew_insurance(Player *player, Cell *board[], int length) {
 
         switch (board[i]->insurance.policy) {
             case BASIC:
-                premium = (int) ((float) board[i]->value.market_price * (5.0 / 100.0));
+                premium = round_off((float) board[i]->value.market_price * (5.0 / 100.0));
                 break;
             case COMPREHENSIVE:
-                premium = (int) ((float) board[i]->value.market_price * (10.0 / 100.0));
+                premium = round_off((float) board[i]->value.market_price * (10.0 / 100.0));
                 break;
             case BUSINESS_INTERRUPTION:
-                premium = (int) ((float) board[i]->value.market_price * (15.0 / 100.0));
+                premium = round_off((float) board[i]->value.market_price * (15.0 / 100.0));
                 break;
             default :
                 premium = -1;
@@ -219,7 +219,7 @@ void renew_insurance(Player *player, Cell *board[], int length) {
 void income_tax_payment(Player players[], Cell board[], Game game_status) {
     Status player_status = calculate_player_status(players[game_status.current_player], board);
     if (player_status.net_worth > 0) {
-        int amount = (int) ((float) player_status.net_worth * (game_status.income_tax_rate / 100.0)) + players[game_status.current_player].taxes_due;
+        int amount = round_off((float) player_status.net_worth * (game_status.income_tax_rate / 100.0)) + players[game_status.current_player].taxes_due;
 
         printf("Income Tax Amount : LKR %i.\n", amount);
         if (players[game_status.current_player].cash >= amount) {

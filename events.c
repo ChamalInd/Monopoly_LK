@@ -8,7 +8,7 @@ void property_depreciation(Cell board[]) {
 
             if (board[i].depreciation.age >= 50 && board[i].depreciation.percentage < MAX_DEPRECIATION) {
                 board[i].depreciation.percentage++;
-                board[i].value.market_price -= (int) ((float) board[i].value.market_price * (1.0 / 100.0));
+                board[i].value.market_price -= round_off((float) board[i].value.market_price * (1.0 / 100.0));
 
                 printf("%s has depreciated by %i%%.\n", board[i].name, board[i].depreciation.percentage);
                 printf("Current Value : LKR %i.\n\n", board[i].value.market_price);
@@ -57,14 +57,14 @@ void inflation(Cell board[], Game *game_status) {
 
     for (int i = 0; i < NO_OF_CELLS; i++) {
         if (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY) {
-            board[i].value.market_price = (int) (board[i].value.market_price * inflation_value);
-            board[i].value.current_market_price = (int) (board[i].value.current_market_price * inflation_value);
-            board[i].value.base_rent = (int) (board[i].value.base_rent * inflation_value);
+            board[i].value.market_price = round_off((float) (board[i].value.market_price) * inflation_value);
+            board[i].value.current_market_price = round_off((float) (board[i].value.current_market_price) * inflation_value);
+            board[i].value.base_rent = round_off((float) (board[i].value.base_rent) * inflation_value);
 
             if (board[i].type == PROPERTY) {
-                board[i].value.hotel_construction_cost = (int) (board[i].value.hotel_construction_cost * inflation_value);
-                board[i].value.house_construction_cost = (int) (board[i].value.house_construction_cost * inflation_value);
-                board[i].value.building_value = (int) (board[i].value.building_value * inflation_value);
+                board[i].value.hotel_construction_cost = round_off((float) (board[i].value.hotel_construction_cost) * inflation_value);
+                board[i].value.house_construction_cost = round_off((float) (board[i].value.house_construction_cost) * inflation_value);
+                board[i].value.building_value = round_off((float) (board[i].value.building_value) * inflation_value);
             }
         }
     }
@@ -93,21 +93,21 @@ void dynamic_property_market(Cell *property_groups[][3], Game *game_status) {
     if (event == MARKET_BOOM) {
         for (int i = 0; i < 3; i++) {
             if (property_groups[game_status->dynamic_market.property_group][i] != NULL) {
-                property_groups[game_status->dynamic_market.property_group][i]->value.market_price += (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->value.market_price * (15.0 / 100.0));
-                property_groups[game_status->dynamic_market.property_group][i]->value.current_market_price += (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->value.current_market_price * (15.0 / 100.0));
-                property_groups[game_status->dynamic_market.property_group][i]->mortgage.value += (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->mortgage.value * (15.0 / 100.0));
-                property_groups[game_status->dynamic_market.property_group][i]->value.base_rent += (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->value.base_rent * (25.0 / 100.0));
-                property_groups[game_status->dynamic_market.property_group][i]->value.house_construction_cost += (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->value.house_construction_cost * (10.0 / 100.0));
-                property_groups[game_status->dynamic_market.property_group][i]->value.hotel_construction_cost += (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->value.hotel_construction_cost * (10.0 / 100.0));
+                property_groups[game_status->dynamic_market.property_group][i]->value.market_price += round_off((float) property_groups[game_status->dynamic_market.property_group][i]->value.market_price * (15.0 / 100.0));
+                property_groups[game_status->dynamic_market.property_group][i]->value.current_market_price += round_off((float) property_groups[game_status->dynamic_market.property_group][i]->value.current_market_price * (15.0 / 100.0));
+                property_groups[game_status->dynamic_market.property_group][i]->mortgage.value += round_off((float) property_groups[game_status->dynamic_market.property_group][i]->mortgage.value * (15.0 / 100.0));
+                property_groups[game_status->dynamic_market.property_group][i]->value.base_rent += round_off((float) property_groups[game_status->dynamic_market.property_group][i]->value.base_rent * (25.0 / 100.0));
+                property_groups[game_status->dynamic_market.property_group][i]->value.house_construction_cost += round_off((float) property_groups[game_status->dynamic_market.property_group][i]->value.house_construction_cost * (10.0 / 100.0));
+                property_groups[game_status->dynamic_market.property_group][i]->value.hotel_construction_cost += round_off((float) property_groups[game_status->dynamic_market.property_group][i]->value.hotel_construction_cost * (10.0 / 100.0));
             }
         }
     } else {
         for (int i = 0; i < 3; i++) {
             if (property_groups[game_status->dynamic_market.property_group][i] != NULL) {
-                property_groups[game_status->dynamic_market.property_group][i]->value.market_price -= (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->value.market_price * (15.0 / 100.0));
-                property_groups[game_status->dynamic_market.property_group][i]->value.current_market_price -= (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->value.current_market_price * (15.0 / 100.0));
-                property_groups[game_status->dynamic_market.property_group][i]->mortgage.value -= (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->mortgage.value * (10.0 / 100.0));
-                property_groups[game_status->dynamic_market.property_group][i]->value.base_rent -= (int) ((float) property_groups[game_status->dynamic_market.property_group][i]->value.base_rent * (20.0 / 100.0));
+                property_groups[game_status->dynamic_market.property_group][i]->value.market_price -= round_off((float) property_groups[game_status->dynamic_market.property_group][i]->value.market_price * (15.0 / 100.0));
+                property_groups[game_status->dynamic_market.property_group][i]->value.current_market_price -= round_off((float) property_groups[game_status->dynamic_market.property_group][i]->value.current_market_price * (15.0 / 100.0));
+                property_groups[game_status->dynamic_market.property_group][i]->mortgage.value -= round_off((float) property_groups[game_status->dynamic_market.property_group][i]->mortgage.value * (10.0 / 100.0));
+                property_groups[game_status->dynamic_market.property_group][i]->value.base_rent -= round_off((float) property_groups[game_status->dynamic_market.property_group][i]->value.base_rent * (20.0 / 100.0));
             }
         }
     }
@@ -134,7 +134,7 @@ void national_event_card_draw(Player players[], Cell board[], Events national_ev
             break;
         case STOCK_MARKET_RISE :
             for (int i = 0; i < NO_OF_CELLS; i++) {
-                // board[i].value.base_price=0;
+                board[i].value.market_price += round_off((float) board[i].value.market_price * (10.0 / 100.0));
             }
             break;
         case TAX_AMNESTY :
