@@ -38,40 +38,34 @@ void obtain_loan(Player *player, Cell board[], Game game_status) {
     }
 }
 
-void accumulated_interest(Player players[]) {
-    for (int i = 0; i < NO_OF_PLAYERS; i++) {
-        if (players[i].isBankrupt == FALSE && players[i].loan_status.no_of_loans == 1 && players[i].loan_status.loan_duration > 0) {
-            float interest = ((float) players[i].loan_status.total_payable) * (players[i].loan_status.interest_rate / 100.0);
-            players[i].loan_status.total_payable += (int) interest;
-        }
+void accumulated_interest(Player *player) {
+    if (player->isBankrupt == FALSE && player->loan_status.no_of_loans == 1 && player->loan_status.loan_duration > 0) {
+        float interest = ((float) player->loan_status.total_payable) * (player->loan_status.interest_rate / 100.0);
+        player->loan_status.total_payable += (int) interest;
     }
 }
 
-void check_for_loan_status(Player players[], Cell board[], Game game_status) {
-    for (int i = 0; i < NO_OF_PLAYERS; i++) {
-        if (players[i].isBankrupt == FALSE) {
-            if (players[i].loan_status.loan_duration > 0) {
-                players[i].loan_status.loan_duration--;
-                if (players[i].loan_status.loan_duration == 3) {
-                    printf("Loan of %s for LKR %i will overdue after 3 rounds.\n\n", players[i].name, players[i].loan_status.total_payable);
-                }
-            } else if (players[i].loan_status.no_of_loans == 1 && players[i].loan_status.loan_duration == 0) {
-                players[i].loan_status.loan_duration = 0;
-                players[i].loan_status.no_of_loans = 0;
-                players[i].loan_status.total_payable = 0;
-            
-                printf("%s has defaulted.\n", players[i].name);
-                printf("Collateral has been foreclosed.\nOutstanding debt cleared.\n\n");
-
-                for (int j = 0; j < NO_OF_CELLS; j++) {
-                    if (board[j].owner == players[i].id && board[j].mortgage.status == MORTGAGED) {
-                        destroy_property(&board[j]);
-                        auction(players, &board[j], BANK_OF_CEYLON, game_status);
-                    }
-                }
-
-                check_for_bankruptcy(&players[i], board, players, game_status);
+void check_for_loan_status(Player *player, Player players[], Cell board[], Game game_status) {
+    if (player->isBankrupt == FALSE) {
+        if (player->loan_status.loan_duration > 0) {
+            player->loan_status.loan_duration--;
+            if (player->loan_status.loan_duration == 3) {
+                printf("Loan of %s for LKR %i will overdue after 3 rounds.\n\n", player->name, player->loan_status.total_payable);
             }
+        } else if (player->loan_status.no_of_loans == 1 && player->loan_status.loan_duration == 0) {
+            player->loan_status.loan_duration = 0;
+            player->loan_status.no_of_loans = 0;
+            player->loan_status.total_payable = 0;
+        
+            printf("%s has defaulted.\n", player->name);
+            printf("Collateral has been foreclosed.\nOutstanding debt cleared.\n\n");
+            for (int j = 0; j < NO_OF_CELLS; j++) {
+                if (board[j].owner == player->id && board[j].mortgage.status == MORTGAGED) {
+                    destroy_property(&board[j]);
+                    auction(players, &board[j], BANK_OF_CEYLON, game_status);
+                }
+            }
+            check_for_bankruptcy(player, board, players, game_status);
         }
     }
 }

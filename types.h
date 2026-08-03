@@ -40,11 +40,18 @@ typedef struct {
 } Loan;
 
 typedef struct {
+    int event;
+    int remaining_effect;
+} National_Events;
+
+typedef struct {
     char *name;
     int id;
     int isBankrupt;
     Jail jail_status;
     Loan loan_status;
+    National_Events events[20];
+    int events_own;
     int play_order;
     int die_roll;
     int cash;
@@ -126,14 +133,25 @@ typedef enum {
     NORMAL = -1, MARKET_BOOM, MARKET_DECLINE
 } Market;
 
+typedef enum {
+    TOURISM_HYPE, FUEL_SHORTAGE, HEAVY_FLOODS, POLITICAL_RALLY, STOCK_MARKET_RISE, ECONOMIC_DOWNTURN, HOUSING_SUBSIDY, INTEREST_RATE_CUT, INTEREST_RATE_INCREASE, TAX_AMNESTY, POWER_FAILURE, FOREIGN_FUNDING, PORT_EXPANSION, FESTIVAL_SEASON, LABOUR_STRIKE, INSURANCE_DISCOUNT, PROPERTY_REVALUATION, CURRENCY_DEPRECIATION, GOVERNMENT_GRANT, NATIONAL_DISASTER
+} Event_Nums;
+
 typedef struct {
     Market event;
     int property_group;
 } Dynamic_Market;
 
 typedef struct {
+    Event_Nums id;
+    char *name;
+    char *event;
+} Events;
+
+typedef struct {
     int rounds;
     Dynamic_Market dynamic_market;
+    int national_event_pointer;
     int inflation_rate;
     float interest_rate;
     int income_tax_rate;

@@ -6,15 +6,16 @@
 
 // Functions in board.c
 void generate_board(Cell board[]);
+void generate_event_cards(Events national_events[]);
 void destroy_property(Cell *place);
 void sort_players(Player players[]);
 void decide_player_order(Player players[]);
 
 // Functions in game.c
-void print_game(Game game_status, Player players[], Cell board[], int game_over);
+void print_game(Game game_status, Player players[], Cell board[], int game_over, Events national_events[]);
 int dice_roll(void);
 int decide_winner(Player players[], Cell board[]);
-void game_loop(Game *game_status, Player players[], Cell board[], Cell *property_groups[][3]);
+void game_loop(Game *game_status, Player players[], Cell board[], Cell *property_groups[][3], Events national_events[]);
 
 // Functions in players.c
 void initialize_players(Player players[]);
@@ -33,8 +34,8 @@ void building_renovations(Player *player, Cell board[]);
 
 // Functions in finance.c
 void obtain_loan(Player *player, Cell board[], Game game_status);
-void accumulated_interest(Player players[]);
-void check_for_loan_status(Player players[], Cell board[], Game game_status);
+void accumulated_interest(Player *player);
+void check_for_loan_status(Player *player, Player players[], Cell board[], Game game_status);
 void repay_part_of_loan(Player *player, Cell board[]);
 void repay_full_loan(Player *player, Cell board[]);
 void extend_loan(Player *player);
@@ -49,5 +50,7 @@ void property_depreciation(Cell board[]);
 void building_depreciation(Cell board[]);
 void inflation(Cell board[], Game *game_status);
 void dynamic_property_market(Cell *property_groups[][3], Game *game_status);
+void national_event_card_draw(Player *player, Cell board[], Events national_events[], Game *game_status);
+void national_event_card_expiry(Player *player);
 
 #endif

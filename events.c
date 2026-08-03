@@ -112,3 +112,26 @@ void dynamic_property_market(Cell *property_groups[][3], Game *game_status) {
         }
     }
 }
+
+void national_event_card_draw(Player *player, Cell board[], Events national_events[], Game *game_status) {
+    printf("%s draws %s Card.\n", player->name, national_events[game_status->national_event_pointer].name);
+    printf("%s.\n\n", national_events[game_status->national_event_pointer].event);
+    
+
+    // switch (game_status->national_event_pointer) {
+    //     case 0 :
+            
+    //         break;
+    // }
+    player->events[game_status->national_event_pointer].remaining_effect = 15;
+    game_status->national_event_pointer++;
+    game_status->national_event_pointer %= 20;
+}
+
+void national_event_card_expiry(Player *player) {
+    for (int i = 0; i < 20; i++) {
+        if (player->events[i].remaining_effect > 0) {
+            player->events[i].remaining_effect--;
+        }
+    }
+}

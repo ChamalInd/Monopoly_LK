@@ -1,7 +1,7 @@
 // Game controller and simulation engine
 #include "functions.h"
 
-void print_game(Game game_status, Player players[], Cell board[], int game_over) {
+void print_game(Game game_status, Player players[], Cell board[], int game_over, Events national_events[]) {
     if (game_status.rounds == 0) {
         // declare the start of the game
         for (int i = 0; i < 60; i++) {
@@ -27,7 +27,16 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over)
             if (players[i].isBankrupt == FALSE) {
                 Status player_status = calculate_player_status(players[i], board);
 
-                printf("\n%s\nCash : LKR %i\nNet Worth : LKR %i\nProperties : %i\nHotels : %i\nOutstanding Loans : LKR %i\n\n", players[i].name, players[i].cash, player_status.net_worth, player_status.total_properties, player_status.hotels_built, players[i].loan_status.total_payable);
+                printf("\n%s\nCash : LKR %i\nNet Worth : LKR %i\nProperties : %i\nHotels : %i\nOutstanding Loans : LKR %i\n", players[i].name, players[i].cash, player_status.net_worth, player_status.total_properties, player_status.hotels_built, players[i].loan_status.total_payable);
+                
+                printf("\nActive National Event Cards : \n");
+                for (int j = 0; j < 20; j++) {
+                    if (players[i].events[j].remaining_effect != 0) {
+                        printf("\t%s : ( Remaining Rounds : %i )\n", national_events[players[i].events[j].event].name, players[i].events[j].remaining_effect);
+                    }
+                }
+                printf("\n");
+
                 for (int j = 0; j < 60; j++) {
                     printf("-");
                 }
@@ -139,7 +148,7 @@ int decide_winner(Player players[], Cell board[]) {
     return winner_id;
 }
 
-void game_loop(Game *game_status, Player players[], Cell board[], Cell *property_groups[][3]) {
+void game_loop(Game *game_status, Player players[], Cell board[], Cell *property_groups[][3], Events national_events[]) {
     int current_player = 0, pass_go = FALSE, round_done = TRUE;
     int round_tracker[] = {0, 0, 0, 0};
 
@@ -173,7 +182,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 
         if (game_over) {
             game_status->rounds++;
-            print_game(*game_status, players, board, game_over);
+            print_game(*game_status, players, board, game_over, national_events);
             break;
         }
 
@@ -194,6 +203,10 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
         if (pass_go) {
             players[current_player].cash += GO_REWARD;
             round_tracker[current_player] = 1;
+
+            accumulated_interest(&players[current_player]);
+            check_for_loan_status(&players[current_player], players, board, *game_status);
+            national_event_card_expiry(&players[current_player]);
             
             printf("%s passed GO.\n", players[current_player].name);
             printf("Collected LKR 2000.\nCurrent Balance LKR %i.\n\n", players[current_player].cash);
@@ -226,8 +239,8 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
             } else if (players[current_player].place == 4) { // Income Tax
                 income_tax_payment(&players[current_player], *game_status, board);
 
-            } else if (players[current_player].place == 7 || players[current_player].place == 22) { // National Event Card
-                // printf("%s Landed on National Event Card.\n\n", players[current_player].name);
+            } else if (players[current_player].place == 7 || players[current_player].place == 22 || players[current_player].place == 36) { // National Event Card
+                national_event_card_draw(&players[current_player], board, national_events, game_status);
                 
             } else if (players[current_player].place == 17 || players[current_player].place == 33) { // Insurance
                 check_for_insurance_action(&players[current_player], board[players[current_player].place], board);
@@ -252,8 +265,6 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
                 break;
             }
 
-            accumulated_interest(players);
-            check_for_loan_status(players, board, *game_status);
             check_for_insurance_status(board);
             building_depreciation(board);
 
@@ -265,7 +276,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
                 dynamic_property_market(property_groups, game_status);
             }
 
-            print_game(*game_status, players, board, game_over);
+            print_game(*game_status, players, board, game_over, national_events);
         }
 
         current_player++;

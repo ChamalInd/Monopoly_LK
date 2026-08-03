@@ -194,21 +194,77 @@ void generate_board(Cell board[]) {
         {&board[37], &board[39], NULL}
     };
 
+    Events national_events[20];
+
     Game game_status = (Game) {
         .rounds = 0,
         .dynamic_market = (Dynamic_Market) {
             .event = NORMAL,
             .property_group = NONE
         },
+        .national_event_pointer = 0,
         .inflation_rate = 0,
         .interest_rate = 2.0f,  // demo value
         .income_tax_rate = 10   // demo value
     };
 
+    generate_event_cards(national_events);
     initialize_players(players);
-    print_game(game_status, players, board, FALSE);
+    print_game(game_status, players, board, FALSE, national_events);
     decide_player_order(players);
-    game_loop(&game_status, players, board, property_groups);
+    game_loop(&game_status, players, board, property_groups, national_events);
+}
+
+void generate_event_cards(Events national_events[]) {
+    char *event_names[] = {
+        "Tourism Hype", "Fuel Shortage", "Heavy Floods", "Political Rally", 
+        "Stock Market Rise", "Economic Downturn", "Housing Subsidy", 
+        "Interest Rate Cut", "Interest Rate Increase", "Tax Amnesty", 
+        "Power Failure", "Foreign Funding", "Port Expansion", "Festival Season", 
+        "Labour Strike", "Insurance Discount", "Property Revaluation", 
+        "Currency Depreciation", "Government Grant", "National Disaster"
+    };
+
+    char *event_description[] = {
+        "Hotels earn double rent for 5 rounds",
+        "Railway rent doubles for 5 rounds",
+        "Random coastal property damaged",
+        "One random property closed for 2 rounds",
+        "All property values increase by 10%",
+        "Property values decrease by 15%",
+        "House construction cost reduced by 30%",
+        "Loan interest reduced by 2%",
+        "Loan interest increased by 2%",
+        "Each player receives LKR 2,000",
+        "Utility income halved for 3 rounds",
+        "Commercial property values increase by 15%",
+        "Railway station values increase by 20%",
+        "Hotels receive 50% additional rent",
+        "Construction suspended for 2 rounds",
+        "Premiums reduced by 20%",
+        "Random property group appreciates by 15%",
+        "Construction costs increase by 10%",
+        "Random player receives LKR 5,000",
+        "Random developed property damaged"
+    };
+
+    Event_Nums event_ids[] = {
+        TOURISM_HYPE, FUEL_SHORTAGE, HEAVY_FLOODS, POLITICAL_RALLY, 
+        STOCK_MARKET_RISE, ECONOMIC_DOWNTURN, HOUSING_SUBSIDY, 
+        INTEREST_RATE_CUT, INTEREST_RATE_INCREASE, TAX_AMNESTY, POWER_FAILURE, 
+        FOREIGN_FUNDING, PORT_EXPANSION, FESTIVAL_SEASON, LABOUR_STRIKE, 
+        INSURANCE_DISCOUNT, PROPERTY_REVALUATION, CURRENCY_DEPRECIATION, 
+        GOVERNMENT_GRANT, NATIONAL_DISASTER
+    };
+
+    for (int i = 0; i < 20; i++) {
+        national_events[i] = (Events) {
+            .id = event_ids[i],
+            .name = event_names[i],
+            .event = event_description[i]
+        };
+    }
+      
 }
 
 void destroy_property(Cell *place) {

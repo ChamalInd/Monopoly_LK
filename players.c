@@ -12,12 +12,17 @@ void initialize_players(Player players[]) {
             .isBankrupt = FALSE,
             .jail_status = (Jail) {FALSE, 0},
             .loan_status = (Loan) {0, 0, 0, 2}, // 2 is a demo number
+            .events_own = 0,
             .play_order = 5, // set as 5 for sorting process when deciding the player order
             .die_roll = NONE,
             .cash = STARTUP_CASH,
             .taxes_due = 0,
             .place = 0
         };
+
+        for (int j = 0; j < 20; j++) {
+            players[i].events[j] = (National_Events) {j, 0};
+        }
     }
 }
 
@@ -118,7 +123,7 @@ void announce_bankruptcy(Player *player, Cell board[], Player players[], Game ga
         player->place = 0;
         printf("%s has been declared bankrupt.\n", player->name);
         printf("Remaining assets transferred to the Bank.\n\n");
-        
+
         for (int i = 0; i < NO_OF_CELLS; i++) {
             if (board[i].owner == player->id) {
                 destroy_property(&board[i]);
