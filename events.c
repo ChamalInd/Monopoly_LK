@@ -117,13 +117,14 @@ void national_event_card_draw(Player *player, Cell board[], Events national_even
     printf("%s draws %s Card.\n", player->name, national_events[game_status->national_event_pointer].name);
     printf("%s.\n\n", national_events[game_status->national_event_pointer].event);
     
-
-    // switch (game_status->national_event_pointer) {
-    //     case 0 :
-            
-    //         break;
-    // }
     player->events[game_status->national_event_pointer].remaining_effect = 15;
+
+    switch (game_status->national_event_pointer) {
+        case TOURISM_HYPE :
+            player->events[game_status->national_event_pointer].remaining_effect = 5;
+            break;
+    }
+
     game_status->national_event_pointer++;
     game_status->national_event_pointer %= 20;
 }

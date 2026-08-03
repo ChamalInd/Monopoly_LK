@@ -23,7 +23,7 @@ Status calculate_player_status(Player player, Cell board[]);
 void player_actions(Player players[], Cell board[], Cell *property_groups[][3], Game *game_status, Events national_events[]);
 void check_for_jailed(Player *player);
 void check_for_bankruptcy(Player players[], Cell board[], Game game_status, int player);
-void announce_bankruptcy(Player players[], Cell board[], Game game_status);
+void announce_bankruptcy(Player players[], Cell board[], Game game_status, int player);
 void check_for_bank_action(Player *player, Cell board[], Game game_status);
 void check_for_insurance_action(Player *player, Cell place, Cell board[]);
 void buy(Player players[], Cell *place, Game game_status);
@@ -44,7 +44,7 @@ void increase_loan(Player *player, Cell board[], Game game_status);
 void obtain_insurance(Player *player, Cell *place, int provider);
 void check_for_insurance_status(Cell board[]);
 void renew_insurance(Player *player, Cell *board[], int length);
-void income_tax_payment(Player *player, Game game_status, Cell board[]);
+void income_tax_payment(Player players[], Cell board[], Game game_status);
 
 // Functions in events.c
 void property_depreciation(Cell board[]);

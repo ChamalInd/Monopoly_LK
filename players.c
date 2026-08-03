@@ -103,7 +103,8 @@ void player_actions(Player players[], Cell board[], Cell *property_groups[][3], 
         if (place_id == 2) { // Community Development Fund
             // printf("%s Landed on Community Development Fund.\n\n", players[current_player].name);
         } else if (place_id == 4) { // Income Tax
-            income_tax_payment(&players[game_status->current_player], *game_status, board);
+            income_tax_payment(players, board, *game_status);
+
         } else if (place_id == 7 || place_id == 22 || place_id == 36) { // National Event Card
             national_event_card_draw(&players[game_status->current_player], board, national_events, game_status);
             
@@ -112,6 +113,7 @@ void player_actions(Player players[], Cell board[], Cell *property_groups[][3], 
             
         } else if (place_id == 30) { // Jail square
             check_for_jailed(&players[game_status->current_player]);
+
         } else if (place_id == 38) { // Bank square
             check_for_bank_action(&players[game_status->current_player], board, *game_status);
         } 
@@ -156,23 +158,22 @@ void check_for_jailed(Player *player) {
 
 void check_for_bankruptcy(Player players[], Cell board[], Game game_status, int player) {
     Status player_status = calculate_player_status(players[player], board);
-    if (player_status.net_worth < 0 && players[player].isBankrupt == FALSE) {
+
+    if (players[player].isBankrupt == FALSE && player_status.net_worth < 0) {
         players[player].isBankrupt = TRUE;
-        announce_bankruptcy(players, board, game_status);
+        announce_bankruptcy(players, board, game_status, player);
     } 
 }
 
-void announce_bankruptcy(Player players[], Cell board[], Game game_status) {
-    if (players[game_status.current_player].isBankrupt == TRUE) {
-        players[game_status.current_player].place = 0;
-        printf("%s has been declared bankrupt.\n", players[game_status.current_player].name);
-        printf("Remaining assets transferred to the Bank.\n\n");
+void announce_bankruptcy(Player players[], Cell board[], Game game_status, int player) {
+    players[player].place = 0;
+    printf("%s has been declared bankrupt.\n", players[player].name);
+    printf("Remaining assets transferred to the Bank.\n\n");
 
-        for (int i = 0; i < NO_OF_CELLS; i++) {
-            if (board[i].owner == players[game_status.current_player].id) {
-                destroy_property(&board[i]);
-                auction(players, &board[i], BANK_OF_CEYLON, game_status);
-            }
+    for (int i = 0; i < NO_OF_CELLS; i++) {
+        if (board[i].owner == players[player].id) {
+            destroy_property(&board[i]);
+            auction(players, &board[i], BANK_OF_CEYLON, game_status);
         }
     }
 }
@@ -293,7 +294,7 @@ int auction(Player players[], Cell *place, Ownership beneficiary, Game game_stat
                         printf("%s withdraws.\n", players[i].name);
                     }
                 }
-            } else if (players[i].isBankrupt == FALSE && players[i].id != beneficiary) {
+            } else if (can_bid && players[i].isBankrupt == FALSE && players[i].id != beneficiary) {
                 withdrawn[withdrawn_count] = players[i].id;
                 withdrawn_count++;
                 printf("%s withdraws.\n", players[i].name);
@@ -355,6 +356,11 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
         } else if (place->buildings.no_of_hotels != 0) {
             rent = place->value.base_rent * 10;
 
+            // for tourism hype
+            if (place->ownerptr->events[TOURISM_HYPE].remaining_effect > 0) {
+                rent *= 2;
+            }
+
         } else {
             rent = place->value.base_rent;
         }
@@ -372,6 +378,11 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
         int rent_values[] = {250, 500, 1000, 2000};
         rent = rent_values[owner_status.total_railways - 1];
 
+        // for fuel shortage
+        if (place->ownerptr->events[FUEL_SHORTAGE].remaining_effect > 0) {
+            rent *= 2;
+        }
+
     } else if (place->type == UTILITY) {
         int rent_values[] = {4 * players[game_status.current_player].die_roll, 10 * players[game_status.current_player].die_roll};
         rent = rent_values[owner_status.total_utilities - 1];
@@ -386,7 +397,7 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
             while (TRUE) {
                 Cell *temp = NULL;
                 for (int i = 0; i < NO_OF_CELLS; i++) {
-                    if ((prev_property != i) && (board[i].owner == players[game_status.current_player].id) && (board[i].mortgage.status == UNMORTGAGED) && (board[i].type == PROPERTY)) {
+                    if ((prev_property != i) && (board[i].owner == players[game_status.current_player].id) && (board[i].mortgage.status == UNMORTGAGED) && (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY)) {
                         temp = &board[i];
                         prev_property = i;
                         break;
@@ -401,13 +412,13 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
 
                 } else { // declared bankrupt if failed to sell property
                     players[game_status.current_player].isBankrupt = TRUE;
-                    announce_bankruptcy(players, board, game_status);
+                    announce_bankruptcy(players, board, game_status, game_status.current_player);
                     return; 
                 }
             }
         } else { // not enough property so declared bankrupt
             players[game_status.current_player].isBankrupt = TRUE;
-            announce_bankruptcy(players, board, game_status);
+            announce_bankruptcy(players, board, game_status, game_status.current_player);
             return;
         }
     }  
@@ -417,7 +428,6 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
 
     printf("Rent Paid : LKR %i.\n", rent);
     printf("Owner : %s.\n\n", place->ownerptr->name); 
-
 }
 
 void constructions(Player *player, Cell *place, Cell *property_groups[][3]) {
@@ -488,9 +498,9 @@ void building_renovations(Player *player, Cell board[]) {
                 }
             } else {
                 if (board[i].buildings.age >= 20) {
-                    maintenance_cost = (float) (board[i].value.house_construction_cost * (5.0 / 100.0)) * (50.0 / 100);
+                    maintenance_cost = (float) (board[i].value.house_construction_cost * (5.0 / 100.0)) * (50.0 / 100) * board[i].buildings.no_of_houses;
                 } else {
-                    maintenance_cost = (float) board[i].value.house_construction_cost * (5.0 / 100.0);
+                    maintenance_cost = (float) board[i].value.house_construction_cost * (5.0 / 100.0) * board[i].buildings.no_of_houses;
                 }
                 
             }

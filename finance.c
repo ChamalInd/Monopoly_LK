@@ -216,17 +216,21 @@ void renew_insurance(Player *player, Cell *board[], int length) {
     }
 }
 
-void income_tax_payment(Player *player, Game game_status, Cell board[]) {
-    Status player_status = calculate_player_status(*player, board);
-    int amount = (int) ((float) player_status.net_worth * (game_status.income_tax_rate / 100.0));
+void income_tax_payment(Player players[], Cell board[], Game game_status) {
+    Status player_status = calculate_player_status(players[game_status.current_player], board);
+    if (player_status.net_worth > 0) {
+        int amount = (int) ((float) player_status.net_worth * (game_status.income_tax_rate / 100.0)) + players[game_status.current_player].taxes_due;
 
-    printf("Income Tax Amount : LKR %i.\n", amount);
-    if (player->cash >= amount) {
-        player->cash -= amount;
-        printf("%s paid Full Income Tax Amount.\nRemaining Balance : LKR %i.\n\n", player->name, player->cash);
+        printf("Income Tax Amount : LKR %i.\n", amount);
+        if (players[game_status.current_player].cash >= amount) {
+            players[game_status.current_player].cash -= amount;
+            printf("%s paid Full Income Tax Amount.\nRemaining Balance : LKR %i.\n\n", players[game_status.current_player].name, players[game_status.current_player].cash);
+        } else {
+            players[game_status.current_player].taxes_due += (amount - players[game_status.current_player].cash);
+            players[game_status.current_player].cash = 0;
+            printf("%s partially paid Income Tax.\nRemaining Balance : LKR %i.\n\n", players[game_status.current_player].name, players[game_status.current_player].cash);
+        }
     } else {
-        player->taxes_due += (amount - player->cash);
-        player->cash = 0;
-        printf("%s partially paid Income Tax.\nRemaining Balance : LKR %i.\n\n", player->name, player->cash);
+        check_for_bankruptcy(players, board, game_status, game_status.current_player);
     }
 }

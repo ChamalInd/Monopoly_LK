@@ -150,12 +150,12 @@ int decide_winner(Player players[], Cell board[]) {
 
 void game_loop(Game *game_status, Player players[], Cell board[], Cell *property_groups[][3], Events national_events[]) {
     int pass_go = FALSE, round_done = TRUE;
-    int round_tracker[] = {0, 0, 0, 0};
+    int round_tracker = 0;
 
     while (TRUE) {
         // skips bankrupt players
         if (players[game_status->current_player].isBankrupt == TRUE) {
-            round_tracker[game_status->current_player] = 1;
+            round_tracker += 1;
             game_status->current_player = ((game_status->current_player + 1) % NO_OF_PLAYERS);
             continue;
         } 
@@ -188,7 +188,6 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
         }
 
         pass_go = FALSE;
-        round_done = TRUE;
 
         players[game_status->current_player].die_roll = dice_roll();
         printf("%s rolled %i.\n", players[game_status->current_player].name, players[game_status->current_player].die_roll);
@@ -203,7 +202,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 
         if (pass_go) {
             players[game_status->current_player].cash += GO_REWARD;
-            round_tracker[game_status->current_player] = 1;
+            round_tracker += 1;
 
             accumulated_interest(&players[game_status->current_player]);
             check_for_loan_status(players, board, *game_status);
@@ -213,11 +212,10 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
             printf("Collected LKR 2000.\nCurrent Balance LKR %i.\n\n", players[game_status->current_player].cash);
         }
 
-        for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            if (round_tracker[i] == 0) {
-                round_done = FALSE;
-                break;
-            }
+        round_done = TRUE;
+
+        if (round_tracker != 4) {
+            round_done = FALSE;
         }
 
         player_actions(players, board, property_groups, game_status, national_events);
@@ -225,11 +223,10 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
         if (round_done) {
             // tasks happening at every round
             game_status->rounds++;
-            for (int i = 0; i < NO_OF_PLAYERS; i++) {
-                round_tracker[i] = 0;
-            }
+            round_tracker = 0;
 
             if (game_status->rounds == MAX_ROUNDS) {
+                print_game(*game_status, players, board, game_over, national_events);
                 break;
             }
 
