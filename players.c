@@ -104,7 +104,7 @@ void player_actions(Player players[], Cell board[], Cell *property_groups[][3], 
             income_tax_payment(players, board, *game_status);
 
         } else if (place_id == 7 || place_id == 22 || place_id == 36) { // National Event Card
-            // national_event_card_draw(players, board, national_events, game_status);
+            national_event_card_draw(players, board, national_events, game_status);
             
         } else if (place_id == 17 || place_id == 33) { // Insurance
             check_for_insurance_action(&players[game_status->current_player], board[place_id], board);
@@ -398,32 +398,25 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
         printf("%s do not have enough cash to pay rent.\n", players[game_status.current_player].name);
         printf("Cash Balance : LKR %i.\nRequired Amount : LKR %i\n\n", players[game_status.current_player].cash, rent);
         if (player_status.total_property_value >= rent) {
-            int prev_property = 0;
-            while (TRUE) {
-                Cell *temp = NULL;
-                for (int i = 0; i < NO_OF_CELLS; i++) {
-                    if ((prev_property != i) && (board[i].owner == players[game_status.current_player].id) && (board[i].mortgage.status == UNMORTGAGED) && (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY)) {
-                        temp = &board[i];
-                        prev_property = i;
-                        break;
-                    } 
-                }
+            Cell *available[NO_OF_CELLS];
 
-                if (temp != NULL) {
+            for (int i = 0; i < NO_OF_CELLS; i++) {
+                if (board[i].owner == players[game_status.current_player].id && board[i].mortgage.status == UNMORTGAGED && (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY)) {
+                    available[i] = &board[i];
+                } else {
+                    available[i] = NULL;
+                }
+            }
+
+            for (int i = 0; i < NO_OF_CELLS; i++) {
+                if (available[i] != NULL) {
                     printf("%s decided to sell a property.\n\n", players[game_status.current_player].name);
-                    int result = auction(players, temp, players[game_status.current_player].id, game_status);
+                    int result = auction(players, available[i], players[game_status.current_player].id, game_status);
+
                     if (result == TRUE && players[game_status.current_player].cash >= rent) {
                         break;
 
-                    } else if (result == FALSE && temp == &board[NO_OF_CELLS - 1]) { // declared bankrupt if failed to sell property
-                        players[game_status.current_player].isBankrupt = TRUE;
-                        announce_bankruptcy(players, board, game_status, game_status.current_player);
-                        return;
                     }
-                } else { // declared bankrupt if failed to sell property
-                    players[game_status.current_player].isBankrupt = TRUE;
-                    announce_bankruptcy(players, board, game_status, game_status.current_player);
-                    return;
                 }
             }
         } else { // not enough property so declared bankrupt

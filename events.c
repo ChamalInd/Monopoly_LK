@@ -119,33 +119,33 @@ void national_event_card_draw(Player players[], Cell board[], Events national_ev
     printf("%s.\n\n", national_events[game_status->national_event_pointer].event);
 
     switch (game_status->national_event_pointer) {
-        case TOURISM_HYPE :
-            players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 5;
-            break;
-        case FUEL_SHORTAGE :
-            players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 5;
-            break;
-        case HEAVY_FLOODS :
-            players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 0;
-            // to be implemented
-            break;
-        case POLITICAL_RALLY :
-            players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 2;
-            break;
-        case TAX_AMNESTY :
-            players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 0;
-            for (int i = 0; i < NO_OF_PLAYERS; i++) {
-                if (players[i].isBankrupt == FALSE) {
-                    players[i].cash += 2000;
-                }
-            }
-            break;
-        case POWER_FAILURE :
-            players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 3;
-            break;
-        case LABOUR_STRIKE :
-            players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 2;
-            break;
+    //     case TOURISM_HYPE :
+    //         players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 5;
+    //         break;
+    //     case FUEL_SHORTAGE :
+    //         players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 5;
+    //         break;
+    //     case HEAVY_FLOODS :
+    //         players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 0;
+    //         // to be implemented
+    //         break;
+    //     case POLITICAL_RALLY :
+    //         players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 2;
+    //         break;
+    //     case TAX_AMNESTY :
+    //         players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 0;
+    //         // for (int i = 0; i < NO_OF_PLAYERS; i++) {
+    //         //     if (players[i].isBankrupt == FALSE) {
+    //         //         players[i].cash += 2000;
+    //         //     }
+    //         // }
+    //         break;
+    //     case POWER_FAILURE :
+    //         players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 3;
+    //         break;
+    //     case LABOUR_STRIKE :
+    //         players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 2;
+    //         break;
         default :
             players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 15;
             break;
