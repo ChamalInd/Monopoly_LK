@@ -198,6 +198,7 @@ void generate_board(Cell board[]) {
 
     Game game_status = (Game) {
         .rounds = 0,
+        .current_player = 0,
         .dynamic_market = (Dynamic_Market) {
             .event = NORMAL,
             .property_group = NONE

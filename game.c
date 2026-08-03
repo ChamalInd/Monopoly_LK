@@ -149,32 +149,33 @@ int decide_winner(Player players[], Cell board[]) {
 }
 
 void game_loop(Game *game_status, Player players[], Cell board[], Cell *property_groups[][3], Events national_events[]) {
-    int current_player = 0, pass_go = FALSE, round_done = TRUE;
+    int pass_go = FALSE, round_done = TRUE;
     int round_tracker[] = {0, 0, 0, 0};
 
     while (TRUE) {
         // skips bankrupt players
-        if (players[current_player].isBankrupt == TRUE) {
-            round_tracker[current_player] = 1;
-            current_player = ((current_player + 1) % NO_OF_PLAYERS);
+        if (players[game_status->current_player].isBankrupt == TRUE) {
+            round_tracker[game_status->current_player] = 1;
+            game_status->current_player = ((game_status->current_player + 1) % NO_OF_PLAYERS);
             continue;
         } 
 
         // skips jailed players after giving them a chance to get out
-        if (players[current_player].jail_status.isJailed == TRUE) {
-            check_for_jailed(&players[current_player]);
-            if (players[current_player].jail_status.isJailed == TRUE) {
-                current_player = ((current_player + 1) % NO_OF_PLAYERS);
+        if (players[game_status->current_player].jail_status.isJailed == TRUE) {
+            check_for_jailed(&players[game_status->current_player]);
+            if (players[game_status->current_player].jail_status.isJailed == TRUE) {
+                game_status->current_player = ((game_status->current_player + 1) % NO_OF_PLAYERS);
                 continue;
             }
         }
 
         int game_over = TRUE;
 
+
         // checks for game end signal
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            check_for_bankruptcy(&players[i], board, players, *game_status);
-            if (players[i].id != players[current_player].id && players[i].isBankrupt == FALSE) {
+            check_for_bankruptcy(players, board, *game_status, i);
+            if (players[i].id != players[game_status->current_player].id && players[i].isBankrupt == FALSE) {
                 game_over = FALSE;
                 break;
             } 
@@ -189,27 +190,27 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
         pass_go = FALSE;
         round_done = TRUE;
 
-        players[current_player].die_roll = dice_roll();
-        printf("%s rolled %i.\n", players[current_player].name, players[current_player].die_roll);
+        players[game_status->current_player].die_roll = dice_roll();
+        printf("%s rolled %i.\n", players[game_status->current_player].name, players[game_status->current_player].die_roll);
         
-        printf("%s moves from Square %i ", players[current_player].name, players[current_player].place + 1);
-        players[current_player].place += players[current_player].die_roll;
-        if (players[current_player].place >= NO_OF_CELLS) {
+        printf("%s moves from Square %i ", players[game_status->current_player].name, players[game_status->current_player].place + 1);
+        players[game_status->current_player].place += players[game_status->current_player].die_roll;
+        if (players[game_status->current_player].place >= NO_OF_CELLS) {
             pass_go = TRUE;
         }
-        players[current_player].place %= NO_OF_CELLS;
-        printf("to Square %i.\n\n", players[current_player].place + 1);
+        players[game_status->current_player].place %= NO_OF_CELLS;
+        printf("to Square %i.\n\n", players[game_status->current_player].place + 1);
 
         if (pass_go) {
-            players[current_player].cash += GO_REWARD;
-            round_tracker[current_player] = 1;
+            players[game_status->current_player].cash += GO_REWARD;
+            round_tracker[game_status->current_player] = 1;
 
-            accumulated_interest(&players[current_player]);
-            check_for_loan_status(&players[current_player], players, board, *game_status);
-            national_event_card_expiry(&players[current_player]);
+            accumulated_interest(&players[game_status->current_player]);
+            check_for_loan_status(players, board, *game_status);
+            national_event_card_expiry(&players[game_status->current_player]);
             
-            printf("%s passed GO.\n", players[current_player].name);
-            printf("Collected LKR 2000.\nCurrent Balance LKR %i.\n\n", players[current_player].cash);
+            printf("%s passed GO.\n", players[game_status->current_player].name);
+            printf("Collected LKR 2000.\nCurrent Balance LKR %i.\n\n", players[game_status->current_player].cash);
         }
 
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
@@ -219,7 +220,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
             }
         }
 
-        player_actions(players, &players[current_player], board, property_groups, game_status, national_events);
+        player_actions(players, board, property_groups, game_status, national_events);
 
         if (round_done) {
             // tasks happening at every round
@@ -246,7 +247,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
             print_game(*game_status, players, board, game_over, national_events);
         }
 
-        current_player++;
-        current_player %= NO_OF_PLAYERS;
+        game_status->current_player++;
+        game_status->current_player %= NO_OF_PLAYERS;
     } 
 }

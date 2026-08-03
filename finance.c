@@ -45,27 +45,27 @@ void accumulated_interest(Player *player) {
     }
 }
 
-void check_for_loan_status(Player *player, Player players[], Cell board[], Game game_status) {
-    if (player->isBankrupt == FALSE) {
-        if (player->loan_status.loan_duration > 0) {
-            player->loan_status.loan_duration--;
-            if (player->loan_status.loan_duration == 3) {
-                printf("Loan of %s for LKR %i will overdue after 3 rounds.\n\n", player->name, player->loan_status.total_payable);
+void check_for_loan_status(Player players[], Cell board[], Game game_status) {
+    if (players[game_status.current_player].isBankrupt == FALSE) {
+        if (players[game_status.current_player].loan_status.loan_duration > 0) {
+            players[game_status.current_player].loan_status.loan_duration--;
+            if (players[game_status.current_player].loan_status.loan_duration == 3) {
+                printf("Loan of %s for LKR %i will overdue after 3 rounds.\n\n", players[game_status.current_player].name, players[game_status.current_player].loan_status.total_payable);
             }
-        } else if (player->loan_status.no_of_loans == 1 && player->loan_status.loan_duration == 0) {
-            player->loan_status.loan_duration = 0;
-            player->loan_status.no_of_loans = 0;
-            player->loan_status.total_payable = 0;
+        } else if (players[game_status.current_player].loan_status.no_of_loans == 1 && players[game_status.current_player].loan_status.loan_duration == 0) {
+            players[game_status.current_player].loan_status.loan_duration = 0;
+            players[game_status.current_player].loan_status.no_of_loans = 0;
+            players[game_status.current_player].loan_status.total_payable = 0;
         
-            printf("%s has defaulted.\n", player->name);
+            printf("%s has defaulted.\n", players[game_status.current_player].name);
             printf("Collateral has been foreclosed.\nOutstanding debt cleared.\n\n");
             for (int j = 0; j < NO_OF_CELLS; j++) {
-                if (board[j].owner == player->id && board[j].mortgage.status == MORTGAGED) {
+                if (board[j].owner == players[game_status.current_player].id && board[j].mortgage.status == MORTGAGED) {
                     destroy_property(&board[j]);
                     auction(players, &board[j], BANK_OF_CEYLON, game_status);
                 }
             }
-            check_for_bankruptcy(player, board, players, game_status);
+            check_for_bankruptcy(players, board, game_status, game_status.current_player);
         }
     }
 }

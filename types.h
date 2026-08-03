@@ -150,6 +150,7 @@ typedef struct {
 
 typedef struct {
     int rounds;
+    int current_player;
     Dynamic_Market dynamic_market;
     int national_event_pointer;
     int inflation_rate;

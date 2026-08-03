@@ -20,15 +20,15 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 // Functions in players.c
 void initialize_players(Player players[]);
 Status calculate_player_status(Player player, Cell board[]);
-void player_actions(Player players[], Player *player, Cell board[], Cell *property_groups[][3], Game *game_status, Events national_events[]);
+void player_actions(Player players[], Cell board[], Cell *property_groups[][3], Game *game_status, Events national_events[]);
 void check_for_jailed(Player *player);
-void check_for_bankruptcy(Player *player, Cell board[], Player players[], Game game_status);
-void announce_bankruptcy(Player *player, Cell board[], Player players[], Game game_status);
+void check_for_bankruptcy(Player players[], Cell board[], Game game_status, int player);
+void announce_bankruptcy(Player players[], Cell board[], Game game_status);
 void check_for_bank_action(Player *player, Cell board[], Game game_status);
 void check_for_insurance_action(Player *player, Cell place, Cell board[]);
-void buy(Player players[], Player *player, Cell *place, Game game_status);
+void buy(Player players[], Cell *place, Game game_status);
 int auction(Player players[], Cell *place, Ownership beneficiary, Game game_status);
-void rent(Player players[], Player *player, Cell *place, Cell board[], Game game_status);
+void rent(Player players[], Cell *place, Cell board[], Game game_status);
 void constructions(Player *player, Cell *place, Cell *property_groups[][3]);
 void property_renovations(Player *player, Cell *place);
 void building_renovations(Player *player, Cell board[]);
@@ -36,7 +36,7 @@ void building_renovations(Player *player, Cell board[]);
 // Functions in finance.c
 void obtain_loan(Player *player, Cell board[], Game game_status);
 void accumulated_interest(Player *player);
-void check_for_loan_status(Player *player, Player players[], Cell board[], Game game_status);
+void check_for_loan_status(Player players[], Cell board[], Game game_status);
 void repay_part_of_loan(Player *player, Cell board[]);
 void repay_full_loan(Player *player, Cell board[]);
 void extend_loan(Player *player);
