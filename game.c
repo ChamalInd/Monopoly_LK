@@ -148,6 +148,64 @@ int decide_winner(Player players[], Cell board[]) {
     return winner_id;
 }
 
+void check_for_jailed(Player *player) {
+    if (player->jail_status.isJailed == FALSE) {
+        player->jail_status.isJailed = TRUE;
+        player->jail_status.no_of_rounds = 0;
+        printf("%s is in Jail.\n%s moves from Square %i to Square 11.\n\n", player->name, player->name, player->place + 1);
+
+        player->place = 10;
+
+    } else if (player->jail_status.isJailed == TRUE) {
+        player->jail_status.no_of_rounds++;
+
+        if (player->jail_status.no_of_rounds == 3) {
+            player->jail_status.isJailed = FALSE;
+            player->jail_status.no_of_rounds = 0;
+            printf("%s got out of Jail after spending 3 turns idle.\n\n", player->name);
+
+        } else {
+            int choice = rand() % 3;
+            if (choice == 0 && player->cash >= 300) {
+                player->cash -= 300;
+                player->jail_status.isJailed = FALSE;
+                player->jail_status.no_of_rounds = 0;
+                printf("%s got out of Jail by paying bail of LKR 300.\n\n", player->name);
+            } else if (choice == 1) {
+                int die_1 = (rand() % 6) + 1;
+                int die_2 = (rand() % 6) + 1;
+                if (die_1 == die_2) {
+                    player->jail_status.isJailed = FALSE;
+                    player->jail_status.no_of_rounds = 0;
+                    printf("%s got out of Jail by rolling doubles.\n\n", player->name);
+                }
+            }
+        }
+    }
+}
+
+void check_for_bankruptcy(Player players[], Cell board[], Game game_status, int player) {
+    Status player_status = calculate_player_status(players[player], board);
+
+    if (players[player].isBankrupt == FALSE && player_status.net_worth < 0) {
+        players[player].isBankrupt = TRUE;
+        announce_bankruptcy(players, board, game_status, player);
+    } 
+}
+
+void announce_bankruptcy(Player players[], Cell board[], Game game_status, int player) {
+    players[player].place = 0;
+    printf("%s has been declared bankrupt.\n", players[player].name);
+    printf("Remaining assets transferred to the Bank.\n\n");
+
+    for (int i = 0; i < NO_OF_CELLS; i++) {
+        if (board[i].owner == players[player].id) {
+            destroy_property(&board[i]);
+            auction(players, &board[i], BANK_OF_CEYLON, game_status);
+        }
+    }
+}
+
 void game_loop(Game *game_status, Player players[], Cell board[], Cell *property_groups[][3], Events national_events[]) {
     int pass_go = FALSE, round_done = TRUE;
     int round_tracker = 0;

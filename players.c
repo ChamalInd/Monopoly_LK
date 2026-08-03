@@ -1,32 +1,6 @@
 // Player decision-making algorithms
 #include "functions.h"
 
-void initialize_players(Player players[]) {
-    char *player_names[] = {"Aggressive Investor", "Conservative Banker", "Risk Taker", "Opportunistic Trader"};
-    int plays[] = {AGGRESSIVE_INVESTOR, CONSERVATIVE_BANKER, RISK_TAKER, OPPORTUNISTIC_TRADER};
-
-    for (int i = 0; i < NO_OF_PLAYERS; i++) {
-        players[i] = (Player) {
-            .name = player_names[i],
-            .id = plays[i],
-            .isBankrupt = FALSE,
-            .going_to_bid = FALSE,
-            .jail_status = (Jail) {FALSE, 0},
-            .loan_status = (Loan) {0, 0, 0, 2}, // 2 is a demo number
-            .events_own = 0,
-            .play_order = 5, // set as 5 for sorting process when deciding the player order
-            .die_roll = NONE,
-            .cash = STARTUP_CASH,
-            .taxes_due = 0,
-            .place = 0
-        };
-
-        for (int j = 0; j < 20; j++) {
-            players[i].events[j] = (National_Events) {j, 0};
-        }
-    }
-}
-
 Status calculate_player_status(Player player, Cell board[]) {
     int properties = 0, railways = 0, utilities = 0, hotels = 0, net_worth = 0, unmortgaged_properties = 0, total_property_value = 0;
     // Net worth = cash + property value + building value + railway value + utility value + insurance claims receivables - outstanding loans - accrued interest - taxes due
@@ -118,63 +92,6 @@ void player_actions(Player players[], Cell board[], Cell *property_groups[][3], 
     }
 }
 
-void check_for_jailed(Player *player) {
-    if (player->jail_status.isJailed == FALSE) {
-        player->jail_status.isJailed = TRUE;
-        player->jail_status.no_of_rounds = 0;
-        printf("%s is in Jail.\n%s moves from Square %i to Square 11.\n\n", player->name, player->name, player->place + 1);
-
-        player->place = 10;
-
-    } else if (player->jail_status.isJailed == TRUE) {
-        player->jail_status.no_of_rounds++;
-
-        if (player->jail_status.no_of_rounds == 3) {
-            player->jail_status.isJailed = FALSE;
-            player->jail_status.no_of_rounds = 0;
-            printf("%s got out of Jail after spending 3 turns idle.\n\n", player->name);
-
-        } else {
-            int choice = rand() % 3;
-            if (choice == 0 && player->cash >= 300) {
-                player->cash -= 300;
-                player->jail_status.isJailed = FALSE;
-                player->jail_status.no_of_rounds = 0;
-                printf("%s got out of Jail by paying bail of LKR 300.\n\n", player->name);
-            } else if (choice == 1) {
-                int die_1 = (rand() % 6) + 1;
-                int die_2 = (rand() % 6) + 1;
-                if (die_1 == die_2) {
-                    player->jail_status.isJailed = FALSE;
-                    player->jail_status.no_of_rounds = 0;
-                    printf("%s got out of Jail by rolling doubles.\n\n", player->name);
-                }
-            }
-        }
-    }
-}
-
-void check_for_bankruptcy(Player players[], Cell board[], Game game_status, int player) {
-    Status player_status = calculate_player_status(players[player], board);
-
-    if (players[player].isBankrupt == FALSE && player_status.net_worth < 0) {
-        players[player].isBankrupt = TRUE;
-        announce_bankruptcy(players, board, game_status, player);
-    } 
-}
-
-void announce_bankruptcy(Player players[], Cell board[], Game game_status, int player) {
-    players[player].place = 0;
-    printf("%s has been declared bankrupt.\n", players[player].name);
-    printf("Remaining assets transferred to the Bank.\n\n");
-
-    for (int i = 0; i < NO_OF_CELLS; i++) {
-        if (board[i].owner == players[player].id) {
-            destroy_property(&board[i]);
-            auction(players, &board[i], BANK_OF_CEYLON, game_status);
-        }
-    }
-}
 
 void check_for_bank_action(Player *player, Cell board[], Game game_status) {
     if (player->loan_status.no_of_loans == 0) {

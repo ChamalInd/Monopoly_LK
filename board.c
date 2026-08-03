@@ -215,6 +215,32 @@ void generate_board(Cell board[]) {
     game_loop(&game_status, players, board, property_groups, national_events);
 }
 
+void initialize_players(Player players[]) {
+    char *player_names[] = {"Aggressive Investor", "Conservative Banker", "Risk Taker", "Opportunistic Trader"};
+    int plays[] = {AGGRESSIVE_INVESTOR, CONSERVATIVE_BANKER, RISK_TAKER, OPPORTUNISTIC_TRADER};
+
+    for (int i = 0; i < NO_OF_PLAYERS; i++) {
+        players[i] = (Player) {
+            .name = player_names[i],
+            .id = plays[i],
+            .isBankrupt = FALSE,
+            .going_to_bid = FALSE,
+            .jail_status = (Jail) {FALSE, 0},
+            .loan_status = (Loan) {0, 0, 0, 2}, // 2 is a demo number
+            .events_own = 0,
+            .play_order = 5, // set as 5 for sorting process when deciding the player order
+            .die_roll = NONE,
+            .cash = STARTUP_CASH,
+            .taxes_due = 0,
+            .place = 0
+        };
+
+        for (int j = 0; j < 20; j++) {
+            players[i].events[j] = (National_Events) {j, 0};
+        }
+    }
+}
+
 void generate_event_cards(Events national_events[]) {
     char *event_names[] = {
         "Tourism Hype", "Fuel Shortage", "Heavy Floods", "Political Rally", 
