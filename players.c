@@ -243,19 +243,13 @@ void buy(Player players[], Cell *place, Game game_status) {
 }
 
 int auction(Player players[], Cell *place, Ownership beneficiary, Game game_status) {
-    int starting_price = 0, bidding_players = 0, highest_bid = 0, bidder = NONE;
+    int bidding_players = 0, highest_bid = 0, bidder = NONE;
     int bidding[NO_OF_PLAYERS];
 
-    if (place->value.market_price / 2 < place->value.base_price) {
-        starting_price = place->value.base_price;
-    } else {
-        starting_price = place->value.market_price / 2;
-    }
+    int starting_price = place->value.market_price / 2;
 
     if (game_status.dynamic_market.event == MARKET_DECLINE && place->group == game_status.dynamic_market.property_group) {
-        if ((starting_price * 75.0 / 100.0) > place->value.base_price) {
-            starting_price = (int) ((float) starting_price * 75.0 / 100.0);
-        }
+        starting_price = (int) ((float) starting_price * 75.0 / 100.0);
     }
 
     highest_bid = starting_price;

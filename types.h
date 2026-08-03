@@ -82,7 +82,6 @@ typedef enum {
 } Policy;
 
 typedef struct {
-    int base_price;
     int market_price;
     int current_market_price;
     int base_rent; 

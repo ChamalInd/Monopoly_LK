@@ -158,7 +158,6 @@ void generate_board(Cell board[]) {
                 .duration = 0
             },
             .value = (Values) {
-                .base_price = cell_base_price[i],
                 .market_price = cell_base_price[i],
                 .current_market_price = cell_base_price[i],
                 .base_rent = cell_base_rent[i],
