@@ -1,12 +1,12 @@
 // Economic events and government regulations
 #include "functions.h"
 
-void property_depreciation(Cell board[]) {
+void property_depreciation(Cell board[], Game game_status) {
     for (int i = 0; i < NO_OF_CELLS; i++) {
         if (board[i].type == PROPERTY && board[i].owner != NO_OWNER && board[i].owner != BANK_OF_CEYLON) {
             board[i].depreciation.age++;
 
-            if (board[i].depreciation.age >= 50 && board[i].depreciation.percentage < MAX_DEPRECIATION) {
+            if (board[i].depreciation.age >= 50 && board[i].depreciation.percentage < MAX_DEPRECIATION && game_status.rounds % 5 == 0) {
                 board[i].depreciation.percentage++;
                 board[i].value.market_price -= round_off((double) board[i].value.market_price * (1.0 / 100.0));
 
@@ -70,9 +70,9 @@ void inflation(Cell board[], Game *game_status) {
     }
 }
 
-void dynamic_property_market(Cell *property_groups[][3], Game *game_status) {
-    if (game_status->dynamic_market.property_group == NONE) {
-        game_status->dynamic_market.property_group = rand() % 8;
+void dynamic_property_market(Cell *property_groups[][3], Game *game_status, int event) {
+    if (game_status->dynamic_market[event].property_group == NONE) {
+        game_status->dynamic_market[event].property_group = rand() % 8;
 
     } else {
         int new_market = NONE;
@@ -80,34 +80,35 @@ void dynamic_property_market(Cell *property_groups[][3], Game *game_status) {
         while (TRUE) {
             new_market = rand() % 8;
 
-            if (game_status->dynamic_market.property_group != new_market) {
-                game_status->dynamic_market.property_group = new_market;
-                break;
+            if (game_status->dynamic_market[event].property_group != new_market) {
+                game_status->dynamic_market[event].property_group = new_market;
+                if (game_status->dynamic_market[0].property_group != game_status->dynamic_market[1].property_group) {
+                    break;
+                }
             }
         }
     }
 
-    int event = rand() % 2;
-    game_status->dynamic_market.event = event;
+    game_status->dynamic_market[event].event = event;
 
-    if (event == MARKET_BOOM) {
+    if (game_status->dynamic_market[event].event == MARKET_BOOM) {
         for (int i = 0; i < 3; i++) {
-            if (property_groups[game_status->dynamic_market.property_group][i] != NULL) {
-                property_groups[game_status->dynamic_market.property_group][i]->value.market_price += round_off((double) property_groups[game_status->dynamic_market.property_group][i]->value.market_price * (15.0 / 100.0));
-                property_groups[game_status->dynamic_market.property_group][i]->value.current_market_price += round_off((double) property_groups[game_status->dynamic_market.property_group][i]->value.current_market_price * (15.0 / 100.0));
-                property_groups[game_status->dynamic_market.property_group][i]->mortgage.value += round_off((double) property_groups[game_status->dynamic_market.property_group][i]->mortgage.value * (15.0 / 100.0));
-                property_groups[game_status->dynamic_market.property_group][i]->value.base_rent += round_off((double) property_groups[game_status->dynamic_market.property_group][i]->value.base_rent * (25.0 / 100.0));
-                property_groups[game_status->dynamic_market.property_group][i]->value.house_construction_cost += round_off((double) property_groups[game_status->dynamic_market.property_group][i]->value.house_construction_cost * (10.0 / 100.0));
-                property_groups[game_status->dynamic_market.property_group][i]->value.hotel_construction_cost += round_off((double) property_groups[game_status->dynamic_market.property_group][i]->value.hotel_construction_cost * (10.0 / 100.0));
+            if (property_groups[game_status->dynamic_market[event].property_group][i] != NULL) {
+                property_groups[game_status->dynamic_market[event].property_group][i]->value.market_price += round_off((double) property_groups[game_status->dynamic_market[event].property_group][i]->value.market_price * (15.0 / 100.0));
+                property_groups[game_status->dynamic_market[event].property_group][i]->value.current_market_price += round_off((double) property_groups[game_status->dynamic_market[event].property_group][i]->value.current_market_price * (15.0 / 100.0));
+                property_groups[game_status->dynamic_market[event].property_group][i]->mortgage.value += round_off((double) property_groups[game_status->dynamic_market[event].property_group][i]->mortgage.value * (15.0 / 100.0));
+                property_groups[game_status->dynamic_market[event].property_group][i]->value.base_rent += round_off((double) property_groups[game_status->dynamic_market[event].property_group][i]->value.base_rent * (25.0 / 100.0));
+                property_groups[game_status->dynamic_market[event].property_group][i]->value.house_construction_cost += round_off((double) property_groups[game_status->dynamic_market[event].property_group][i]->value.house_construction_cost * (10.0 / 100.0));
+                property_groups[game_status->dynamic_market[event].property_group][i]->value.hotel_construction_cost += round_off((double) property_groups[game_status->dynamic_market[event].property_group][i]->value.hotel_construction_cost * (10.0 / 100.0));
             }
         }
     } else {
         for (int i = 0; i < 3; i++) {
-            if (property_groups[game_status->dynamic_market.property_group][i] != NULL) {
-                property_groups[game_status->dynamic_market.property_group][i]->value.market_price -= round_off((double) property_groups[game_status->dynamic_market.property_group][i]->value.market_price * (15.0 / 100.0));
-                property_groups[game_status->dynamic_market.property_group][i]->value.current_market_price -= round_off((double) property_groups[game_status->dynamic_market.property_group][i]->value.current_market_price * (15.0 / 100.0));
-                property_groups[game_status->dynamic_market.property_group][i]->mortgage.value -= round_off((double) property_groups[game_status->dynamic_market.property_group][i]->mortgage.value * (10.0 / 100.0));
-                property_groups[game_status->dynamic_market.property_group][i]->value.base_rent -= round_off((double) property_groups[game_status->dynamic_market.property_group][i]->value.base_rent * (20.0 / 100.0));
+            if (property_groups[game_status->dynamic_market[event].property_group][i] != NULL) {
+                property_groups[game_status->dynamic_market[event].property_group][i]->value.market_price -= round_off((double) property_groups[game_status->dynamic_market[event].property_group][i]->value.market_price * (15.0 / 100.0));
+                property_groups[game_status->dynamic_market[event].property_group][i]->value.current_market_price -= round_off((double) property_groups[game_status->dynamic_market[event].property_group][i]->value.current_market_price * (15.0 / 100.0));
+                property_groups[game_status->dynamic_market[event].property_group][i]->mortgage.value -= round_off((double) property_groups[game_status->dynamic_market[event].property_group][i]->mortgage.value * (10.0 / 100.0));
+                property_groups[game_status->dynamic_market[event].property_group][i]->value.base_rent -= round_off((double) property_groups[game_status->dynamic_market[event].property_group][i]->value.base_rent * (20.0 / 100.0));
             }
         }
     }
@@ -292,7 +293,7 @@ void national_event_card_expiry(Player *player, Cell board[], Events national_ev
                 case ECONOMIC_DOWNTURN : {
                     for (int j = 0; j < NO_OF_CELLS; j++) {
                         if (board[j].type == PROPERTY || board[j].type == RAILWAY || board[j].type == UTILITY) {
-                            board[j].value.market_price += round_off((double) board[i].value.market_price * (15.0 / 100.0));
+                            board[j].value.market_price += round_off((double) board[j].value.market_price * (15.0 / 100.0));
                         }                        
                     }
                     break;

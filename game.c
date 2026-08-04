@@ -49,9 +49,6 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over,
             printf("=");
         }
         printf("\nCurrent Market Conditions\n");
-        for (int i = 0; i < 60; i++) {
-            printf("=");
-        }
 
         char *property_groups[] = {
             "Colombo Central",   // BROWN
@@ -64,20 +61,22 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over,
             "Premium Estates",   // DARKBLUE
         };
 
-        if (game_status.dynamic_market.event != NORMAL) {
-            char *value;
-            if (game_status.dynamic_market.event == MARKET_BOOM) {
-                printf("\n\nMarket Boom\n");
-                value = "+20%";
-            } else {
-                printf("\n\nMarket Decline\n");
-                value = "-15%";
+        if (game_status.dynamic_market[0].event != NORMAL && game_status.dynamic_market[1].event != NORMAL) {
+            for (int i = 0; i < 60; i++) {
+                printf("=");
             }
-
+            printf("\n\nMarket Boom\n");
             for (int i = 0; i < 16; i++) {
                 printf("-");
             }
-            printf("\n%s (%s)\n", property_groups[game_status.dynamic_market.property_group], value);
+            printf("\n%s (+20%%)\n", property_groups[game_status.dynamic_market[0].property_group]);
+            printf("Rounds Remaining : %i\n", 10 - game_status.rounds % 10);
+
+            printf("\nMarket Decline\n");
+            for (int i = 0; i < 16; i++) {
+                printf("-");
+            }
+            printf("\n%s (-15%%)\n", property_groups[game_status.dynamic_market[1].property_group]);
             printf("Rounds Remaining : %i\n", 10 - game_status.rounds % 10);
         }
 
@@ -267,6 +266,8 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
             players[game_status->current_player].cash += GO_REWARD;
             round_tracker += 1;
 
+            property_renovations(&players[game_status->current_player], board);
+            building_renovations(&players[game_status->current_player], board);
             accumulated_interest(&players[game_status->current_player]);
             check_for_loan_status(players, board, *game_status);
             national_event_card_expiry(&players[game_status->current_player], board, national_events, game_status);
@@ -295,13 +296,13 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 
             check_for_insurance_status(board);
             building_depreciation(board);
+            property_depreciation(board, *game_status);
 
-            if (game_status->rounds % 5 == 0) {
-                property_depreciation(board);
-            } 
             if (game_status->rounds % 10 == 0) {
                 inflation(board, game_status);
-                dynamic_property_market(property_groups, game_status);
+                for (int i = 0; i < 2; i++) {
+                    dynamic_property_market(property_groups, game_status, i);
+                }
             }
 
             print_game(*game_status, players, board, game_over, national_events);

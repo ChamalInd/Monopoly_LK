@@ -88,8 +88,11 @@ void repay_outstanding_loan(Player players[], Cell board[], Game game_status, in
 
             players[game_status.current_player].loan_status.no_of_loans = 0;
             players[game_status.current_player].loan_status.loan_duration = 0;
+
             if (players[game_status.current_player].loan_status.total_payable < payment) {
                 amount = players[game_status.current_player].loan_status.total_payable;
+            } else {
+                amount = payment;
             }
         }
 
@@ -121,7 +124,7 @@ void increase_loan(Player *player, Cell board[], Game game_status) {
 }
 
 void obtain_insurance(Player players[], Cell board[], Game game_status, int provider, int has_insurance, int place) {
-    int premium = 0, policy = NONE;
+    int premium = 0, policy = board[place].insurance.policy;
     char *insurance_policy_names[] = {"Basic Property Insurance", "Comprehensive Insurance", "Business Interruption Insurance"};
 
     if (has_insurance == FALSE) {
@@ -134,12 +137,9 @@ void obtain_insurance(Player players[], Cell board[], Game game_status, int prov
                 break;
             }
         }
-
-        board[place].insurance.policy = policy;
-        board[place].insurance.provider = provider;
     }
 
-    switch (board[place].insurance.policy) {
+    switch (policy) {
         case BASIC:
             premium = round_off((double) board[place].value.market_price * (5.0 / 100.0));
             break;
@@ -161,6 +161,8 @@ void obtain_insurance(Player players[], Cell board[], Game game_status, int prov
     if (players[game_status.current_player].cash >= premium) {
         players[game_status.current_player].cash -= premium;
         board[place].insurance.duration = 20;
+        board[place].insurance.policy = policy;
+        board[place].insurance.provider = provider;
 
         if (has_insurance == FALSE) {
             printf("%s purchased.\n", insurance_policy_names[board[place].insurance.policy]);
@@ -202,12 +204,11 @@ void check_for_insurance_status(Cell board[]) {
 void income_tax_payment(Player players[], Cell board[], Game game_status) {
     Status player_status = calculate_player_status(players[game_status.current_player], board);
     if (player_status.net_worth > 0) {
-        int amount = round_off((double) player_status.net_worth * (game_status.income_tax_rate / 100.0)) + players[game_status.current_player].taxes_due;
+        int amount = round_off((double) player_status.net_worth * (game_status.income_tax_rate / 100.0));
 
         printf("Income Tax Amount : LKR %i.\n", amount);
         if (players[game_status.current_player].cash >= amount) {
             players[game_status.current_player].cash -= amount;
-            players[game_status.current_player].taxes_due = 0;
             printf("%s paid Full Income Tax Amount.\nRemaining Balance : LKR %i.\n\n", players[game_status.current_player].name, players[game_status.current_player].cash);
         } else {
             players[game_status.current_player].taxes_due += (amount - players[game_status.current_player].cash);
@@ -223,12 +224,11 @@ void community_development_fund_payment(Player players[], Cell board[], Game gam
     int assets = player_status.total_property_value + players[game_status.current_player].cash;
 
     if (assets > 0) {
-        int amount = round_off((double) assets * (game_status.community_fund_rate / 100.0)) + players[game_status.current_player].taxes_due;
+        int amount = round_off((double) assets * (game_status.community_fund_rate / 100.0));
 
         printf("Community Development Fund Amount : LKR %i.\n", amount);
         if (players[game_status.current_player].cash >= amount) {
             players[game_status.current_player].cash -= amount;
-            players[game_status.current_player].taxes_due = 0;
             printf("%s paid Community Development Fund Amount.\nRemaining Balance : LKR %i.\n\n", players[game_status.current_player].name, players[game_status.current_player].cash);
         } else {
             players[game_status.current_player].taxes_due += (amount - players[game_status.current_player].cash);
@@ -237,4 +237,12 @@ void community_development_fund_payment(Player players[], Cell board[], Game gam
             check_for_bankruptcy(players, board, game_status, game_status.current_player);
         }
     } 
+}
+
+void settle_outstanding_penalties(Player *player) {
+    if (player->cash >= player->taxes_due) {
+        printf("%s settled outstanding taxes of LKR %i.\n\n", player->name, player->taxes_due);
+        player->cash -= player->taxes_due;
+        player->taxes_due = 0;
+    }
 }

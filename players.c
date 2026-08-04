@@ -53,14 +53,16 @@ void player_actions(Player players[], Cell board[], Cell *property_groups[][3], 
         printf("%s Landed on %s.\n\n", players[game_status->current_player].name, board[place_id].name);
     }
 
+    if (players[game_status->current_player].taxes_due > 0) {
+        settle_outstanding_penalties(&players[game_status->current_player]);
+    }
+
     if (board[place_id].type == PROPERTY || board[place_id].type == RAILWAY || board[place_id].type == UTILITY) {
         if (board[place_id].type == PROPERTY) {
 
             if (board[place_id].owner == players[game_status->current_player].id && board[place_id].group != NO_COLOR && players[game_status->current_player].events[LABOUR_STRIKE].remaining_effect <= 0) {
                 constructions(&players[game_status->current_player], &board[place_id], property_groups);
             }
-            property_renovations(&players[game_status->current_player], &board[place_id]);
-            building_renovations(&players[game_status->current_player], board);
         }
 
         if (board[place_id].owner == BANK_OF_CEYLON) {
@@ -125,7 +127,7 @@ void check_for_insurance_action(Player players[], Cell board[], Game game_status
                 obtain_insurance(players, board, game_status, insurance_company, FALSE, i);
 
 
-            } else if (board[i].owner == players[game_status.current_player].id && board[i].type == PROPERTY && board[i].insurance.policy != NO_INSURANCE && board[i].insurance.duration < 3 && board[i].insurance.provider == insurance_company) {
+            } else if (board[i].owner == players[game_status.current_player].id && board[i].type == PROPERTY && board[i].insurance.policy != NO_INSURANCE && board[i].insurance.duration <= 3 && board[i].insurance.provider == insurance_company) {
                 obtain_insurance(players, board, game_status, insurance_company, TRUE, i);
             }
         }
@@ -157,7 +159,7 @@ int auction(Player players[], Cell *place, Ownership beneficiary, Game game_stat
 
     int starting_price = place->value.market_price / 2;
 
-    if (game_status.dynamic_market.event == MARKET_DECLINE && place->group == game_status.dynamic_market.property_group) {
+    if (place->type == PROPERTY && place->group == game_status.dynamic_market[MARKET_DECLINE].property_group) {
         starting_price = round_off((double) starting_price * 75.0 / 100.0);
     }
 
@@ -168,6 +170,8 @@ int auction(Player players[], Cell *place, Ownership beneficiary, Game game_stat
             players[i].going_to_bid = TRUE;
             bidding[i] = i;
             bidding_players++;
+        } else {
+            bidding[i] = NONE;
         }
     }
 
@@ -175,7 +179,7 @@ int auction(Player players[], Cell *place, Ownership beneficiary, Game game_stat
     printf("Property :\n\t%s\n", place->name);
     printf("Opening Bid : \n\tLKR %i.\n\n", starting_price);
 
-    while (TRUE) {
+    while (bidding_players > 1) {
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             if (players[i].going_to_bid == TRUE) {
                 bidding[i] = i;
@@ -195,21 +199,23 @@ int auction(Player players[], Cell *place, Ownership beneficiary, Game game_stat
                     } else {
                         players[bidding[i]].going_to_bid = FALSE;
                         bidding_players--;
+                        if (bidding_players == 0) {
+                            break;
+                        }
                         printf("%s withdraws.\n", players[bidding[i]].name);
                     }
                 } else {
                     players[bidding[i]].going_to_bid = FALSE;
                     bidding_players--;
+                    if (bidding_players == 0) {
+                        break;
+                    }
                     printf("%s withdraws.\n", players[bidding[i]].name);
                 }
             }
         }
 
         printf("\n");
-
-        if (bidding_players <= 1) {
-            break;
-        }
     }
 
     for (int i = 0; i < NO_OF_PLAYERS; i++) {
@@ -250,10 +256,51 @@ int auction(Player players[], Cell *place, Ownership beneficiary, Game game_stat
     }
 }
 
+void raise_money(Player players[], Cell board[], Game game_status, int amount_to_be_raised) {
+    Cell *available[NO_OF_CELLS];
+    int available_count = 0;
+
+    for (int i = 0; i < NO_OF_CELLS; i++) {
+        if (board[i].owner == players[game_status.current_player].id && board[i].mortgage.status == UNMORTGAGED && (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY)) {
+            available[i] = &board[i];
+            available_count++;
+        } else {
+            available[i] = NULL;
+        }
+    }
+
+    if (available_count == 0) { // not enough property so declared bankrupt
+        players[game_status.current_player].isBankrupt = TRUE;
+        announce_bankruptcy(players, board, game_status, game_status.current_player);
+        return;
+    }
+
+    for (int i = 0; i < NO_OF_CELLS; i++) {
+        if (available[i] != NULL) {
+            printf("%s decided to sell a property.\n\n", players[game_status.current_player].name);
+            int result = auction(players, available[i], players[game_status.current_player].id, game_status);
+            if (result == FALSE) {
+                players[game_status.current_player].cash += available[i]->mortgage.value;
+                destroy_property(available[i]);
+                printf("%s sold %s to bank for LKR %i.\n\n", players[game_status.current_player].name, available[i]->name, available[i]->mortgage.value);
+            }
+
+            if (players[game_status.current_player].cash >= amount_to_be_raised) {
+                break;
+            }
+        }
+    }
+
+    if (players[game_status.current_player].cash < amount_to_be_raised) { // not enough cash so declared bankrupt
+        players[game_status.current_player].isBankrupt = TRUE;
+        announce_bankruptcy(players, board, game_status, game_status.current_player);
+        return;
+    }
+}
+
 void rent(Player players[], Cell *place, Cell board[], Game game_status) {
     int rent = 0;
     Status owner_status = calculate_player_status(*place->ownerptr, board);
-    Status player_status = calculate_player_status(players[game_status.current_player], board);
     
     if (place->type == PROPERTY) {
         int house_rent_multiplier[] = {2, 3, 5, 7};
@@ -309,33 +356,8 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
     if (players[game_status.current_player].cash < 0 || (players[game_status.current_player].cash - rent) < 0) {
         printf("%s do not have enough cash to pay rent.\n", players[game_status.current_player].name);
         printf("Cash Balance : LKR %i.\nRequired Amount : LKR %i\n\n", players[game_status.current_player].cash, rent);
-        if (player_status.total_property_value >= rent) {
-            Cell *available[NO_OF_CELLS];
-
-            for (int i = 0; i < NO_OF_CELLS; i++) {
-                if (board[i].owner == players[game_status.current_player].id && board[i].mortgage.status == UNMORTGAGED && (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY)) {
-                    available[i] = &board[i];
-                } else {
-                    available[i] = NULL;
-                }
-            }
-
-            for (int i = 0; i < NO_OF_CELLS; i++) {
-                if (available[i] != NULL) {
-                    printf("%s decided to sell a property.\n\n", players[game_status.current_player].name);
-                    int result = auction(players, available[i], players[game_status.current_player].id, game_status);
-
-                    if (result == TRUE && players[game_status.current_player].cash >= rent) {
-                        break;
-
-                    }
-                }
-            }
-        } else { // not enough property so declared bankrupt
-            players[game_status.current_player].isBankrupt = TRUE;
-            announce_bankruptcy(players, board, game_status, game_status.current_player);
-            return;
-        }
+        
+        raise_money(players, board, game_status, rent);
     }  
     
     if (players[game_status.current_player].cash >= rent) {
@@ -387,17 +409,19 @@ void constructions(Player *player, Cell *place, Cell *property_groups[][3]) {
     }
 }
 
-void property_renovations(Player *player, Cell *place) {
-    if (place->owner == player->id && place->depreciation.age >= 50) {
-        double renovation_cost = (double) place->value.current_market_price * (10.0 / 100.0);
-        if (player->cash >= round_off(renovation_cost)) {
-            player->cash -= round_off(renovation_cost);
-            place->depreciation.age = 0;
-            place->depreciation.percentage = 0;
-            place->value.market_price = place->value.current_market_price;
+void property_renovations(Player *player, Cell board[]) {
+    for (int i = 0; i < NO_OF_CELLS; i++) {
+        if (board[i].owner == player->id && board[i].depreciation.age >= 50) {
+            double renovation_cost = (double) board[i].value.current_market_price * (10.0 / 100.0);
+            if (player->cash >= round_off(renovation_cost)) {
+                player->cash -= round_off(renovation_cost);
+                board[i].depreciation.age = 0;
+                board[i].depreciation.percentage = 0;
+                board[i].value.market_price = board[i].value.current_market_price;
 
-            printf("%s renovated %s for LKR %i.\n", player->name, place->name, (int) renovation_cost);
-            printf("Remaining Balance : LKR %i.\n\n", player->cash);
+                printf("%s renovated %s for LKR %i.\n", player->name, board[i].name, (int) renovation_cost);
+                printf("Remaining Balance : LKR %i.\n\n", player->cash);
+            }
         }
     }
 }
