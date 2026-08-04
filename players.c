@@ -87,25 +87,26 @@ void player_actions(Player players[], Cell board[], Cell *property_groups[][3], 
             check_for_jailed(&players[game_status->current_player]);
 
         } else if (place_id == 38) { // Bank square
-            check_for_bank_action(&players[game_status->current_player], board, *game_status);
+            check_for_bank_action(players, board, *game_status);
         } 
     }
 }
 
 
-void check_for_bank_action(Player *player, Cell board[], Game game_status) {
-    if (player->loan_status.no_of_loans == 0) {
-        obtain_loan(player, board, game_status);
+void check_for_bank_action(Player players[], Cell board[], Game game_status) {
+    if (players[game_status.current_player].loan_status.no_of_loans == 0) {
+        obtain_loan(players, board, game_status);
     } else {
         int choice = rand() % 4;
         if (choice == 0) {
-            repay_part_of_loan(player, board);
+            repay_outstanding_loan(players, board, game_status, players[game_status.current_player].loan_status.total_payable);
         } else if (choice == 1) {
-            repay_full_loan(player, board);
+            repay_outstanding_loan(players, board, game_status, 1000);
         } else if (choice == 2) {
-            extend_loan(player);
+            
+            extend_loan(&players[game_status.current_player]);
         } else {
-            increase_loan(player, board, game_status);
+            increase_loan(players, board, game_status);
         }
     }
 }
@@ -122,11 +123,11 @@ void check_for_insurance_action(Player players[], Cell board[], Game game_status
 
         for (int i = 0; i < NO_OF_CELLS; i++) {
             if (board[i].owner == players[game_status.current_player].id && board[i].type == PROPERTY && board[i].insurance.policy == NO_INSURANCE) {
-                obtain_insurance(players, board, game_status, insurance_company, 0, i);
+                obtain_insurance(players, board, game_status, insurance_company, FALSE, i);
 
 
             } else if (board[i].owner == players[game_status.current_player].id && board[i].type == PROPERTY && board[i].insurance.policy != NO_INSURANCE && board[i].insurance.duration < 3 && board[i].insurance.provider == insurance_company) {
-                obtain_insurance(players, board, game_status, insurance_company, 1, i);
+                obtain_insurance(players, board, game_status, insurance_company, TRUE, i);
             }
         }
     } else {

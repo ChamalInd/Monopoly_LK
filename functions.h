@@ -25,7 +25,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 // Functions in players.c
 Status calculate_player_status(Player player, Cell board[]);
 void player_actions(Player players[], Cell board[], Cell *property_groups[][3], Game *game_status, Events national_events[]);
-void check_for_bank_action(Player *player, Cell board[], Game game_status);
+void check_for_bank_action(Player player[], Cell board[], Game game_status);
 void check_for_insurance_action(Player players[], Cell board[], Game game_status);
 void buy(Player players[], Cell *place, Game game_status);
 int auction(Player players[], Cell *place, Ownership beneficiary, Game game_status);
@@ -38,11 +38,10 @@ void building_renovations(Player *player, Cell board[]);
 void obtain_loan(Player *player, Cell board[], Game game_status);
 void accumulated_interest(Player *player);
 void check_for_loan_status(Player players[], Cell board[], Game game_status);
-void repay_part_of_loan(Player *player, Cell board[]);
-void repay_full_loan(Player *player, Cell board[]);
+void repay_outstanding_loan(Player players[], Cell board[], Game game_status, int payment);
 void extend_loan(Player *player);
 void increase_loan(Player *player, Cell board[], Game game_status);
-void obtain_insurance(Player players[], Cell board[], Game game_status, int provider, int status, int place);
+void obtain_insurance(Player players[], Cell board[], Game game_status, int provider, int has_insurance, int place);
 void check_for_insurance_status(Cell board[]);
 void income_tax_payment(Player players[], Cell board[], Game game_status);
 
