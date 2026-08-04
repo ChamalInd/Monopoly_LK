@@ -274,20 +274,11 @@ void generate_event_cards(Events national_events[]) {
         "Random developed property damaged"
     };
 
-    Event_Nums event_ids[] = {
-        TOURISM_HYPE, FUEL_SHORTAGE, HEAVY_FLOODS, POLITICAL_RALLY, 
-        STOCK_MARKET_RISE, ECONOMIC_DOWNTURN, HOUSING_SUBSIDY, 
-        INTEREST_RATE_CUT, INTEREST_RATE_INCREASE, TAX_AMNESTY, POWER_FAILURE, 
-        FOREIGN_FUNDING, PORT_EXPANSION, FESTIVAL_SEASON, LABOUR_STRIKE, 
-        INSURANCE_DISCOUNT, PROPERTY_REVALUATION, CURRENCY_DEPRECIATION, 
-        GOVERNMENT_GRANT, NATIONAL_DISASTER
-    };
-
     for (int i = 0; i < 20; i++) {
         national_events[i] = (Events) {
-            .id = event_ids[i],
             .name = event_names[i],
-            .event = event_description[i]
+            .event = event_description[i],
+            .property = NONE
         };
     }
       

@@ -81,7 +81,7 @@ void player_actions(Player players[], Cell board[], Cell *property_groups[][3], 
             national_event_card_draw(players, board, national_events, game_status);
             
         } else if (place_id == 17 || place_id == 33) { // Insurance
-            check_for_insurance_action(&players[game_status->current_player], board[place_id], board);
+            check_for_insurance_action(players, board, *game_status);
             
         } else if (place_id == 30) { // Jail square
             check_for_jailed(&players[game_status->current_player]);
@@ -110,32 +110,24 @@ void check_for_bank_action(Player *player, Cell board[], Game game_status) {
     }
 }
 
-void check_for_insurance_action(Player *player, Cell place, Cell board[]) {
-    int insurance_company = place.type;
-    Status player_status = calculate_player_status(*player, board);
+void check_for_insurance_action(Player players[], Cell board[], Game game_status) {
+    int insurance_company = board[players[game_status.current_player].place].type;
+    Status player_status = calculate_player_status(players[game_status.current_player], board);
 
     if (player_status.total_properties > 0) {
-        int non_insured_properties[player_status.total_properties];
+        Cell *non_insured_properties[player_status.total_properties];
         Cell *policy_near_expiry[player_status.total_properties];
         int total_non_insured_properties = 0;
         int total_policy_near_expiry = 0;
 
         for (int i = 0; i < NO_OF_CELLS; i++) {
-            if (board[i].owner == player->id && board[i].type == PROPERTY && board[i].insurance.policy == NO_INSURANCE) {
-                non_insured_properties[total_non_insured_properties] = i;
-                total_non_insured_properties++;
-            } else if (board[i].owner == player->id && board[i].type == PROPERTY && board[i].insurance.policy != NO_INSURANCE && board[i].insurance.duration < 3 && board[i].insurance.provider == insurance_company) {
-                policy_near_expiry[total_policy_near_expiry] = &board[i];
-                total_policy_near_expiry++;
-            }
-        }
+            if (board[i].owner == players[game_status.current_player].id && board[i].type == PROPERTY && board[i].insurance.policy == NO_INSURANCE) {
+                obtain_insurance(players, board, game_status, insurance_company, 0, i);
 
-        if (total_non_insured_properties > 0) {
-            int property = rand() % total_non_insured_properties;
-            obtain_insurance(player, &board[non_insured_properties[property]], insurance_company);
-        } 
-        if (total_policy_near_expiry > 0) {
-            renew_insurance(player, policy_near_expiry, total_policy_near_expiry);
+
+            } else if (board[i].owner == players[game_status.current_player].id && board[i].type == PROPERTY && board[i].insurance.policy != NO_INSURANCE && board[i].insurance.duration < 3 && board[i].insurance.provider == insurance_company) {
+                obtain_insurance(players, board, game_status, insurance_company, 1, i);
+            }
         }
     } else {
         printf("No properties to be insured.\n\n");
@@ -166,7 +158,7 @@ int auction(Player players[], Cell *place, Ownership beneficiary, Game game_stat
     int starting_price = place->value.market_price / 2;
 
     if (game_status.dynamic_market.event == MARKET_DECLINE && place->group == game_status.dynamic_market.property_group) {
-        starting_price = round_off((float) starting_price * 75.0 / 100.0);
+        starting_price = round_off((double) starting_price * 75.0 / 100.0);
     }
 
     highest_bid = starting_price;
@@ -276,6 +268,10 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
             if (place->ownerptr->events[TOURISM_HYPE].remaining_effect > 0) {
                 rent *= 2;
             }
+            // for festival season
+            if (place->ownerptr->events[FESTIVAL_SEASON].remaining_effect > 0) { 
+                rent = round_off((float) rent * (150.0 / 100.0));
+            }
 
         } else {
             rent = place->value.base_rent;
@@ -285,9 +281,9 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
         if (place->buildings.has_damaged == TRUE) {
             rent = 0;
         } else if (place->buildings.age >= 20) {
-            rent -= round_off((float) rent * (25.0 / 100.0));
+            rent -= round_off((double) rent * (25.0 / 100.0));
         } else {
-            rent -= round_off((float) rent * (place->buildings.rent_reduction_rate / 100.0));
+            rent -= round_off((double) rent * (place->buildings.rent_reduction_rate / 100.0));
         }
 
     } else if (place->type == RAILWAY) {
@@ -302,10 +298,15 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
     } else if (place->type == UTILITY) {
         int rent_values[] = {4 * players[game_status.current_player].die_roll, 10 * players[game_status.current_player].die_roll};
         rent = rent_values[owner_status.total_utilities - 1];
+
+        // for power failure
+        if (place->ownerptr->events[POWER_FAILURE].remaining_effect > 0) {
+            rent = round_off((float) rent / 2.0);
+        }
     }
         
     // if low on cash sell property to pay rent
-    if ((players[game_status.current_player].cash < 0 || (players[game_status.current_player].cash - rent) < 0)) {
+    if (players[game_status.current_player].cash < 0 || (players[game_status.current_player].cash - rent) < 0) {
         printf("%s do not have enough cash to pay rent.\n", players[game_status.current_player].name);
         printf("Cash Balance : LKR %i.\nRequired Amount : LKR %i\n\n", players[game_status.current_player].cash, rent);
         if (player_status.total_property_value >= rent) {
@@ -337,11 +338,13 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
         }
     }  
     
-    players[game_status.current_player].cash -= rent;
-    place->ownerptr->cash += rent;
+    if (players[game_status.current_player].cash >= rent) {
+        players[game_status.current_player].cash -= rent;
+        place->ownerptr->cash += rent;
 
-    printf("Rent Paid : LKR %i.\n", rent);
-    printf("Owner : %s.\n\n", place->ownerptr->name); 
+        printf("Rent Paid : LKR %i.\n", rent);
+        printf("Owner : %s.\n\n", place->ownerptr->name); 
+    }
 }
 
 void constructions(Player *player, Cell *place, Cell *property_groups[][3]) {
@@ -386,7 +389,7 @@ void constructions(Player *player, Cell *place, Cell *property_groups[][3]) {
 
 void property_renovations(Player *player, Cell *place) {
     if (place->owner == player->id && place->depreciation.age >= 50) {
-        float renovation_cost = (float) place->value.current_market_price * (10.0 / 100.0);
+        double renovation_cost = (double) place->value.current_market_price * (10.0 / 100.0);
         if (player->cash >= round_off(renovation_cost)) {
             player->cash -= round_off(renovation_cost);
             place->depreciation.age = 0;
@@ -402,19 +405,19 @@ void property_renovations(Player *player, Cell *place) {
 void building_renovations(Player *player, Cell board[]) {
     for (int i = 0; i < NO_OF_CELLS; i++) {
         if (board[i].owner == player->id && (board[i].buildings.no_of_houses + board[i].buildings.no_of_hotels) > 0 && board[i].buildings.age > 0) {
-            float maintenance_cost = 0.0f;
+            double maintenance_cost = 0.0f;
 
             if (board[i].buildings.no_of_hotels > 0) {
                 if (board[i].buildings.age >= 20) {
-                    maintenance_cost = (float) (board[i].value.hotel_construction_cost * (8.0 / 100.0)) * (150.0 / 100);
+                    maintenance_cost = (double) (board[i].value.hotel_construction_cost * (8.0 / 100.0)) * (150.0 / 100);
                 } else {
-                    maintenance_cost = (float) board[i].value.hotel_construction_cost * (8.0 / 100.0);
+                    maintenance_cost = (double) board[i].value.hotel_construction_cost * (8.0 / 100.0);
                 }
             } else {
                 if (board[i].buildings.age >= 20) {
-                    maintenance_cost = (float) (board[i].value.house_construction_cost * (5.0 / 100.0)) * (150.0 / 100) * board[i].buildings.no_of_houses;
+                    maintenance_cost = (double) (board[i].value.house_construction_cost * (5.0 / 100.0)) * (150.0 / 100) * board[i].buildings.no_of_houses;
                 } else {
-                    maintenance_cost = (float) board[i].value.house_construction_cost * (5.0 / 100.0) * board[i].buildings.no_of_houses;
+                    maintenance_cost = (double) board[i].value.house_construction_cost * (5.0 / 100.0) * board[i].buildings.no_of_houses;
                 }
                 
             }

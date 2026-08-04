@@ -2,7 +2,7 @@
 #include "functions.h"
 
 void obtain_loan(Player *player, Cell board[], Game game_status) {
-    float max_loan = 0;
+    double max_loan = 0;
     int total_unmortgaged_property_value = 0;
     Status player_status = calculate_player_status(*player, board);
 
@@ -13,7 +13,7 @@ void obtain_loan(Player *player, Cell board[], Game game_status) {
             }
         }
 
-        max_loan = ((float) total_unmortgaged_property_value) * (75.0 / 100.0);
+        max_loan = ((double) total_unmortgaged_property_value) * (75.0 / 100.0);
 
         player->cash += round_off(max_loan);
         player->loan_status.no_of_loans++;
@@ -40,7 +40,7 @@ void obtain_loan(Player *player, Cell board[], Game game_status) {
 
 void accumulated_interest(Player *player) {
     if (player->isBankrupt == FALSE && player->loan_status.no_of_loans == 1 && player->loan_status.loan_duration > 0) {
-        float interest = ((float) player->loan_status.total_payable) * (player->loan_status.interest_rate / 100.0);
+        double interest = ((double) player->loan_status.total_payable) * (player->loan_status.interest_rate / 100.0);
         player->loan_status.total_payable += round_off(interest);
     }
 }
@@ -127,44 +127,63 @@ void increase_loan(Player *player, Cell board[], Game game_status) {
     }
 }
 
-void obtain_insurance(Player *player, Cell *place, int provider) {
+void obtain_insurance(Player players[], Cell board[], Game game_status, int provider, int status, int place) {
+    int premium = 0, policy = NONE;
     char *insurance_policy_names[] = {"Basic Property Insurance", "Comprehensive Insurance", "Business Interruption Insurance"};
 
-    int policy = rand() % 3;
+    if (status == 0) {
+        policy = rand() % 3;
 
-    while (policy == BUSINESS_INTERRUPTION) {
-        if (place->buildings.no_of_hotels == 0) {
-            policy = rand() % 3;
-        } else {
-            break;
+        while (policy == BUSINESS_INTERRUPTION) {
+            if (board[place].buildings.no_of_hotels == 0) {
+                policy = rand() % 3;
+            } else {
+                break;
+            }
         }
+
+        board[place].insurance.policy = policy;
+        board[place].insurance.provider = provider;
     }
 
-    int premium = 0;
-
-    switch (policy) {
+    switch (board[place].insurance.policy) {
         case BASIC:
-            premium = round_off((float) place->value.market_price * (5.0 / 100.0));
+            premium = round_off((double) board[place].value.market_price * (5.0 / 100.0));
             break;
         case COMPREHENSIVE:
-            premium = round_off((float) place->value.market_price * (10.0 / 100.0));
+            premium = round_off((double) board[place].value.market_price * (10.0 / 100.0));
             break;
         case BUSINESS_INTERRUPTION:
-            premium = round_off((float) place->value.market_price * (15.0 / 100.0));
+            premium = round_off((double) board[place].value.market_price * (15.0 / 100.0));
+            break;
+        case NO_INSURANCE:
             break;
     }
 
-    if (player->cash >= premium) {
-        player->cash -= premium;
-        place->insurance.policy = policy;
-        place->insurance.provider = provider;
-        place->insurance.duration = 20;
+    // for insurance discount
+    if (players[game_status.current_player].events[INSURANCE_DISCOUNT].remaining_effect > 0) {
+        premium = round_off((float) premium * (80.0 / 100.0));
+    }
 
-        printf("%s purchased.\n", insurance_policy_names[policy]);
-        printf("Property : %s.\n", place->name);
+    if (players[game_status.current_player].cash >= premium) {
+        players[game_status.current_player].cash -= premium;
+        board[place].insurance.duration = 20;
+
+        if (status == 0) {
+            printf("%s purchased.\n", insurance_policy_names[board[place].insurance.policy]);
+        } else if (status == 1) {
+            printf("%s renewed.\n", insurance_policy_names[board[place].insurance.policy]);
+        }
+
+        printf("Property : %s.\n", board[place].name);
         printf("Premium : LKR %i.\n\n", premium);
     } else {
-        printf("Not enough money to purchase insurance premium.\n\n");
+        if (status == 0) {
+            printf("Not enough money to purchase insurance premium.\n\n");
+        } else if (status == 1) {
+            printf("Not enough money to renew insurance premium.\n\n");
+            check_for_bankruptcy(players, board, game_status, game_status.current_player);
+        }
     }   
 }
 
@@ -185,41 +204,10 @@ void check_for_insurance_status(Cell board[]) {
     }
 }
 
-void renew_insurance(Player *player, Cell *board[], int length) {
-    for (int i = 0; i < length; i++) {
-        int premium = 0;
-
-        switch (board[i]->insurance.policy) {
-            case BASIC:
-                premium = round_off((float) board[i]->value.market_price * (5.0 / 100.0));
-                break;
-            case COMPREHENSIVE:
-                premium = round_off((float) board[i]->value.market_price * (10.0 / 100.0));
-                break;
-            case BUSINESS_INTERRUPTION:
-                premium = round_off((float) board[i]->value.market_price * (15.0 / 100.0));
-                break;
-            default :
-                premium = -1;
-                break;
-        }
-
-        if (premium < 0) {
-            break;
-        }
-
-        if (player->cash >= premium) {
-            player->cash -= premium;
-            board[i]->insurance.duration = 20;
-            printf("Insurance Policy renewed.\nProperty : %s\nPremium : %i\n\n", board[i]->name, premium);
-        }
-    }
-}
-
 void income_tax_payment(Player players[], Cell board[], Game game_status) {
     Status player_status = calculate_player_status(players[game_status.current_player], board);
     if (player_status.net_worth > 0) {
-        int amount = round_off((float) player_status.net_worth * (game_status.income_tax_rate / 100.0)) + players[game_status.current_player].taxes_due;
+        int amount = round_off((double) player_status.net_worth * (game_status.income_tax_rate / 100.0)) + players[game_status.current_player].taxes_due;
 
         printf("Income Tax Amount : LKR %i.\n", amount);
         if (players[game_status.current_player].cash >= amount) {

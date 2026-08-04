@@ -26,7 +26,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 Status calculate_player_status(Player player, Cell board[]);
 void player_actions(Player players[], Cell board[], Cell *property_groups[][3], Game *game_status, Events national_events[]);
 void check_for_bank_action(Player *player, Cell board[], Game game_status);
-void check_for_insurance_action(Player *player, Cell place, Cell board[]);
+void check_for_insurance_action(Player players[], Cell board[], Game game_status);
 void buy(Player players[], Cell *place, Game game_status);
 int auction(Player players[], Cell *place, Ownership beneficiary, Game game_status);
 void rent(Player players[], Cell *place, Cell board[], Game game_status);
@@ -42,9 +42,8 @@ void repay_part_of_loan(Player *player, Cell board[]);
 void repay_full_loan(Player *player, Cell board[]);
 void extend_loan(Player *player);
 void increase_loan(Player *player, Cell board[], Game game_status);
-void obtain_insurance(Player *player, Cell *place, int provider);
+void obtain_insurance(Player players[], Cell board[], Game game_status, int provider, int status, int place);
 void check_for_insurance_status(Cell board[]);
-void renew_insurance(Player *player, Cell *board[], int length);
 void income_tax_payment(Player players[], Cell board[], Game game_status);
 
 // Functions in events.c
@@ -53,6 +52,6 @@ void building_depreciation(Cell board[]);
 void inflation(Cell board[], Game *game_status);
 void dynamic_property_market(Cell *property_groups[][3], Game *game_status);
 void national_event_card_draw(Player player[], Cell board[], Events national_events[], Game *game_status);
-void national_event_card_expiry(Player *player);
+void national_event_card_expiry(Player *player, Cell board[], Events national_events[], Game *game_status);
 
 #endif

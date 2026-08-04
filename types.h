@@ -78,7 +78,7 @@ typedef enum {
 } Mortgage_Status;
 
 typedef enum {
-    NO_INSURANCE, BASIC, COMPREHENSIVE, BUSINESS_INTERRUPTION
+    NO_INSURANCE = -1, BASIC, COMPREHENSIVE, BUSINESS_INTERRUPTION
 } Policy;
 
 typedef struct {
@@ -143,9 +143,9 @@ typedef struct {
 } Dynamic_Market;
 
 typedef struct {
-    Event_Nums id;
     char *name;
     char *event;
+    int property;
 } Events;
 
 typedef struct {

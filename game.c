@@ -111,7 +111,13 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over,
         for (int i = 0; i < 60; i++) {
             printf("=");
         }
-        printf("\n\nGAME OVER\n\nWinner : %s\nTotal Cash : LKR %i\nTotal Property Value : LKR %i\nOutstanding Loans : LKR %i\nNet Worth : LKR %i\n\n", players[winner_id].name, players[winner_id].cash, player_status.total_property_value, players[winner_id].loan_status.total_payable, player_status.net_worth);
+        
+        if (winner_id != NONE) {
+            printf("\n\nGAME OVER\n\nWinner : %s\nTotal Cash : LKR %i\nTotal Property Value : LKR %i\nOutstanding Loans : LKR %i\nNet Worth : LKR %i\n\n", players[winner_id].name, players[winner_id].cash, player_status.total_property_value, players[winner_id].loan_status.total_payable, player_status.net_worth);
+        } else {
+            printf("\n\nGAME OVER\n\nNo Winner\n\n");
+        }
+
         for (int i = 0; i < 60; i++) {
             printf("=");
         }
@@ -126,7 +132,7 @@ int dice_roll(void) {
 }
 
 int decide_winner(Player players[], Cell board[]) {
-    int winner_id = NONE, non_bankrupt_count = 0, max_net_worth = 0;
+    int winner_id = NONE, non_bankrupt_count = 0, max_net_worth = NONE;
     int non_bankrupt_players[NO_OF_PLAYERS] = {NONE, NONE, NONE, NONE};
 
     for (int i = 0; i < NO_OF_PLAYERS; i++) {
@@ -229,7 +235,6 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 
         int game_over = TRUE;
 
-
         // checks for game end signal
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             check_for_bankruptcy(players, board, *game_status, i);
@@ -242,7 +247,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
         if (game_over) {
             game_status->rounds++;
             print_game(*game_status, players, board, game_over, national_events);
-            break;
+            return;
         }
 
         pass_go = FALSE;
@@ -264,7 +269,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 
             accumulated_interest(&players[game_status->current_player]);
             check_for_loan_status(players, board, *game_status);
-            national_event_card_expiry(&players[game_status->current_player]);
+            national_event_card_expiry(&players[game_status->current_player], board, national_events, game_status);
             
             printf("%s passed GO.\n", players[game_status->current_player].name);
             printf("Collected LKR 2000.\nCurrent Balance LKR %i.\n\n", players[game_status->current_player].cash);
