@@ -44,6 +44,7 @@ void increase_loan(Player *player, Cell board[], Game game_status);
 void obtain_insurance(Player players[], Cell board[], Game game_status, int provider, int has_insurance, int place);
 void check_for_insurance_status(Cell board[]);
 void income_tax_payment(Player players[], Cell board[], Game game_status);
+void community_development_fund_payment(Player players[], Cell board[], Game game_status);
 
 // Functions in events.c
 void property_depreciation(Cell board[]);

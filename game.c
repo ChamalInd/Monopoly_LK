@@ -103,7 +103,7 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over,
 
     }
     
-    if (game_over == TRUE || game_status.rounds == MAX_ROUNDS) {
+    if (game_over == TRUE || game_status.rounds >= MAX_ROUNDS) {
         // declare the end of the game
         int winner_id = decide_winner(players, board);
         Status player_status = calculate_player_status(players[winner_id], board);

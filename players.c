@@ -73,7 +73,7 @@ void player_actions(Player players[], Cell board[], Cell *property_groups[][3], 
 
     } else {
         if (place_id == 2) { // Community Development Fund
-            // printf("%s Landed on Community Development Fund.\n\n", players[current_player].name);
+            community_development_fund_payment(players, board, *game_status);
         } else if (place_id == 4) { // Income Tax
             income_tax_payment(players, board, *game_status);
 

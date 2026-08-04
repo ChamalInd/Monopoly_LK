@@ -155,7 +155,8 @@ typedef struct {
     int national_event_pointer;
     int inflation_rate;
     float interest_rate;
-    int income_tax_rate;
+    float income_tax_rate;
+    float community_fund_rate;
 } Game;
 
 #endif

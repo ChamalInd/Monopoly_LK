@@ -205,7 +205,8 @@ void generate_board(Cell board[]) {
         .national_event_pointer = 0,
         .inflation_rate = 0,
         .interest_rate = 2.0f,  // demo value
-        .income_tax_rate = 10   // demo value
+        .income_tax_rate = 15.0f,
+        .community_fund_rate = 10.0f
     };
 
     generate_event_cards(national_events);
