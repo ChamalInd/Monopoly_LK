@@ -56,7 +56,7 @@ void player_actions(Player players[], Cell board[], Cell *property_groups[][3], 
     if (board[place_id].type == PROPERTY || board[place_id].type == RAILWAY || board[place_id].type == UTILITY) {
         if (board[place_id].type == PROPERTY) {
 
-            if (board[place_id].owner == players[game_status->current_player].id && board[place_id].group != NO_COLOR) {
+            if (board[place_id].owner == players[game_status->current_player].id && board[place_id].group != NO_COLOR && players[game_status->current_player].events[LABOUR_STRIKE].remaining_effect <= 0) {
                 constructions(&players[game_status->current_player], &board[place_id], property_groups);
             }
             property_renovations(&players[game_status->current_player], &board[place_id]);
@@ -103,7 +103,6 @@ void check_for_bank_action(Player players[], Cell board[], Game game_status) {
         } else if (choice == 1) {
             repay_outstanding_loan(players, board, game_status, 1000);
         } else if (choice == 2) {
-            
             extend_loan(&players[game_status.current_player]);
         } else {
             increase_loan(players, board, game_status);
@@ -177,10 +176,6 @@ int auction(Player players[], Cell *place, Ownership beneficiary, Game game_stat
     printf("Opening Bid : \n\tLKR %i.\n\n", starting_price);
 
     while (TRUE) {
-        if (bidding_players <= 1) {
-            break;
-        }
-
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             if (players[i].going_to_bid == TRUE) {
                 bidding[i] = i;
@@ -191,7 +186,7 @@ int auction(Player players[], Cell *place, Ownership beneficiary, Game game_stat
 
         for (int i = 0; i < NO_OF_PLAYERS; i++) {   
             if (bidding[i] != NONE) { 
-                if (players[bidding[i]].cash >= highest_bid + 250 && players[bidding[i]].id != beneficiary) {
+                if (players[bidding[i]].cash >= highest_bid + 250) {
                     int choice = rand() % 2;
                     if (choice == 0) {
                         highest_bid += 250;
@@ -211,6 +206,10 @@ int auction(Player players[], Cell *place, Ownership beneficiary, Game game_stat
         }
 
         printf("\n");
+
+        if (bidding_players <= 1) {
+            break;
+        }
     }
 
     for (int i = 0; i < NO_OF_PLAYERS; i++) {

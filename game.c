@@ -31,7 +31,7 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over,
                 
                 printf("\nActive National Event Cards : \n");
                 for (int j = 0; j < 20; j++) {
-                    if (players[i].events[j].remaining_effect != 0) {
+                    if (players[i].events[j].remaining_effect > 0) {
                         printf("\t%s : ( Remaining Rounds : %i )\n", national_events[players[i].events[j].event].name, players[i].events[j].remaining_effect);
                     }
                 }

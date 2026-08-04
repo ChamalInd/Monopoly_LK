@@ -236,7 +236,7 @@ void initialize_players(Player players[]) {
         };
 
         for (int j = 0; j < 20; j++) {
-            players[i].events[j] = (National_Events) {j, 0};
+            players[i].events[j] = (National_Events) {j, NONE};
         }
     }
 }
@@ -298,8 +298,8 @@ void destroy_property(Cell *place) {
     place->buildings.has_damaged = FALSE;
 }
 
-int round_off(float num) {
-    if ((num + 0.5) >= ((int) num + 1)) {
+int round_off(double num) {
+    if ((num - (int) num) >= 0.5) {
         return (int) num + 1;
     } else {
         return (int) num;

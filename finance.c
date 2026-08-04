@@ -52,7 +52,9 @@ void check_for_loan_status(Player players[], Cell board[], Game game_status) {
             if (players[game_status.current_player].loan_status.loan_duration == 3) {
                 printf("Loan of %s for LKR %i will overdue after 3 rounds.\n\n", players[game_status.current_player].name, players[game_status.current_player].loan_status.total_payable);
             }
-        } else if (players[game_status.current_player].loan_status.no_of_loans == 1 && players[game_status.current_player].loan_status.loan_duration == 0) {
+        } 
+        
+        if (players[game_status.current_player].loan_status.no_of_loans == 1 && players[game_status.current_player].loan_status.loan_duration == 0) {
             players[game_status.current_player].loan_status.loan_duration = 0;
             players[game_status.current_player].loan_status.no_of_loans = 0;
             players[game_status.current_player].loan_status.total_payable = 0;

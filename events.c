@@ -212,6 +212,10 @@ void national_event_card_draw(Player players[], Cell board[], Events national_ev
 
 void national_event_card_expiry(Player *player, Cell board[], Events national_events[], Game *game_status) {
     for (int i = 0; i < 20; i++) {
+        if (player->events[i].remaining_effect == NONE) { 
+            continue;
+        }
+
         if (player->events[i].remaining_effect > 0) {
             player->events[i].remaining_effect--;
         } 
@@ -226,22 +230,22 @@ void national_event_card_expiry(Player *player, Cell board[], Events national_ev
                     break;
                 case STOCK_MARKET_RISE :
                     for (int j = 0; j < NO_OF_CELLS; j++) {
-                        if (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY) {
+                        if (board[j].type == PROPERTY || board[j].type == RAILWAY || board[j].type == UTILITY) {
                             board[j].value.market_price -= round_off((double) board[j].value.market_price * (10.0 / 100.0));
                         }   
                     }
                     break;
                 case ECONOMIC_DOWNTURN :
-                    for (int i = 0; i < NO_OF_CELLS; i++) {
-                        if (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY) {
-                            board[i].value.market_price += round_off((double) board[i].value.market_price * (15.0 / 100.0));
+                    for (int j = 0; j < NO_OF_CELLS; j++) {
+                        if (board[j].type == PROPERTY || board[j].type == RAILWAY || board[j].type == UTILITY) {
+                            board[j].value.market_price += round_off((double) board[i].value.market_price * (15.0 / 100.0));
                         }                        
                     }
                     break;
                 case HOUSING_SUBSIDY :
-                    for (int i = 0; i < NO_OF_CELLS; i++) {
-                        if (board[i].type == PROPERTY) {
-                            board[i].value.house_construction_cost += round_off((double) board[i].value.house_construction_cost * (30.0 / 100.0));
+                    for (int j = 0; j < NO_OF_CELLS; j++) {
+                        if (board[j].type == PROPERTY) {
+                            board[j].value.house_construction_cost += round_off((double) board[j].value.house_construction_cost * (30.0 / 100.0));
                         }
                     }
                     break;
@@ -252,16 +256,16 @@ void national_event_card_expiry(Player *player, Cell board[], Events national_ev
                     game_status->interest_rate *= (98.0 / 100.0);
                     break;
                 case FOREIGN_FUNDING :
-                    for (int i = 0; i < NO_OF_CELLS; i++) {
-                        if (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY) {
-                            board[i].value.market_price -= round_off((double) board[i].value.market_price * (15.0 / 100.0));
+                    for (int j = 0; j < NO_OF_CELLS; j++) {
+                        if (board[j].type == PROPERTY || board[j].type == RAILWAY || board[j].type == UTILITY) {
+                            board[j].value.market_price -= round_off((double) board[j].value.market_price * (15.0 / 100.0));
                         }
                     }
                     break;
                 case PORT_EXPANSION :
-                    for (int i = 0; i < NO_OF_CELLS; i++) {
-                        if (board[i].type == RAILWAY) {
-                            board[i].value.market_price -= round_off((double) board[i].value.market_price * (20.0 / 100.0));
+                    for (int j = 0; j < NO_OF_CELLS; j++) {
+                        if (board[j].type == RAILWAY) {
+                            board[j].value.market_price -= round_off((double) board[j].value.market_price * (20.0 / 100.0));
                         }
                     }
                     break;
