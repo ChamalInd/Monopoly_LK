@@ -215,7 +215,7 @@ void announce_bankruptcy(Player players[], Cell board[], Game game_status, int p
     for (int i = 0; i < NO_OF_CELLS; i++) {
         if (board[i].owner == players[player].id) {
             destroy_property(&board[i]);
-            auction(players, &board[i], BANK_OF_CEYLON, game_status);
+            auction(players, board, &board[i], BANK_OF_CEYLON, game_status);
         }
     }
 }

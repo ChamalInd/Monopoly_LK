@@ -64,7 +64,7 @@ void check_for_loan_status(Player players[], Cell board[], Game game_status) {
             for (int j = 0; j < NO_OF_CELLS; j++) {
                 if (board[j].owner == players[game_status.current_player].id && board[j].mortgage.status == MORTGAGED) {
                     destroy_property(&board[j]);
-                    auction(players, &board[j], BANK_OF_CEYLON, game_status);
+                    auction(players, board, &board[j], BANK_OF_CEYLON, game_status);
                 }
             }
             check_for_bankruptcy(players, board, game_status, game_status.current_player);

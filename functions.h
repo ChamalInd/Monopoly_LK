@@ -28,7 +28,7 @@ void player_actions(Player players[], Cell board[], Cell *property_groups[][3], 
 void check_for_bank_action(Player player[], Cell board[], Game game_status);
 void check_for_insurance_action(Player players[], Cell board[], Game game_status);
 void buy(Player players[], Cell board[], Game game_status);
-int auction(Player players[], Cell *place, Ownership beneficiary, Game game_status);
+int auction(Player players[], Cell board[], Cell *place, Ownership beneficiary, Game game_status);
 void raise_money(Player players[], Cell board[], Game game_status, int amount_to_be_raised);
 void rent(Player players[], Cell *place, Cell board[], Game game_status);
 void constructions(Player *player, Cell *place, Cell *property_groups[][3]);
