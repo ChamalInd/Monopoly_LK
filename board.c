@@ -215,7 +215,7 @@ void generate_board(Cell board[]) {
         .regional_card = NONE,
         .national_event_pointer = 0,
         .inflation_rate = 0,
-        .interest_rate = 2.0f,  // demo value
+        .interest_rate = 8.0f,  // assuming stable economy
         .income_tax_rate = 15.0f,
         .community_fund_rate = 10.0f
     };

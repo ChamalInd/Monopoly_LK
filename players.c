@@ -131,70 +131,45 @@ void check_for_insurance_action(Player players[], Cell board[], Game game_status
 }
 
 void buy(Player players[], Cell board[], Game game_status) {
-    // int going_to_buy = FALSE;
+    int going_to_buy = FALSE;
 
-    // switch (players[game_status.current_player].id) {
-    //     case AGGRESSIVE_INVESTOR : {
-    //         int future_rent = board[NO_OF_CELLS - 1].value.base_rent * 10; // maximum rent might have to pay (Galle Face with a hotel)
-    //         if (players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.market_price + future_rent) {
-    //             going_to_buy = TRUE;
-    //         } else {
-    //             going_to_buy = FALSE;
-    //         }
-    //         break;
-    //     }
-    //     case CONSERVATIVE_BANKER : {
-    //         if (round_off(players[game_status.current_player].cash / 2.0) >= board[players[game_status.current_player].place].value.market_price) {
-    //             going_to_buy = TRUE;
-    //         } else {
-    //             going_to_buy = FALSE;
-    //         }
-    //         break;
-    //     }
-    //     case RISK_TAKER : {
-    //         if (players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.market_price) {
-    //             going_to_buy = TRUE;
-    //         } else {
-    //             going_to_buy = FALSE;
-    //         }
-    //         break;
-    //     }
-    //     case OPPORTUNISTIC_TRADER : {
-    //         int projected_appreciation = 0;
-    //         int construction_cost = (4 * board[players[game_status.current_player].place].value.house_construction_cost) + board[players[game_status.current_player].place].value.hotel_construction_cost;
-    //         if (players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.market_price && projected_appreciation > construction_cost) {
-    //             going_to_buy = TRUE;
-    //         } else {
-    //             going_to_buy = FALSE;
-    //         }
-    //         break;
-    //     }
-    // }
-
-    // if (going_to_buy == TRUE) {
-    //     board[players[game_status.current_player].place].owner = players[game_status.current_player].id;
-    //     board[players[game_status.current_player].place].ownerptr = &players[game_status.current_player];
-        
-    //     printf("%s purchased %s for LKR %i.\n", players[game_status.current_player].name, board[players[game_status.current_player].place].name, board[players[game_status.current_player].place].value.market_price);
-    //     players[game_status.current_player].cash -= board[players[game_status.current_player].place].value.market_price;
-    //     printf("Remaining Balance : LKR %i.\n\n", players[game_status.current_player].cash);
-    // } else {
-    //     auction(players, &board[players[game_status.current_player].place], BANK_OF_CEYLON, game_status);
-    // }
-
-
-    int choice = rand() % 2;
-    if (choice == 0 && players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.market_price) {
-        if (players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.market_price) {
-            board[players[game_status.current_player].place].owner = players[game_status.current_player].id;
-            board[players[game_status.current_player].place].ownerptr = &players[game_status.current_player];
-
-            printf("%s purchased %s for LKR %i.\n", players[game_status.current_player].name, board[players[game_status.current_player].place].name, board[players[game_status.current_player].place].value.market_price);
-            players[game_status.current_player].cash -= board[players[game_status.current_player].place].value.market_price;
-            printf("Remaining Balance : LKR %i.\n\n", players[game_status.current_player].cash);
+    switch (players[game_status.current_player].id) {
+        case AGGRESSIVE_INVESTOR : {
+            int future_rent = board[NO_OF_CELLS - 1].value.base_rent * 10; // maximum rent might have to pay (Galle Face with a hotel)
+            going_to_buy = players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.market_price + future_rent;
+            break;
         }
+        case CONSERVATIVE_BANKER : {
+            going_to_buy = round_off(players[game_status.current_player].cash / 2.0) >= board[players[game_status.current_player].place].value.market_price;
+            break;
+        }
+        case RISK_TAKER : {
+            going_to_buy = players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.market_price;
+            break;
+        }
+        case OPPORTUNISTIC_TRADER : {
+            double added_factors = game_status.inflation_rate;
+
+            if (game_status.dynamic_market[MARKET_BOOM].property_group == board[players[game_status.current_player].place].group) {
+                added_factors += 20.0;
+            }
+
+            double projected_appreciation = board[players[game_status.current_player].place].value.market_price * (added_factors / 100.0);
+            double construction_cost = board[players[game_status.current_player].place].value.house_construction_cost;
+
+            going_to_buy = players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.market_price && projected_appreciation > construction_cost;
+            break;
+        }
+    }
+
+    if (going_to_buy == TRUE) {
+        board[players[game_status.current_player].place].owner = players[game_status.current_player].id;
+        board[players[game_status.current_player].place].ownerptr = &players[game_status.current_player];
         
-    } else if (choice == 1 || players[game_status.current_player].cash < board[players[game_status.current_player].place].value.market_price) {
+        printf("%s purchased %s for LKR %i.\n", players[game_status.current_player].name, board[players[game_status.current_player].place].name, board[players[game_status.current_player].place].value.market_price);
+        players[game_status.current_player].cash -= board[players[game_status.current_player].place].value.market_price;
+        printf("Remaining Balance : LKR %i.\n\n", players[game_status.current_player].cash);
+    } else {
         auction(players, &board[players[game_status.current_player].place], BANK_OF_CEYLON, game_status);
     }
 }

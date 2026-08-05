@@ -53,7 +53,7 @@ void inflation(Cell board[], Game *game_status) {
     int inflation_rates[] = {-3, 0, 2, 5, 8, 12};
     game_status->inflation_rate = inflation_rates[rand() % (sizeof(inflation_rates) / sizeof(int))];
     double inflation_value = 1.0 + ((double) game_status->inflation_rate / 100.0);
-    game_status->interest_rate = game_status->interest_rate * inflation_value;
+    game_status->interest_rate = game_status->income_tax_rate * inflation_value;
 
     for (int i = 0; i < NO_OF_CELLS; i++) {
         if (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY) {
@@ -116,7 +116,7 @@ void dynamic_property_market(Cell *property_groups[][3], Game *game_status, int 
 
 void disaster_occurrence(Cell board[], Game game_status) {
     int property = rand() % 40, disaster = 0, repair_cost = NONE;
-    while (board[property].type == PROPERTY || board[property].owner == BANK_OF_CEYLON || board[property].owner == NO_OWNER) {
+    while (board[property].type != PROPERTY || board[property].owner == BANK_OF_CEYLON || board[property].owner == NO_OWNER) {
         property = rand() % 40; 
     }
 
@@ -337,7 +337,7 @@ void national_event_card_draw(Player players[], Cell board[], Events national_ev
             break;
         }
         case NATIONAL_DISASTER : {
-            players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 15;
+            players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 1;
             break;
         }
         default : {
