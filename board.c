@@ -147,6 +147,7 @@ void generate_board(Cell board[]) {
     for (int i = 0; i < NO_OF_CELLS; i++) {
         board[i] = (Cell) {
             .name = cell_names[i],
+            .id = i,
             .depreciation = (Depreciation) {0, 0},
             .type = cell_types[i],
             .group = cell_colors[i],
@@ -194,6 +195,7 @@ void generate_board(Cell board[]) {
     };
 
     Events national_events[20];
+    Regional regional_cards[12];
 
     Game game_status = (Game) {
         .rounds = 0,
@@ -210,6 +212,7 @@ void generate_board(Cell board[]) {
         },
         .economic_event = NO_EVENT,
         .government_regulation = NO_REGULATION,
+        .regional_card = NONE,
         .national_event_pointer = 0,
         .inflation_rate = 0,
         .interest_rate = 2.0f,  // demo value
@@ -217,11 +220,11 @@ void generate_board(Cell board[]) {
         .community_fund_rate = 10.0f
     };
 
-    generate_event_cards(national_events);
+    generate_event_cards(national_events, regional_cards);
     initialize_players(players);
-    print_game(game_status, players, board, FALSE, national_events);
+    print_game(game_status, players, board, FALSE, national_events, regional_cards);
     decide_player_order(players);
-    game_loop(&game_status, players, board, property_groups, national_events);
+    game_loop(&game_status, players, board, property_groups, national_events, regional_cards);
 }
 
 void initialize_players(Player players[]) {
@@ -250,7 +253,7 @@ void initialize_players(Player players[]) {
     }
 }
 
-void generate_event_cards(Events national_events[]) {
+void generate_event_cards(Events national_events[], Regional regional_cards[]) {
     char *event_names[] = {
         "Tourism Hype", "Fuel Shortage", "Heavy Floods", "Political Rally", 
         "Stock Market Rise", "Economic Downturn", "Housing Subsidy", 
@@ -283,11 +286,26 @@ void generate_event_cards(Events national_events[]) {
         "Random developed property damaged"
     };
 
+    char *regional_names[] = {
+        "Southern Tourism Boom", "Port City Expansion", "IT Industry Growth", "Northern Development Programme", 
+        "Tea Export Boom", "Airport Expansion", "University City Growth", "Beach Pollution",
+        "Flood Damage", "Transport Strike", "Electricity Tariff Increase", "Water Shortage"
+    };
+
+    char *regional_values[] = {"+40%", "+25%", "+20%", "+30%", "+35%", "+30%", "+20%", "-30%", "-20%", "-40%", "+25%", "+20% & -10%"};
+
     for (int i = 0; i < 20; i++) {
         national_events[i] = (Events) {
             .name = event_names[i],
             .event = event_description[i],
             .property = NONE
+        };
+    }
+
+    for (int i = 0; i < 12; i++) {
+        regional_cards[i] = (Regional) {
+            .name = regional_names[i],
+            .value = regional_values[i]
         };
     }
       

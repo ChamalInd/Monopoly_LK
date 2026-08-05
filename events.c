@@ -114,8 +114,8 @@ void dynamic_property_market(Cell *property_groups[][3], Game *game_status, int 
     }
 }
 
-void disaster_occurrence(Player players[], Cell board[], Game game_status) {
-    int property = NONE, disaster = 0, repair_cost = NONE;
+void disaster_occurrence(Cell board[], Game game_status) {
+    int property = rand() % 40, disaster = 0, repair_cost = NONE;
     while (board[property].type != PROPERTY && (board[property].owner != BANK_OF_CEYLON || board[property].owner != NO_OWNER)) {
         property = rand() % 40; 
     }
@@ -132,7 +132,6 @@ void disaster_occurrence(Player players[], Cell board[], Game game_status) {
         disaster = 4;
     }
 
-
     repair_cost = round_off(board[property].value.market_price * (10.0 / 100.0));
 
     char *disaster_names[] = {"Fire", "Flood", "Riot", "Vandalism", "Building Collapse", "Electrical Failure"};
@@ -143,38 +142,39 @@ void disaster_occurrence(Player players[], Cell board[], Game game_status) {
     int covered_by_insurance = FALSE, compensation = 0;
     char *policy;
 
-    if (board[property].insurance.policy != NONE) {
-        switch (board[property].insurance.policy) {
-            case BASIC : {
-                if (disaster < 2) {
-                    compensation = round_off(repair_cost * (80.0 / 100.0));
-                    covered_by_insurance = TRUE;
-                } else {
-                    covered_by_insurance = FALSE;
-                    policy = "Basic Property";
-                }
-                break;
-            }
-            case COMPREHENSIVE : {
-                if (disaster < 4) {
-                    compensation = repair_cost;
-                    covered_by_insurance = TRUE;
-                } else {
-                    covered_by_insurance = FALSE;
-                    policy = "Comprehensive";
-                }
-                break;
-            }
-            case BUSINESS_INTERRUPTION : {
-                int lost_rent = board[property].value.base_rent * 10 * 5;
-                compensation = repair_cost + lost_rent;
+    switch (board[property].insurance.policy) {
+        case BASIC : {
+            if (disaster < 2) {
+                compensation = round_off(repair_cost * (80.0 / 100.0));
                 covered_by_insurance = TRUE;
-                break;
+            } else {
+                covered_by_insurance = FALSE;
+                policy = "Basic Property";
             }
-            default :
-                break;
+            break;
         }
+        case COMPREHENSIVE : {
+            if (disaster < 4) {
+                compensation = repair_cost;
+                covered_by_insurance = TRUE;
+            } else {
+                covered_by_insurance = FALSE;
+                policy = "Comprehensive";
+            }
+            break;
+        }
+        case BUSINESS_INTERRUPTION : {
+            int lost_rent = board[property].value.base_rent * 10 * 5;
+            compensation = repair_cost + lost_rent;
+            covered_by_insurance = TRUE;
+            break;
+        }
+        default :
+            compensation = NONE;
+            break;
+    }
 
+    if (compensation != NONE) {
         if (covered_by_insurance == TRUE) {
             printf("Insurance claim Approved.\n\n");
             printf("Compensation Paid : LKR %i.\n\n", compensation);
@@ -682,5 +682,165 @@ void government_regulations(Cell board[], Game *game_status) {
             printf("Government Regulations\n\tPlayers may own at most three undeveloped properties.\n\n");
             break;
         }
+    }
+}
+
+void regional_card_draw(Cell board[], Game *game_status) {
+    switch (game_status->regional_card) {
+        case PORT_CITY_EXPANSION : {
+            board[1].value.market_price -= round_off(board[1].value.market_price * (25.0 / 100.0)); //pettah
+            board[3].value.market_price -= round_off(board[3].value.market_price * (25.0 / 100.0)); //maradhana
+            board[5].value.market_price -= round_off(board[5].value.market_price * (25.0 / 100.0)); //colombo fort railway
+
+            board[1].value.current_market_price -= round_off(board[1].value.current_market_price * (25.0 / 100.0)); //pettah
+            board[3].value.current_market_price -= round_off(board[3].value.current_market_price * (25.0 / 100.0)); //maradhana
+            board[5].value.current_market_price -= round_off(board[5].value.current_market_price * (25.0 / 100.0)); //colombo fort railway
+            break;
+        } 
+        case IT_INDUSTRY_GROWTH : {
+            board[1].value.market_price -= round_off(board[13].value.market_price * (20.0 / 100.0)); //maharagama
+            board[3].value.market_price -= round_off(board[11].value.market_price * (20.0 / 100.0)); //nugegoda
+            board[5].value.market_price -= round_off(board[14].value.market_price * (20.0 / 100.0)); //kottawa
+
+            board[1].value.current_market_price -= round_off(board[13].value.current_market_price * (20.0 / 100.0)); //maharagama
+            board[3].value.current_market_price -= round_off(board[11].value.current_market_price * (20.0 / 100.0)); //nugegoda
+            board[5].value.current_market_price -= round_off(board[14].value.current_market_price * (20.0 / 100.0)); //kottawa
+            break;
+        }  
+        case NORTHERN_DEVELOPMENT_PROGRAMME : {
+            board[1].value.market_price -= round_off(board[31].value.market_price * (30.0 / 100.0)); //jaffna
+            board[3].value.market_price -= round_off(board[32].value.market_price * (30.0 / 100.0)); //nallur
+            board[5].value.market_price -= round_off(board[34].value.market_price * (30.0 / 100.0)); //trincomalee
+
+            board[1].value.current_market_price -= round_off(board[31].value.current_market_price * (30.0 / 100.0)); //jaffna
+            board[3].value.current_market_price -= round_off(board[32].value.current_market_price * (30.0 / 100.0)); //nallur
+            board[5].value.current_market_price -= round_off(board[34].value.current_market_price * (30.0 / 100.0)); //trincomalee
+            break;
+        } 
+        case TEA_EXPORT_BOOM : {
+            board[1].value.market_price -= round_off(board[37].value.market_price * (35.0 / 100.0)); //nuwara-eliya
+            board[5].value.current_market_price -= round_off(board[37].value.current_market_price * (35.0 / 100.0)); //nuwara-eliya
+            break;
+        }    
+        case AIRPORT_EXPANSION : {
+            board[1].value.market_price -= round_off(board[16].value.market_price * (30.0 / 100.0)); //negambo
+            board[3].value.market_price -= round_off(board[18].value.market_price * (30.0 / 100.0)); //katunayek
+            board[5].value.market_price -= round_off(board[19].value.market_price * (30.0 / 100.0)); //ja-ela
+
+            board[1].value.current_market_price -= round_off(board[16].value.current_market_price * (30.0 / 100.0)); //negambo
+            board[3].value.current_market_price -= round_off(board[18].value.current_market_price * (30.0 / 100.0)); //katunayek
+            board[5].value.current_market_price -= round_off(board[19].value.current_market_price * (30.0 / 100.0)); //ja-ela
+            break;
+        } 
+        case UNIVERSITY_CITY_GROWTH : {
+            board[1].value.market_price -= round_off(board[21].value.market_price * (20.0 / 100.0)); //kandy
+            board[3].value.market_price -= round_off(board[23].value.market_price * (20.0 / 100.0)); //peradeniya
+
+            board[1].value.current_market_price -= round_off(board[21].value.current_market_price * (20.0 / 100.0)); //kandy
+            board[3].value.current_market_price -= round_off(board[23].value.current_market_price * (20.0 / 100.0)); //peradeniya
+            break;
+        } 
+        case FLOOD_DAMAGE : {
+            board[1].value.market_price -= round_off(board[26].value.market_price * (20.0 / 100.0)); //galle fort
+            board[3].value.market_price -= round_off(board[27].value.market_price * (20.0 / 100.0)); //unawatuna
+            board[3].value.market_price -= round_off(board[29].value.market_price * (20.0 / 100.0)); //hikkaduwa
+            board[3].value.market_price -= round_off(board[9].value.market_price * (20.0 / 100.0)); //mount lavinia
+            board[3].value.market_price -= round_off(board[16].value.market_price * (20.0 / 100.0)); //negambo
+            board[3].value.market_price -= round_off(board[39].value.market_price * (20.0 / 100.0)); //galle face
+            board[3].value.market_price -= round_off(board[31].value.market_price * (20.0 / 100.0)); //jaffna
+            board[3].value.market_price -= round_off(board[34].value.market_price * (20.0 / 100.0)); //trincomalee
+
+            board[1].value.current_market_price -= round_off(board[26].value.current_market_price * (20.0 / 100.0)); //galle fort
+            board[3].value.current_market_price -= round_off(board[27].value.current_market_price * (20.0 / 100.0)); //unawatuna
+            board[3].value.current_market_price -= round_off(board[29].value.current_market_price * (20.0 / 100.0)); //hikkaduwa
+            board[3].value.current_market_price -= round_off(board[9].value.current_market_price * (20.0 / 100.0)); //mount lavinia
+            board[3].value.current_market_price -= round_off(board[16].value.current_market_price * (20.0 / 100.0)); //negambo
+            board[3].value.current_market_price -= round_off(board[39].value.current_market_price * (20.0 / 100.0)); //galle face
+            board[3].value.current_market_price -= round_off(board[31].value.current_market_price * (20.0 / 100.0)); //jaffna
+            board[3].value.current_market_price -= round_off(board[34].value.current_market_price * (20.0 / 100.0)); //trincomalee
+            break;
+        } 
+        default : 
+            break;
+    }
+
+    game_status->regional_card = rand() % 12;
+
+    switch (game_status->regional_card) {
+        case PORT_CITY_EXPANSION : {
+            board[1].value.market_price += round_off(board[1].value.market_price * (25.0 / 100.0)); //pettah
+            board[3].value.market_price += round_off(board[3].value.market_price * (25.0 / 100.0)); //maradhana
+            board[5].value.market_price += round_off(board[5].value.market_price * (25.0 / 100.0)); //colombo fort railway
+
+            board[1].value.current_market_price += round_off(board[1].value.current_market_price * (25.0 / 100.0)); //pettah
+            board[3].value.current_market_price += round_off(board[3].value.current_market_price * (25.0 / 100.0)); //maradhana
+            board[5].value.current_market_price += round_off(board[5].value.current_market_price * (25.0 / 100.0)); //colombo fort railway
+            break;
+        }  
+        case IT_INDUSTRY_GROWTH : {
+            board[1].value.market_price += round_off(board[13].value.market_price * (20.0 / 100.0)); //maharagama
+            board[3].value.market_price += round_off(board[11].value.market_price * (20.0 / 100.0)); //nugegoda
+            board[5].value.market_price += round_off(board[14].value.market_price * (20.0 / 100.0)); //kottawa
+
+            board[1].value.current_market_price += round_off(board[13].value.current_market_price * (20.0 / 100.0)); //maharagama
+            board[3].value.current_market_price += round_off(board[11].value.current_market_price * (20.0 / 100.0)); //nugegoda
+            board[5].value.current_market_price += round_off(board[14].value.current_market_price * (20.0 / 100.0)); //kottawa
+            break;
+        }  
+        case NORTHERN_DEVELOPMENT_PROGRAMME : {
+            board[1].value.market_price += round_off(board[31].value.market_price * (30.0 / 100.0)); //jaffna
+            board[3].value.market_price += round_off(board[32].value.market_price * (30.0 / 100.0)); //nallur
+            board[5].value.market_price += round_off(board[34].value.market_price * (30.0 / 100.0)); //trincomalee
+
+            board[1].value.current_market_price += round_off(board[31].value.current_market_price * (30.0 / 100.0)); //jaffna
+            board[3].value.current_market_price += round_off(board[32].value.current_market_price * (30.0 / 100.0)); //nallur
+            board[5].value.current_market_price += round_off(board[34].value.current_market_price * (30.0 / 100.0)); //trincomalee
+            break;
+        } 
+        case TEA_EXPORT_BOOM : {
+            board[1].value.market_price += round_off(board[37].value.market_price * (35.0 / 100.0)); //nuwara-eliya
+            board[5].value.current_market_price += round_off(board[37].value.current_market_price * (35.0 / 100.0)); //nuwara-eliya
+            break;
+        }    
+        case AIRPORT_EXPANSION : {
+            board[1].value.market_price += round_off(board[16].value.market_price * (30.0 / 100.0)); //negambo
+            board[3].value.market_price += round_off(board[18].value.market_price * (30.0 / 100.0)); //katunayek
+            board[5].value.market_price += round_off(board[19].value.market_price * (30.0 / 100.0)); //ja-ela
+
+            board[1].value.current_market_price += round_off(board[16].value.current_market_price * (30.0 / 100.0)); //negambo
+            board[3].value.current_market_price += round_off(board[18].value.current_market_price * (30.0 / 100.0)); //katunayek
+            board[5].value.current_market_price += round_off(board[19].value.current_market_price * (30.0 / 100.0)); //ja-ela
+            break;
+        } 
+        case UNIVERSITY_CITY_GROWTH : {
+            board[1].value.market_price += round_off(board[21].value.market_price * (20.0 / 100.0)); //kandy
+            board[3].value.market_price += round_off(board[23].value.market_price * (20.0 / 100.0)); //peradeniya
+
+            board[1].value.current_market_price += round_off(board[21].value.current_market_price * (20.0 / 100.0)); //kandy
+            board[3].value.current_market_price += round_off(board[23].value.current_market_price * (20.0 / 100.0)); //peradeniya
+            break;
+        } 
+        case FLOOD_DAMAGE : {
+            board[1].value.market_price += round_off(board[26].value.market_price * (20.0 / 100.0)); //galle fort
+            board[3].value.market_price += round_off(board[27].value.market_price * (20.0 / 100.0)); //unawatuna
+            board[3].value.market_price += round_off(board[29].value.market_price * (20.0 / 100.0)); //hikkaduwa
+            board[3].value.market_price += round_off(board[9].value.market_price * (20.0 / 100.0)); //mount lavinia
+            board[3].value.market_price += round_off(board[16].value.market_price * (20.0 / 100.0)); //negambo
+            board[3].value.market_price += round_off(board[39].value.market_price * (20.0 / 100.0)); //galle face
+            board[3].value.market_price += round_off(board[31].value.market_price * (20.0 / 100.0)); //jaffna
+            board[3].value.market_price += round_off(board[34].value.market_price * (20.0 / 100.0)); //trincomalee
+
+            board[1].value.current_market_price += round_off(board[26].value.current_market_price * (20.0 / 100.0)); //galle fort
+            board[3].value.current_market_price += round_off(board[27].value.current_market_price * (20.0 / 100.0)); //unawatuna
+            board[3].value.current_market_price += round_off(board[29].value.current_market_price * (20.0 / 100.0)); //hikkaduwa
+            board[3].value.current_market_price += round_off(board[9].value.current_market_price * (20.0 / 100.0)); //mount lavinia
+            board[3].value.current_market_price += round_off(board[16].value.current_market_price * (20.0 / 100.0)); //negambo
+            board[3].value.current_market_price += round_off(board[39].value.current_market_price * (20.0 / 100.0)); //galle face
+            board[3].value.current_market_price += round_off(board[31].value.current_market_price * (20.0 / 100.0)); //jaffna
+            board[3].value.current_market_price += round_off(board[34].value.current_market_price * (20.0 / 100.0)); //trincomalee
+            break;
+        }  
+        default : 
+            break;
     }
 }

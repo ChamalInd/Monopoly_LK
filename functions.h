@@ -7,20 +7,20 @@
 // Functions in board.c
 void generate_board(Cell board[]);
 void initialize_players(Player players[]);
-void generate_event_cards(Events national_events[]);
+void generate_event_cards(Events national_events[], Regional regional_cards[]);
 void destroy_property(Cell *place);
 int round_off(double num);
 void sort_players(Player players[]);
 void decide_player_order(Player players[]);
 
 // Functions in game.c
-void print_game(Game game_status, Player players[], Cell board[], int game_over, Events national_events[]);
+void print_game(Game game_status, Player players[], Cell board[], int game_over, Events national_events[], Regional regional_cards[]);
 int dice_roll(void);
 int decide_winner(Player players[], Cell board[]);
 void check_for_jailed(Player *player);
 void check_for_bankruptcy(Player players[], Cell board[], Game game_status, int player);
 void announce_bankruptcy(Player players[], Cell board[], Game game_status, int player);
-void game_loop(Game *game_status, Player players[], Cell board[], Cell *property_groups[][3], Events national_events[]);
+void game_loop(Game *game_status, Player players[], Cell board[], Cell *property_groups[][3], Events national_events[], Regional regional_cards[]);
 
 // Functions in players.c
 Status calculate_player_status(Player player, Cell board[]);
@@ -53,10 +53,11 @@ void property_depreciation(Cell board[], Game game_status);
 void building_depreciation(Cell board[]);
 void inflation(Cell board[], Game *game_status);
 void dynamic_property_market(Cell *property_groups[][3], Game *game_status, int event);
-void disaster_occurrence(Player players[], Cell board[], Game game_status);
+void disaster_occurrence(Cell board[], Game game_status);
 void national_event_card_draw(Player player[], Cell board[], Events national_events[], Game *game_status);
 void national_event_card_expiry(Player *player, Cell board[], Events national_events[], Game *game_status);
 void economic_events(Cell board[], Game *game_status);
 void government_regulations(Cell board[], Game *game_status);
+void regional_card_draw(Cell board[], Game *game_status);
 
 #endif

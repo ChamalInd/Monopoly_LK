@@ -356,21 +356,34 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
         } else if (place->buildings.no_of_hotels != 0) {
             rent = place->value.base_rent * 10;
 
-            // for tourism hype & tourism boom
-            if (place->ownerptr->events[TOURISM_HYPE].remaining_effect > 0 || (game_status.economic_event == TOURISM_BOOM && place->group == YELLOW)) {
-                rent *= 2;
-            }
-            // for festival season
-            if (place->ownerptr->events[FESTIVAL_SEASON].remaining_effect > 0) { 
-                rent = round_off((double) rent * (150.0 / 100.0));
-            }
-            // for political unrest
-            if (game_status.economic_event == POLITICAL_UNREST) {
-                rent = round_off((double) rent * (50.0 / 100.0));
-            }
-
         } else {
             rent = place->value.base_rent;
+        }
+
+        // for tourism hype & tourism boom
+        if (place->ownerptr->events[TOURISM_HYPE].remaining_effect > 0 || (game_status.economic_event == TOURISM_BOOM && place->group == YELLOW)) {
+            rent *= 2;
+        }
+        // for festival season
+        if (place->ownerptr->events[FESTIVAL_SEASON].remaining_effect > 0) { 
+            rent = round_off((double) rent * (150.0 / 100.0));
+        }
+        // for political unrest
+        if (game_status.economic_event == POLITICAL_UNREST) {
+            rent = round_off((double) rent * (50.0 / 100.0));
+        }
+        // for southern tourism boom
+        if (game_status.regional_card == SOUTHERN_TOURISM_BOOM) {
+            // Galle face | unawatuna | hikkaduwa
+            if (place->id == 39 || place->id == 27 || place->id == 29) {
+                rent += round_off(rent * (40.0 / 100.0));
+            }
+        }
+        // for water shortage
+        if (game_status.regional_card == WATER_SHORTAGE) {
+            if (place->id == 27 || place->id == 29) {
+                rent -= round_off(rent * (10.0 / 100.0));
+            }
         }
 
         // additional calculation for building depreciation
@@ -390,10 +403,13 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
         if (place->ownerptr->events[FUEL_SHORTAGE].remaining_effect > 0 || game_status.economic_event == FUEL_CRISIS) {
             rent *= 2;
         }
-
         // for government regulations
         if (game_status.government_regulation == RAILWAY_MODERNIZATION) {
             rent += round_off(rent * (25.0 / 100.0));
+        }
+        // for transport strike
+        if (game_status.regional_card == TRANSPORT_STRIKE) {
+            rent -= round_off(rent * (40.0 / 100.0));
         }
 
     } else if (place->type == UTILITY) {
@@ -404,11 +420,19 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
         if (place->ownerptr->events[POWER_FAILURE].remaining_effect > 0) {
             rent = round_off((float) rent / 2.0);
         }
-
         // for government regulations
         if (game_status.government_regulation == ELECTRICITY_TARIFF_REVISION) {
             rent += round_off(rent * (20.0 / 100.0));
         }
+        // for electricity tariff
+        if (game_status.regional_card == ELECTRICITY_TARIFF_INCREASE) {
+            rent += round_off(rent * (25.0 / 100.0));
+        }
+        // for water shortage
+        if (game_status.regional_card == WATER_SHORTAGE) {
+            rent += round_off(rent * (20.0 / 100.0));
+        }
+
     }
 
     // economic recession 

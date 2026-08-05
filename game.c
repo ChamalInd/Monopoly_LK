@@ -1,7 +1,7 @@
 // Game controller and simulation engine
 #include "functions.h"
 
-void print_game(Game game_status, Player players[], Cell board[], int game_over, Events national_events[]) {
+void print_game(Game game_status, Player players[], Cell board[], int game_over, Events national_events[], Regional regional_cards[]) {
     if (game_status.rounds == 0) {
         // declare the start of the game
         for (int i = 0; i < 60; i++) {
@@ -49,6 +49,9 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over,
             printf("=");
         }
         printf("\nCurrent Market Conditions\n");
+        for (int i = 0; i < 60; i++) {
+            printf("=");
+        }
 
         char *property_groups[] = {
             "Colombo Central",   // BROWN
@@ -62,9 +65,6 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over,
         };
 
         if (game_status.dynamic_market[0].event != NORMAL && game_status.dynamic_market[1].event != NORMAL) {
-            for (int i = 0; i < 60; i++) {
-                printf("=");
-            }
             printf("\n\nMarket Boom\n");
             for (int i = 0; i < 16; i++) {
                 printf("-");
@@ -78,6 +78,15 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over,
             }
             printf("\n%s (-15%%)\n", property_groups[game_status.dynamic_market[1].property_group]);
             printf("Rounds Remaining : %i\n", 10 - game_status.rounds % 10);
+        }
+
+        if (game_status.regional_card != NONE) {
+            printf("\nRegional Development Cards\n");
+            for (int i = 0; i < 28; i++) {
+                printf("-");
+            }
+            printf("\n%s\n(%s)\n", regional_cards[game_status.regional_card].name, regional_cards[game_status.regional_card].value);
+            printf("Rounds Remaining : %i\n", 15 - game_status.rounds % 15);
         }
 
         printf("\nInflation\n");
@@ -211,7 +220,7 @@ void announce_bankruptcy(Player players[], Cell board[], Game game_status, int p
     }
 }
 
-void game_loop(Game *game_status, Player players[], Cell board[], Cell *property_groups[][3], Events national_events[]) {
+void game_loop(Game *game_status, Player players[], Cell board[], Cell *property_groups[][3], Events national_events[], Regional regional_cards[]) {
     int pass_go = FALSE, round_done = TRUE;
     int round_tracker = 0;
 
@@ -245,7 +254,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 
         if (game_over) {
             game_status->rounds++;
-            print_game(*game_status, players, board, game_over, national_events);
+            print_game(*game_status, players, board, game_over, national_events, regional_cards);
             return;
         }
 
@@ -290,11 +299,11 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
             round_tracker = 0;
 
             if (game_status->rounds == MAX_ROUNDS) {
-                print_game(*game_status, players, board, game_over, national_events);
+                print_game(*game_status, players, board, game_over, national_events, regional_cards);
                 break;
             }
 
-            print_game(*game_status, players, board, game_over, national_events);
+            print_game(*game_status, players, board, game_over, national_events, regional_cards);
 
             check_for_insurance_status(board);
             building_depreciation(board);
@@ -302,7 +311,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 
             if (game_status->rounds % 10 == 0) {
                 inflation(board, game_status);
-                disaster_occurrence(players, board, *game_status);
+                disaster_occurrence(board, *game_status);
 
                 for (int i = 0; i < 2; i++) {
                     dynamic_property_market(property_groups, game_status, i);
@@ -311,6 +320,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 
             if (game_status->rounds % 15 == 0) {
                 economic_events(board, game_status);
+                regional_card_draw(board, game_status);
             }
 
             if (game_status->rounds % 20 == 0) {

@@ -117,6 +117,7 @@ typedef struct {
 
 typedef struct {
     char *name;
+    int id;
     Depreciation depreciation;
     Type type;
     Color group;
@@ -145,6 +146,10 @@ typedef enum {
     NO_REGULATION = -1, INCREASE_PROPERTY_TAX, REDUCE_LOAN_INTERSET, HOUSING_SUBSIDY_REGULATION, LUXURY_PROPERTY_TAX, RAILWAY_MODERNIZATION, ELECTRICITY_TARIFF_REVISION, INSURANCE_REGULATION, ANTI_SPECULATION_ACT
 } Government_Regulations;
 
+typedef enum {
+    SOUTHERN_TOURISM_BOOM, PORT_CITY_EXPANSION, IT_INDUSTRY_GROWTH, NORTHERN_DEVELOPMENT_PROGRAMME, TEA_EXPORT_BOOM, AIRPORT_EXPANSION, UNIVERSITY_CITY_GROWTH, BEACH_POLLUTION, FLOOD_DAMAGE, TRANSPORT_STRIKE, ELECTRICITY_TARIFF_INCREASE, WATER_SHORTAGE
+} Regional_Card;
+
 typedef struct {
     Market event;
     int property_group;
@@ -157,11 +162,17 @@ typedef struct {
 } Events;
 
 typedef struct {
+    char *name;
+    char *value;
+} Regional;
+
+typedef struct {
     int rounds;
     int current_player;
     Dynamic_Market dynamic_market[2];
     Economic_Events economic_event;
     Government_Regulations government_regulation;
+    Regional_Card regional_card;
     int national_event_pointer;
     int inflation_rate;
     float interest_rate;
