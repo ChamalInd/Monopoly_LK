@@ -190,8 +190,8 @@ int auction(Player players[], Cell board[], Cell *place, Ownership beneficiary, 
         if (players[i].isBankrupt == FALSE && players[i].jail_status.isJailed == FALSE && players[i].id != beneficiary) {
             if (players[i].id == AGGRESSIVE_INVESTOR) {
                 int choice = FALSE;
-                for (int i = 0; i < NO_OF_CELLS; i++) {
-                    if (board[i].type == place->type && board[i].owner == players[i].id) {
+                for (int j = 0; j < NO_OF_CELLS; j++) {
+                    if (board[j].type == place->type && board[j].owner == players[i].id) {
                         choice = TRUE;
                         break;
                     }
