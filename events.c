@@ -114,6 +114,97 @@ void dynamic_property_market(Cell *property_groups[][3], Game *game_status, int 
     }
 }
 
+void disaster_occurrence(Player players[], Cell board[], Game game_status) {
+    int property = NONE, disaster = 0, repair_cost = NONE;
+    while (board[property].type != PROPERTY && (board[property].owner != BANK_OF_CEYLON || board[property].owner != NO_OWNER)) {
+        property = rand() % 40; 
+    }
+
+    disaster = rand() % 6;
+
+    if (game_status.economic_event == HEAVY_MONSOON || board[property].ownerptr->events[HEAVY_FLOODS].remaining_effect > 0) {
+        disaster = 1;
+    } else if (game_status.economic_event == POLITICAL_UNREST) {
+        disaster = 2;
+    }
+
+    if (board[property].ownerptr->events[NATIONAL_DISASTER].remaining_effect > 0) {
+        disaster = 4;
+    }
+
+
+    repair_cost = round_off(board[property].value.market_price * (10.0 / 100.0));
+
+    char *disaster_names[] = {"Fire", "Flood", "Riot", "Vandalism", "Building Collapse", "Electrical Failure"};
+
+    printf("%s occurred.\n", disaster_names[disaster]);
+    printf("Affected Property : \n\t%s\n\n", board[property].name);
+
+    int covered_by_insurance = FALSE, compensation = 0;
+    char *policy;
+
+    if (board[property].insurance.policy != NONE) {
+        switch (board[property].insurance.policy) {
+            case BASIC : {
+                if (disaster < 2) {
+                    compensation = round_off(repair_cost * (80.0 / 100.0));
+                    covered_by_insurance = TRUE;
+                } else {
+                    covered_by_insurance = FALSE;
+                    policy = "Basic Property";
+                }
+                break;
+            }
+            case COMPREHENSIVE : {
+                if (disaster < 4) {
+                    compensation = repair_cost;
+                    covered_by_insurance = TRUE;
+                } else {
+                    covered_by_insurance = FALSE;
+                    policy = "Comprehensive";
+                }
+                break;
+            }
+            case BUSINESS_INTERRUPTION : {
+                int lost_rent = board[property].value.base_rent * 10 * 5;
+                compensation = repair_cost + lost_rent;
+                covered_by_insurance = TRUE;
+                break;
+            }
+            default :
+                break;
+        }
+
+        if (covered_by_insurance == TRUE) {
+            printf("Insurance claim Approved.\n\n");
+            printf("Compensation Paid : LKR %i.\n\n", compensation);
+            board[property].ownerptr->cash += compensation;
+
+            if (board[property].ownerptr->cash >= repair_cost) {
+                board[property].ownerptr->cash -= repair_cost;
+                if (board[property].insurance.policy == BASIC) {
+                    printf("%s Paid the rest : LKR %i.\n\n", board[property].ownerptr->name, repair_cost - compensation);
+                }
+            }
+        } else {
+            printf("%s Insurance doesn't cover %s.\n\n", policy, disaster_names[disaster]);
+
+            if (board[property].ownerptr->cash >= repair_cost) {
+                board[property].ownerptr->cash -= repair_cost;
+                printf("%s Paid the repair cost : LKR %i.\n\n", board[property].ownerptr->name, repair_cost);
+            }
+
+        }
+    } else {
+        printf("%s isn't insured.\n\n", board[property].name);
+
+        if (board[property].ownerptr->cash >= repair_cost) {
+            board[property].ownerptr->cash -= repair_cost;
+            printf("%s Paid the repair cost : LKR %i.\n\n", board[property].ownerptr->name, repair_cost);
+        }
+    }
+}
+
 void national_event_card_draw(Player players[], Cell board[], Events national_events[], Game *game_status) {
     printf("%s draws %s Card.\n", players[game_status->current_player].name, national_events[game_status->national_event_pointer].name);
     printf("%s.\n\n", national_events[game_status->national_event_pointer].event);
@@ -129,7 +220,6 @@ void national_event_card_draw(Player players[], Cell board[], Events national_ev
         }
         case HEAVY_FLOODS : {
             players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = NONE;
-            // to be implemented
             break;
         }
         case POLITICAL_RALLY : {
@@ -248,7 +338,6 @@ void national_event_card_draw(Player players[], Cell board[], Events national_ev
         }
         case NATIONAL_DISASTER : {
             players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 15;
-            // to be implemented
             break;
         }
         default : {
@@ -428,10 +517,6 @@ void economic_events(Cell board[], Game *game_status) {
             }
             break;
         }
-        case POLITICAL_UNREST : {
-            // to be implemented
-            break;
-        }
         default :
             break;
     }
@@ -460,7 +545,6 @@ void economic_events(Cell board[], Game *game_status) {
             break;
         }
         case HEAVY_MONSOON : {
-            // to be implemented
             for (int i = 0; i < NO_OF_CELLS; i++) {
                 if (board[i].group == YELLOW) {
                     board[i].value.market_price -= round_off(board[i].value.market_price * (10.0 / 100.0));
@@ -519,7 +603,6 @@ void economic_events(Cell board[], Game *game_status) {
             break;
         }
         case POLITICAL_UNREST : {
-            // to be implemented
             printf("Economic Event\n\tPolitical Unrest\n\tHotel occupancy decreases and the hotel rent drops by 50%%.\n\n");
             break;
         }
@@ -534,7 +617,7 @@ void government_regulations(Cell board[], Game *game_status) {
             break;
         }
         case INCREASE_PROPERTY_TAX : {
-            game_status->income_tax_rate -= game_status->income_tax_rate * (50.0 / 100.0);
+            game_status->income_tax_rate = game_status->income_tax_rate * (50.0 / 100.0);
             break;
         }
         case REDUCE_LOAN_INTERSET : {
@@ -560,7 +643,7 @@ void government_regulations(Cell board[], Game *game_status) {
             break;
         }
         case INCREASE_PROPERTY_TAX : {
-            game_status->income_tax_rate += game_status->income_tax_rate * (50.0 / 100.0);
+            game_status->income_tax_rate = game_status->income_tax_rate * (150.0 / 100.0);
             printf("Government Regulations\n\tIncome Tax increases by 50%%.\n\n");
             break;
         }

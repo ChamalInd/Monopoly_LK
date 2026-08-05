@@ -302,6 +302,8 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 
             if (game_status->rounds % 10 == 0) {
                 inflation(board, game_status);
+                disaster_occurrence(players, board, *game_status);
+
                 for (int i = 0; i < 2; i++) {
                     dynamic_property_market(property_groups, game_status, i);
                 }

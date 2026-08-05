@@ -53,6 +53,7 @@ void property_depreciation(Cell board[], Game game_status);
 void building_depreciation(Cell board[]);
 void inflation(Cell board[], Game *game_status);
 void dynamic_property_market(Cell *property_groups[][3], Game *game_status, int event);
+void disaster_occurrence(Player players[], Cell board[], Game game_status);
 void national_event_card_draw(Player player[], Cell board[], Events national_events[], Game *game_status);
 void national_event_card_expiry(Player *player, Cell board[], Events national_events[], Game *game_status);
 void economic_events(Cell board[], Game *game_status);
