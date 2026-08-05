@@ -354,3 +354,178 @@ void national_event_card_expiry(Player *player, Cell board[], Events national_ev
         }
     }
 }
+
+void economic_events(Cell board[], Game *game_status) {
+    switch (game_status->economic_event) {
+        case NO_EVENT : {
+            break;
+        }
+        case TOURISM_BOOM : {
+            for (int i = 0; i < NO_OF_CELLS; i++) {
+                if (board[i].type == PROPERTY && board[i].group == YELLOW) {
+                    board[i].value.market_price -= round_off(board[i].value.market_price * (15.0 / 100.0));
+                    board[i].value.current_market_price -= round_off(board[i].value.current_market_price * (15.0 / 100.0));
+                }
+            }
+            break;
+        }
+        case FUEL_CRISIS : {
+            for (int i = 0; i < NO_OF_CELLS; i++) {
+                if (board[i].type == PROPERTY) {
+                    board[i].value.hotel_construction_cost -= round_off(board[i].value.hotel_construction_cost * (20.0 / 100.0));
+                    board[i].value.house_construction_cost -= round_off(board[i].value.house_construction_cost * (20.0 / 100.0));
+                }
+            }
+            break;
+        }
+        case HEAVY_MONSOON : {
+            for (int i = 0; i < NO_OF_CELLS; i++) {
+                if (board[i].group == YELLOW) {
+                    board[i].value.market_price += round_off(board[i].value.market_price * (10.0 / 100.0));
+                    board[i].value.current_market_price += round_off(board[i].value.current_market_price * (10.0 / 100.0));
+                }
+            }
+            board[9].value.market_price += round_off(board[9].value.market_price * (10.0 / 100.0)); // mount lavinia
+            board[16].value.market_price += round_off(board[16].value.market_price * (10.0 / 100.0)); // negombo
+            board[31].value.market_price += round_off(board[31].value.market_price * (10.0 / 100.0)); // jaffna
+            board[34].value.market_price += round_off(board[34].value.market_price * (10.0 / 100.0)); // trincomalee
+            board[39].value.market_price += round_off(board[39].value.market_price * (10.0 / 100.0)); // galle face
+
+            board[9].value.current_market_price += round_off(board[9].value.current_market_price * (10.0 / 100.0)); // mount lavinia
+            board[16].value.current_market_price += round_off(board[16].value.current_market_price * (10.0 / 100.0)); // negombo
+            board[31].value.current_market_price += round_off(board[31].value.current_market_price * (10.0 / 100.0)); // jaffna
+            board[34].value.current_market_price += round_off(board[34].value.current_market_price * (10.0 / 100.0)); // trincomalee
+            board[39].value.current_market_price += round_off(board[39].value.current_market_price * (10.0 / 100.0)); // galle face
+            break;
+        }
+        case ECONOMIC_RECESSION : {
+            for (int i = 0; i < NO_OF_CELLS; i++) {
+                board[i].value.market_price += round_off(board[i].value.market_price * (15.0 / 100.0));
+                board[i].value.current_market_price += round_off(board[i].value.current_market_price * (15.0 / 100.0));
+            }
+            game_status->interest_rate -= round_off(game_status->interest_rate * (15.0 / 100.0));
+            break;
+        }
+        case STOCK_MARKET_BOOM : {
+            for (int i = 0; i < NO_OF_CELLS; i++) {
+                board[i].value.market_price -= round_off(board[i].value.market_price * (10.0 / 100.0));
+                board[i].value.current_market_price -= round_off(board[i].value.current_market_price * (10.0 / 100.0));
+            }
+            game_status->interest_rate += round_off(game_status->interest_rate * (10.0 / 100.0));
+            break;
+        }
+        case GOVERNMENT_HOUSING_PROGRAMME : {
+            for (int i = 0; i < NO_OF_CELLS; i++) {
+                if (board[i].type == PROPERTY) {
+                    board[i].value.house_construction_cost += round_off(board[i].value.house_construction_cost * (25.0 / 100.0));
+                }
+            }
+            break;
+        }
+        case FOREIGN_INVESTMENT : {
+            for (int i = 0; i < NO_OF_CELLS; i++) {
+                if (board[i].type == PROPERTY) {
+                    board[i].value.market_price -= round_off(board[i].value.market_price * (20.0 / 100.0));
+                    board[i].value.current_market_price -= round_off(board[i].value.current_market_price * (20.0 / 100.0));
+                }
+            }
+            break;
+        }
+        case POLITICAL_UNREST : {
+            // to be implemented
+            break;
+        }
+    }
+
+    game_status->economic_event = rand() % 8;
+
+    switch (game_status->economic_event) {
+        case NO_EVENT : {
+            break;
+        }
+        case TOURISM_BOOM : {
+            for (int i = 0; i < NO_OF_CELLS; i++) {
+                if (board[i].type == PROPERTY && board[i].group == YELLOW) {
+                    board[i].value.market_price += round_off(board[i].value.market_price * (15.0 / 100.0));
+                    board[i].value.current_market_price += round_off(board[i].value.current_market_price * (15.0 / 100.0));
+                }
+            }
+            printf("Economic Event\n\tTourism Boom\n\tSouthern Province properties increase in value by 15%%.\n\n");
+            break;
+        }
+        case FUEL_CRISIS : {
+            for (int i = 0; i < NO_OF_CELLS; i++) {
+                if (board[i].type == PROPERTY) {
+                    board[i].value.hotel_construction_cost += round_off(board[i].value.hotel_construction_cost * (20.0 / 100.0));
+                    board[i].value.house_construction_cost += round_off(board[i].value.house_construction_cost * (20.0 / 100.0));
+                }
+            }
+            printf("Economic Event\n\tFuel Crisis\n\tProperty development costs increase 20%%.\n\n");
+            break;
+        }
+        case HEAVY_MONSOON : {
+            // to be implemented
+            for (int i = 0; i < NO_OF_CELLS; i++) {
+                if (board[i].group == YELLOW) {
+                    board[i].value.market_price -= round_off(board[i].value.market_price * (10.0 / 100.0));
+                    board[i].value.current_market_price -= round_off(board[i].value.current_market_price * (10.0 / 100.0));
+                }
+            }
+            board[9].value.market_price -= round_off(board[9].value.market_price * (10.0 / 100.0)); // mount lavinia
+            board[16].value.market_price -= round_off(board[16].value.market_price * (10.0 / 100.0)); // negombo
+            board[31].value.market_price -= round_off(board[31].value.market_price * (10.0 / 100.0)); // jaffna
+            board[34].value.market_price -= round_off(board[34].value.market_price * (10.0 / 100.0)); // trincomalee
+            board[39].value.market_price -= round_off(board[39].value.market_price * (10.0 / 100.0)); // galle face
+
+            board[9].value.current_market_price -= round_off(board[9].value.current_market_price * (10.0 / 100.0)); // mount lavinia
+            board[16].value.current_market_price -= round_off(board[16].value.current_market_price * (10.0 / 100.0)); // negombo
+            board[31].value.current_market_price -= round_off(board[31].value.current_market_price * (10.0 / 100.0)); // jaffna
+            board[34].value.current_market_price -= round_off(board[34].value.current_market_price * (10.0 / 100.0)); // trincomalee
+            board[39].value.current_market_price -= round_off(board[39].value.current_market_price * (10.0 / 100.0)); // galle face
+            printf("Economic Event\n\tHeavy Monsoon\n\tCoastal properties lose 10%% value.\n\n");
+            break;
+        }
+        case ECONOMIC_RECESSION : {
+            for (int i = 0; i < NO_OF_CELLS; i++) {
+                board[i].value.market_price -= round_off(board[i].value.market_price * (15.0 / 100.0));
+                board[i].value.current_market_price -= round_off(board[i].value.current_market_price * (15.0 / 100.0));
+            }
+            game_status->interest_rate += round_off(game_status->interest_rate * (15.0 / 100.0));
+            printf("Economic Event\n\tEconomic Recession\n\tProperty values decrease 15%%.\n\tRent decreases 10%%.\n\tLoan interest increases by 15%%\n\n");
+            break;
+        }
+        case STOCK_MARKET_BOOM : {
+            for (int i = 0; i < NO_OF_CELLS; i++) {
+                board[i].value.market_price += round_off(board[i].value.market_price * (10.0 / 100.0));
+                board[i].value.current_market_price += round_off(board[i].value.current_market_price * (10.0 / 100.0));
+            }
+            game_status->interest_rate -= round_off(game_status->interest_rate * (10.0 / 100.0));
+            printf("Economic Event\n\tStock Market Boom\n\tProperty values increase 10%%.\n\tLoan interest decreases by 10%%\n\n");
+            break;
+        }
+        case GOVERNMENT_HOUSING_PROGRAMME : {
+            for (int i = 0; i < NO_OF_CELLS; i++) {
+                if (board[i].type == PROPERTY) {
+                    board[i].value.house_construction_cost -= round_off(board[i].value.house_construction_cost * (25.0 / 100.0));
+                }
+            }
+            printf("Economic Event\n\tGovernment Housing Programme\n\tHouse construction costs reduce 25%%.\n\n");
+            break;
+        }
+        case FOREIGN_INVESTMENT : {
+            for (int i = 0; i < NO_OF_CELLS; i++) {
+                if (board[i].type == PROPERTY) {
+                    board[i].value.market_price += round_off(board[i].value.market_price * (20.0 / 100.0));
+                    board[i].value.current_market_price += round_off(board[i].value.current_market_price * (20.0 / 100.0));
+                }
+            }
+            printf("Economic Event\n\tForeign Investment\n\tCommercial properties increase 20%%.\n\n");
+            break;
+        }
+        case POLITICAL_UNREST : {
+            // to be implemented
+            printf("Economic Event\n\tPolitical Unrest\n\tHotel occupancy decreases and the hotel rent drops by 50%%.\n\n");
+            break;
+        }
+    }
+}

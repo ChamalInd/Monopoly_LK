@@ -208,6 +208,7 @@ void generate_board(Cell board[]) {
                 .property_group = NONE
             }
         },
+        .economic_event = NO_EVENT,
         .national_event_pointer = 0,
         .inflation_rate = 0,
         .interest_rate = 2.0f,  // demo value

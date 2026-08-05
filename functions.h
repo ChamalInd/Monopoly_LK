@@ -27,7 +27,7 @@ Status calculate_player_status(Player player, Cell board[]);
 void player_actions(Player players[], Cell board[], Cell *property_groups[][3], Game *game_status, Events national_events[]);
 void check_for_bank_action(Player player[], Cell board[], Game game_status);
 void check_for_insurance_action(Player players[], Cell board[], Game game_status);
-void buy(Player players[], Cell *place, Game game_status);
+void buy(Player players[], Cell board[], Game game_status);
 int auction(Player players[], Cell *place, Ownership beneficiary, Game game_status);
 void raise_money(Player players[], Cell board[], Game game_status, int amount_to_be_raised);
 void rent(Player players[], Cell *place, Cell board[], Game game_status);
@@ -55,5 +55,6 @@ void inflation(Cell board[], Game *game_status);
 void dynamic_property_market(Cell *property_groups[][3], Game *game_status, int event);
 void national_event_card_draw(Player player[], Cell board[], Events national_events[], Game *game_status);
 void national_event_card_expiry(Player *player, Cell board[], Events national_events[], Game *game_status);
+void economic_events(Cell board[], Game *game_status);
 
 #endif

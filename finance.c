@@ -124,7 +124,7 @@ void increase_loan(Player *player, Cell board[], Game game_status) {
 }
 
 void obtain_insurance(Player players[], Cell board[], Game game_status, int provider, int has_insurance, int place) {
-    int premium = 0, policy = board[place].insurance.policy;
+int premium = 0, policy = board[place].insurance.policy;
     char *insurance_policy_names[] = {"Basic Property Insurance", "Comprehensive Insurance", "Business Interruption Insurance"};
 
     if (has_insurance == FALSE) {

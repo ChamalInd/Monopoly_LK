@@ -66,7 +66,7 @@ void player_actions(Player players[], Cell board[], Cell *property_groups[][3], 
         }
 
         if (board[place_id].owner == BANK_OF_CEYLON) {
-            buy(players, &board[place_id], *game_status);
+            buy(players, board, *game_status);
 
         } else if (board[place_id].owner != players[game_status->current_player].id && board[place_id].owner > 0)  {
             rent(players, &board[place_id], board, *game_status);
@@ -117,11 +117,6 @@ void check_for_insurance_action(Player players[], Cell board[], Game game_status
     Status player_status = calculate_player_status(players[game_status.current_player], board);
 
     if (player_status.total_properties > 0) {
-        Cell *non_insured_properties[player_status.total_properties];
-        Cell *policy_near_expiry[player_status.total_properties];
-        int total_non_insured_properties = 0;
-        int total_policy_near_expiry = 0;
-
         for (int i = 0; i < NO_OF_CELLS; i++) {
             if (board[i].owner == players[game_status.current_player].id && board[i].type == PROPERTY && board[i].insurance.policy == NO_INSURANCE) {
                 obtain_insurance(players, board, game_status, insurance_company, FALSE, i);
@@ -136,20 +131,72 @@ void check_for_insurance_action(Player players[], Cell board[], Game game_status
     }
 }
 
-void buy(Player players[], Cell *place, Game game_status) {
-    int choice = rand() % 2;
-    if (choice == 0 && players[game_status.current_player].cash >= place->value.market_price) {
-        if (players[game_status.current_player].cash >= place->value.market_price) {
-            place->owner = players[game_status.current_player].id;
-            place->ownerptr = &players[game_status.current_player];
+void buy(Player players[], Cell board[], Game game_status) {
+    // int going_to_buy = FALSE;
 
-            printf("%s purchased %s for LKR %i.\n", players[game_status.current_player].name, place->name, place->value.market_price);
-            players[game_status.current_player].cash -= place->value.market_price;
+    // switch (players[game_status.current_player].id) {
+    //     case AGGRESSIVE_INVESTOR : {
+    //         int future_rent = board[NO_OF_CELLS - 1].value.base_rent * 10; // maximum rent might have to pay (Galle Face with a hotel)
+    //         if (players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.market_price + future_rent) {
+    //             going_to_buy = TRUE;
+    //         } else {
+    //             going_to_buy = FALSE;
+    //         }
+    //         break;
+    //     }
+    //     case CONSERVATIVE_BANKER : {
+    //         if (round_off(players[game_status.current_player].cash / 2.0) >= board[players[game_status.current_player].place].value.market_price) {
+    //             going_to_buy = TRUE;
+    //         } else {
+    //             going_to_buy = FALSE;
+    //         }
+    //         break;
+    //     }
+    //     case RISK_TAKER : {
+    //         if (players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.market_price) {
+    //             going_to_buy = TRUE;
+    //         } else {
+    //             going_to_buy = FALSE;
+    //         }
+    //         break;
+    //     }
+    //     case OPPORTUNISTIC_TRADER : {
+    //         int projected_appreciation = 0;
+    //         int construction_cost = (4 * board[players[game_status.current_player].place].value.house_construction_cost) + board[players[game_status.current_player].place].value.hotel_construction_cost;
+    //         if (players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.market_price && projected_appreciation > construction_cost) {
+    //             going_to_buy = TRUE;
+    //         } else {
+    //             going_to_buy = FALSE;
+    //         }
+    //         break;
+    //     }
+    // }
+
+    // if (going_to_buy == TRUE) {
+    //     board[players[game_status.current_player].place].owner = players[game_status.current_player].id;
+    //     board[players[game_status.current_player].place].ownerptr = &players[game_status.current_player];
+        
+    //     printf("%s purchased %s for LKR %i.\n", players[game_status.current_player].name, board[players[game_status.current_player].place].name, board[players[game_status.current_player].place].value.market_price);
+    //     players[game_status.current_player].cash -= board[players[game_status.current_player].place].value.market_price;
+    //     printf("Remaining Balance : LKR %i.\n\n", players[game_status.current_player].cash);
+    // } else {
+    //     auction(players, &board[players[game_status.current_player].place], BANK_OF_CEYLON, game_status);
+    // }
+
+
+    int choice = rand() % 2;
+    if (choice == 0 && players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.market_price) {
+        if (players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.market_price) {
+            board[players[game_status.current_player].place].owner = players[game_status.current_player].id;
+            board[players[game_status.current_player].place].ownerptr = &players[game_status.current_player];
+
+            printf("%s purchased %s for LKR %i.\n", players[game_status.current_player].name, board[players[game_status.current_player].place].name, board[players[game_status.current_player].place].value.market_price);
+            players[game_status.current_player].cash -= board[players[game_status.current_player].place].value.market_price;
             printf("Remaining Balance : LKR %i.\n\n", players[game_status.current_player].cash);
         }
         
-    } else if (choice == 1 || players[game_status.current_player].cash < place->value.market_price) {
-        auction(players, place, BANK_OF_CEYLON, game_status);
+    } else if (choice == 1 || players[game_status.current_player].cash < board[players[game_status.current_player].place].value.market_price) {
+        auction(players, &board[players[game_status.current_player].place], BANK_OF_CEYLON, game_status);
     }
 }
 
@@ -311,13 +358,17 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
         } else if (place->buildings.no_of_hotels != 0) {
             rent = place->value.base_rent * 10;
 
-            // for tourism hype
-            if (place->ownerptr->events[TOURISM_HYPE].remaining_effect > 0) {
+            // for tourism hype & tourism boom
+            if (place->ownerptr->events[TOURISM_HYPE].remaining_effect > 0 || (game_status.economic_event == TOURISM_BOOM && place->group == YELLOW)) {
                 rent *= 2;
             }
             // for festival season
             if (place->ownerptr->events[FESTIVAL_SEASON].remaining_effect > 0) { 
-                rent = round_off((float) rent * (150.0 / 100.0));
+                rent = round_off((double) rent * (150.0 / 100.0));
+            }
+            // for political unrest
+            if (game_status.economic_event == POLITICAL_UNREST) {
+                rent = round_off((double) rent * (50.0 / 100.0));
             }
 
         } else {
@@ -337,8 +388,8 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
         int rent_values[] = {250, 500, 1000, 2000};
         rent = rent_values[owner_status.total_railways - 1];
 
-        // for fuel shortage
-        if (place->ownerptr->events[FUEL_SHORTAGE].remaining_effect > 0) {
+        // for fuel shortage & fuel crisis
+        if (place->ownerptr->events[FUEL_SHORTAGE].remaining_effect > 0 || game_status.economic_event == FUEL_CRISIS) {
             rent *= 2;
         }
 
@@ -350,6 +401,11 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
         if (place->ownerptr->events[POWER_FAILURE].remaining_effect > 0) {
             rent = round_off((float) rent / 2.0);
         }
+    }
+
+    // economic recession 
+    if (game_status.economic_event == ECONOMIC_RECESSION) {
+        rent -= round_off(rent * (10.0 / 100.0));
     }
         
     // if low on cash sell property to pay rent

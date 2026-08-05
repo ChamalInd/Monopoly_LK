@@ -294,6 +294,8 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
                 break;
             }
 
+            print_game(*game_status, players, board, game_over, national_events);
+
             check_for_insurance_status(board);
             building_depreciation(board);
             property_depreciation(board, *game_status);
@@ -305,7 +307,9 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
                 }
             }
 
-            print_game(*game_status, players, board, game_over, national_events);
+            if (game_status->rounds % 15 == 0) {
+                economic_events(board, game_status);
+            }
         }
 
         game_status->current_player++;
