@@ -1,7 +1,7 @@
 // Program entry point
 #include "functions.h"
 #include "types.h"
-
+#include <time.h>
 
 
 int main(void) {

@@ -74,6 +74,7 @@ void player_actions(Player players[], Cell board[], Cell *property_groups[][3], 
     } else {
         if (place_id == 2) { // Community Development Fund
             community_development_fund_payment(players, board, *game_status);
+
         } else if (place_id == 4) { // Income Tax
             income_tax_payment(players, board, *game_status);
 
@@ -383,6 +384,12 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
         if (game_status.regional_card == WATER_SHORTAGE) {
             if (place->id == 27 || place->id == 29) {
                 rent -= round_off(rent * (10.0 / 100.0));
+            }
+        }
+        // for beach population
+        if (game_status.regional_card == BEACH_POLLUTION) {
+            if (place->id == 26 || place->id == 27 || place->id == 29) {
+                rent -= round_off(rent * (30.0 / 100.0));
             }
         }
 

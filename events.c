@@ -116,7 +116,7 @@ void dynamic_property_market(Cell *property_groups[][3], Game *game_status, int 
 
 void disaster_occurrence(Cell board[], Game game_status) {
     int property = rand() % 40, disaster = 0, repair_cost = NONE;
-    while (board[property].type != PROPERTY && (board[property].owner != BANK_OF_CEYLON || board[property].owner != NO_OWNER)) {
+    while (board[property].type == PROPERTY || board[property].owner == BANK_OF_CEYLON || board[property].owner == NO_OWNER) {
         property = rand() % 40; 
     }
 
@@ -219,7 +219,7 @@ void national_event_card_draw(Player players[], Cell board[], Events national_ev
             break;
         }
         case HEAVY_FLOODS : {
-            players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = NONE;
+            players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 1;
             break;
         }
         case POLITICAL_RALLY : {
@@ -617,7 +617,7 @@ void government_regulations(Cell board[], Game *game_status) {
             break;
         }
         case INCREASE_PROPERTY_TAX : {
-            game_status->income_tax_rate = game_status->income_tax_rate * (50.0 / 100.0);
+            game_status->income_tax_rate -= game_status->income_tax_rate * (50.0 / 100.0);
             break;
         }
         case REDUCE_LOAN_INTERSET : {
@@ -643,7 +643,7 @@ void government_regulations(Cell board[], Game *game_status) {
             break;
         }
         case INCREASE_PROPERTY_TAX : {
-            game_status->income_tax_rate = game_status->income_tax_rate * (150.0 / 100.0);
+            game_status->income_tax_rate += game_status->income_tax_rate * (50.0 / 100.0);
             printf("Government Regulations\n\tIncome Tax increases by 50%%.\n\n");
             break;
         }
@@ -698,66 +698,66 @@ void regional_card_draw(Cell board[], Game *game_status) {
             break;
         } 
         case IT_INDUSTRY_GROWTH : {
-            board[1].value.market_price -= round_off(board[13].value.market_price * (20.0 / 100.0)); //maharagama
-            board[3].value.market_price -= round_off(board[11].value.market_price * (20.0 / 100.0)); //nugegoda
-            board[5].value.market_price -= round_off(board[14].value.market_price * (20.0 / 100.0)); //kottawa
+            board[13].value.market_price -= round_off(board[13].value.market_price * (20.0 / 100.0)); //maharagama
+            board[11].value.market_price -= round_off(board[11].value.market_price * (20.0 / 100.0)); //nugegoda
+            board[14].value.market_price -= round_off(board[14].value.market_price * (20.0 / 100.0)); //kottawa
 
-            board[1].value.current_market_price -= round_off(board[13].value.current_market_price * (20.0 / 100.0)); //maharagama
-            board[3].value.current_market_price -= round_off(board[11].value.current_market_price * (20.0 / 100.0)); //nugegoda
-            board[5].value.current_market_price -= round_off(board[14].value.current_market_price * (20.0 / 100.0)); //kottawa
+            board[13].value.current_market_price -= round_off(board[13].value.current_market_price * (20.0 / 100.0)); //maharagama
+            board[11].value.current_market_price -= round_off(board[11].value.current_market_price * (20.0 / 100.0)); //nugegoda
+            board[14].value.current_market_price -= round_off(board[14].value.current_market_price * (20.0 / 100.0)); //kottawa
             break;
         }  
         case NORTHERN_DEVELOPMENT_PROGRAMME : {
-            board[1].value.market_price -= round_off(board[31].value.market_price * (30.0 / 100.0)); //jaffna
-            board[3].value.market_price -= round_off(board[32].value.market_price * (30.0 / 100.0)); //nallur
-            board[5].value.market_price -= round_off(board[34].value.market_price * (30.0 / 100.0)); //trincomalee
+            board[31].value.market_price -= round_off(board[31].value.market_price * (30.0 / 100.0)); //jaffna
+            board[32].value.market_price -= round_off(board[32].value.market_price * (30.0 / 100.0)); //nallur
+            board[34].value.market_price -= round_off(board[34].value.market_price * (30.0 / 100.0)); //trincomalee
 
-            board[1].value.current_market_price -= round_off(board[31].value.current_market_price * (30.0 / 100.0)); //jaffna
-            board[3].value.current_market_price -= round_off(board[32].value.current_market_price * (30.0 / 100.0)); //nallur
-            board[5].value.current_market_price -= round_off(board[34].value.current_market_price * (30.0 / 100.0)); //trincomalee
+            board[31].value.current_market_price -= round_off(board[31].value.current_market_price * (30.0 / 100.0)); //jaffna
+            board[32].value.current_market_price -= round_off(board[32].value.current_market_price * (30.0 / 100.0)); //nallur
+            board[34].value.current_market_price -= round_off(board[34].value.current_market_price * (30.0 / 100.0)); //trincomalee
             break;
         } 
         case TEA_EXPORT_BOOM : {
-            board[1].value.market_price -= round_off(board[37].value.market_price * (35.0 / 100.0)); //nuwara-eliya
-            board[5].value.current_market_price -= round_off(board[37].value.current_market_price * (35.0 / 100.0)); //nuwara-eliya
+            board[37].value.market_price -= round_off(board[37].value.market_price * (35.0 / 100.0)); //nuwara-eliya
+            board[37].value.current_market_price -= round_off(board[37].value.current_market_price * (35.0 / 100.0)); //nuwara-eliya
             break;
         }    
         case AIRPORT_EXPANSION : {
-            board[1].value.market_price -= round_off(board[16].value.market_price * (30.0 / 100.0)); //negambo
-            board[3].value.market_price -= round_off(board[18].value.market_price * (30.0 / 100.0)); //katunayek
-            board[5].value.market_price -= round_off(board[19].value.market_price * (30.0 / 100.0)); //ja-ela
+            board[16].value.market_price -= round_off(board[16].value.market_price * (30.0 / 100.0)); //negambo
+            board[18].value.market_price -= round_off(board[18].value.market_price * (30.0 / 100.0)); //katunayek
+            board[19].value.market_price -= round_off(board[19].value.market_price * (30.0 / 100.0)); //ja-ela
 
-            board[1].value.current_market_price -= round_off(board[16].value.current_market_price * (30.0 / 100.0)); //negambo
-            board[3].value.current_market_price -= round_off(board[18].value.current_market_price * (30.0 / 100.0)); //katunayek
-            board[5].value.current_market_price -= round_off(board[19].value.current_market_price * (30.0 / 100.0)); //ja-ela
+            board[16].value.current_market_price -= round_off(board[16].value.current_market_price * (30.0 / 100.0)); //negambo
+            board[18].value.current_market_price -= round_off(board[18].value.current_market_price * (30.0 / 100.0)); //katunayek
+            board[19].value.current_market_price -= round_off(board[19].value.current_market_price * (30.0 / 100.0)); //ja-ela
             break;
         } 
         case UNIVERSITY_CITY_GROWTH : {
-            board[1].value.market_price -= round_off(board[21].value.market_price * (20.0 / 100.0)); //kandy
-            board[3].value.market_price -= round_off(board[23].value.market_price * (20.0 / 100.0)); //peradeniya
+            board[21].value.market_price -= round_off(board[21].value.market_price * (20.0 / 100.0)); //kandy
+            board[23].value.market_price -= round_off(board[23].value.market_price * (20.0 / 100.0)); //peradeniya
 
-            board[1].value.current_market_price -= round_off(board[21].value.current_market_price * (20.0 / 100.0)); //kandy
-            board[3].value.current_market_price -= round_off(board[23].value.current_market_price * (20.0 / 100.0)); //peradeniya
+            board[21].value.current_market_price -= round_off(board[21].value.current_market_price * (20.0 / 100.0)); //kandy
+            board[23].value.current_market_price -= round_off(board[23].value.current_market_price * (20.0 / 100.0)); //peradeniya
             break;
         } 
         case FLOOD_DAMAGE : {
-            board[1].value.market_price -= round_off(board[26].value.market_price * (20.0 / 100.0)); //galle fort
-            board[3].value.market_price -= round_off(board[27].value.market_price * (20.0 / 100.0)); //unawatuna
-            board[3].value.market_price -= round_off(board[29].value.market_price * (20.0 / 100.0)); //hikkaduwa
-            board[3].value.market_price -= round_off(board[9].value.market_price * (20.0 / 100.0)); //mount lavinia
-            board[3].value.market_price -= round_off(board[16].value.market_price * (20.0 / 100.0)); //negambo
-            board[3].value.market_price -= round_off(board[39].value.market_price * (20.0 / 100.0)); //galle face
-            board[3].value.market_price -= round_off(board[31].value.market_price * (20.0 / 100.0)); //jaffna
-            board[3].value.market_price -= round_off(board[34].value.market_price * (20.0 / 100.0)); //trincomalee
+            board[26].value.market_price -= round_off(board[26].value.market_price * (20.0 / 100.0)); //galle fort
+            board[27].value.market_price -= round_off(board[27].value.market_price * (20.0 / 100.0)); //unawatuna
+            board[29].value.market_price -= round_off(board[29].value.market_price * (20.0 / 100.0)); //hikkaduwa
+            board[9].value.market_price -= round_off(board[9].value.market_price * (20.0 / 100.0)); //mount lavinia
+            board[16].value.market_price -= round_off(board[16].value.market_price * (20.0 / 100.0)); //negambo
+            board[39].value.market_price -= round_off(board[39].value.market_price * (20.0 / 100.0)); //galle face
+            board[31].value.market_price -= round_off(board[31].value.market_price * (20.0 / 100.0)); //jaffna
+            board[34].value.market_price -= round_off(board[34].value.market_price * (20.0 / 100.0)); //trincomalee
 
-            board[1].value.current_market_price -= round_off(board[26].value.current_market_price * (20.0 / 100.0)); //galle fort
-            board[3].value.current_market_price -= round_off(board[27].value.current_market_price * (20.0 / 100.0)); //unawatuna
-            board[3].value.current_market_price -= round_off(board[29].value.current_market_price * (20.0 / 100.0)); //hikkaduwa
-            board[3].value.current_market_price -= round_off(board[9].value.current_market_price * (20.0 / 100.0)); //mount lavinia
-            board[3].value.current_market_price -= round_off(board[16].value.current_market_price * (20.0 / 100.0)); //negambo
-            board[3].value.current_market_price -= round_off(board[39].value.current_market_price * (20.0 / 100.0)); //galle face
-            board[3].value.current_market_price -= round_off(board[31].value.current_market_price * (20.0 / 100.0)); //jaffna
-            board[3].value.current_market_price -= round_off(board[34].value.current_market_price * (20.0 / 100.0)); //trincomalee
+            board[26].value.current_market_price -= round_off(board[26].value.current_market_price * (20.0 / 100.0)); //galle fort
+            board[27].value.current_market_price -= round_off(board[27].value.current_market_price * (20.0 / 100.0)); //unawatuna
+            board[29].value.current_market_price -= round_off(board[29].value.current_market_price * (20.0 / 100.0)); //hikkaduwa
+            board[9].value.current_market_price -= round_off(board[9].value.current_market_price * (20.0 / 100.0)); //mount lavinia
+            board[16].value.current_market_price -= round_off(board[16].value.current_market_price * (20.0 / 100.0)); //negambo
+            board[39].value.current_market_price -= round_off(board[39].value.current_market_price * (20.0 / 100.0)); //galle face
+            board[31].value.current_market_price -= round_off(board[31].value.current_market_price * (20.0 / 100.0)); //jaffna
+            board[34].value.current_market_price -= round_off(board[34].value.current_market_price * (20.0 / 100.0)); //trincomalee
             break;
         } 
         default : 
@@ -778,66 +778,66 @@ void regional_card_draw(Cell board[], Game *game_status) {
             break;
         }  
         case IT_INDUSTRY_GROWTH : {
-            board[1].value.market_price += round_off(board[13].value.market_price * (20.0 / 100.0)); //maharagama
-            board[3].value.market_price += round_off(board[11].value.market_price * (20.0 / 100.0)); //nugegoda
-            board[5].value.market_price += round_off(board[14].value.market_price * (20.0 / 100.0)); //kottawa
+            board[13].value.market_price += round_off(board[13].value.market_price * (20.0 / 100.0)); //maharagama
+            board[11].value.market_price += round_off(board[11].value.market_price * (20.0 / 100.0)); //nugegoda
+            board[14].value.market_price += round_off(board[14].value.market_price * (20.0 / 100.0)); //kottawa
 
-            board[1].value.current_market_price += round_off(board[13].value.current_market_price * (20.0 / 100.0)); //maharagama
-            board[3].value.current_market_price += round_off(board[11].value.current_market_price * (20.0 / 100.0)); //nugegoda
-            board[5].value.current_market_price += round_off(board[14].value.current_market_price * (20.0 / 100.0)); //kottawa
+            board[13].value.current_market_price += round_off(board[13].value.current_market_price * (20.0 / 100.0)); //maharagama
+            board[11].value.current_market_price += round_off(board[11].value.current_market_price * (20.0 / 100.0)); //nugegoda
+            board[14].value.current_market_price += round_off(board[14].value.current_market_price * (20.0 / 100.0)); //kottawa
             break;
         }  
         case NORTHERN_DEVELOPMENT_PROGRAMME : {
-            board[1].value.market_price += round_off(board[31].value.market_price * (30.0 / 100.0)); //jaffna
-            board[3].value.market_price += round_off(board[32].value.market_price * (30.0 / 100.0)); //nallur
-            board[5].value.market_price += round_off(board[34].value.market_price * (30.0 / 100.0)); //trincomalee
+            board[31].value.market_price += round_off(board[31].value.market_price * (30.0 / 100.0)); //jaffna
+            board[32].value.market_price += round_off(board[32].value.market_price * (30.0 / 100.0)); //nallur
+            board[34].value.market_price += round_off(board[34].value.market_price * (30.0 / 100.0)); //trincomalee
 
-            board[1].value.current_market_price += round_off(board[31].value.current_market_price * (30.0 / 100.0)); //jaffna
-            board[3].value.current_market_price += round_off(board[32].value.current_market_price * (30.0 / 100.0)); //nallur
-            board[5].value.current_market_price += round_off(board[34].value.current_market_price * (30.0 / 100.0)); //trincomalee
+            board[31].value.current_market_price += round_off(board[31].value.current_market_price * (30.0 / 100.0)); //jaffna
+            board[32].value.current_market_price += round_off(board[32].value.current_market_price * (30.0 / 100.0)); //nallur
+            board[34].value.current_market_price += round_off(board[34].value.current_market_price * (30.0 / 100.0)); //trincomalee
             break;
         } 
         case TEA_EXPORT_BOOM : {
-            board[1].value.market_price += round_off(board[37].value.market_price * (35.0 / 100.0)); //nuwara-eliya
-            board[5].value.current_market_price += round_off(board[37].value.current_market_price * (35.0 / 100.0)); //nuwara-eliya
+            board[37].value.market_price += round_off(board[37].value.market_price * (35.0 / 100.0)); //nuwara-eliya
+            board[37].value.current_market_price += round_off(board[37].value.current_market_price * (35.0 / 100.0)); //nuwara-eliya
             break;
         }    
         case AIRPORT_EXPANSION : {
-            board[1].value.market_price += round_off(board[16].value.market_price * (30.0 / 100.0)); //negambo
-            board[3].value.market_price += round_off(board[18].value.market_price * (30.0 / 100.0)); //katunayek
-            board[5].value.market_price += round_off(board[19].value.market_price * (30.0 / 100.0)); //ja-ela
+            board[16].value.market_price += round_off(board[16].value.market_price * (30.0 / 100.0)); //negambo
+            board[18].value.market_price += round_off(board[18].value.market_price * (30.0 / 100.0)); //katunayek
+            board[19].value.market_price += round_off(board[19].value.market_price * (30.0 / 100.0)); //ja-ela
 
-            board[1].value.current_market_price += round_off(board[16].value.current_market_price * (30.0 / 100.0)); //negambo
-            board[3].value.current_market_price += round_off(board[18].value.current_market_price * (30.0 / 100.0)); //katunayek
-            board[5].value.current_market_price += round_off(board[19].value.current_market_price * (30.0 / 100.0)); //ja-ela
+            board[16].value.current_market_price += round_off(board[16].value.current_market_price * (30.0 / 100.0)); //negambo
+            board[18].value.current_market_price += round_off(board[18].value.current_market_price * (30.0 / 100.0)); //katunayek
+            board[19].value.current_market_price += round_off(board[19].value.current_market_price * (30.0 / 100.0)); //ja-ela
             break;
         } 
         case UNIVERSITY_CITY_GROWTH : {
-            board[1].value.market_price += round_off(board[21].value.market_price * (20.0 / 100.0)); //kandy
-            board[3].value.market_price += round_off(board[23].value.market_price * (20.0 / 100.0)); //peradeniya
+            board[21].value.market_price += round_off(board[21].value.market_price * (20.0 / 100.0)); //kandy
+            board[23].value.market_price += round_off(board[23].value.market_price * (20.0 / 100.0)); //peradeniya
 
-            board[1].value.current_market_price += round_off(board[21].value.current_market_price * (20.0 / 100.0)); //kandy
-            board[3].value.current_market_price += round_off(board[23].value.current_market_price * (20.0 / 100.0)); //peradeniya
+            board[21].value.current_market_price += round_off(board[21].value.current_market_price * (20.0 / 100.0)); //kandy
+            board[23].value.current_market_price += round_off(board[23].value.current_market_price * (20.0 / 100.0)); //peradeniya
             break;
         } 
         case FLOOD_DAMAGE : {
-            board[1].value.market_price += round_off(board[26].value.market_price * (20.0 / 100.0)); //galle fort
-            board[3].value.market_price += round_off(board[27].value.market_price * (20.0 / 100.0)); //unawatuna
-            board[3].value.market_price += round_off(board[29].value.market_price * (20.0 / 100.0)); //hikkaduwa
-            board[3].value.market_price += round_off(board[9].value.market_price * (20.0 / 100.0)); //mount lavinia
-            board[3].value.market_price += round_off(board[16].value.market_price * (20.0 / 100.0)); //negambo
-            board[3].value.market_price += round_off(board[39].value.market_price * (20.0 / 100.0)); //galle face
-            board[3].value.market_price += round_off(board[31].value.market_price * (20.0 / 100.0)); //jaffna
-            board[3].value.market_price += round_off(board[34].value.market_price * (20.0 / 100.0)); //trincomalee
+            board[26].value.market_price += round_off(board[26].value.market_price * (20.0 / 100.0)); //galle fort
+            board[27].value.market_price += round_off(board[27].value.market_price * (20.0 / 100.0)); //unawatuna
+            board[29].value.market_price += round_off(board[29].value.market_price * (20.0 / 100.0)); //hikkaduwa
+            board[9].value.market_price += round_off(board[9].value.market_price * (20.0 / 100.0)); //mount lavinia
+            board[16].value.market_price += round_off(board[16].value.market_price * (20.0 / 100.0)); //negambo
+            board[39].value.market_price += round_off(board[39].value.market_price * (20.0 / 100.0)); //galle face
+            board[31].value.market_price += round_off(board[31].value.market_price * (20.0 / 100.0)); //jaffna
+            board[34].value.market_price += round_off(board[34].value.market_price * (20.0 / 100.0)); //trincomalee
 
-            board[1].value.current_market_price += round_off(board[26].value.current_market_price * (20.0 / 100.0)); //galle fort
-            board[3].value.current_market_price += round_off(board[27].value.current_market_price * (20.0 / 100.0)); //unawatuna
-            board[3].value.current_market_price += round_off(board[29].value.current_market_price * (20.0 / 100.0)); //hikkaduwa
-            board[3].value.current_market_price += round_off(board[9].value.current_market_price * (20.0 / 100.0)); //mount lavinia
-            board[3].value.current_market_price += round_off(board[16].value.current_market_price * (20.0 / 100.0)); //negambo
-            board[3].value.current_market_price += round_off(board[39].value.current_market_price * (20.0 / 100.0)); //galle face
-            board[3].value.current_market_price += round_off(board[31].value.current_market_price * (20.0 / 100.0)); //jaffna
-            board[3].value.current_market_price += round_off(board[34].value.current_market_price * (20.0 / 100.0)); //trincomalee
+            board[26].value.current_market_price += round_off(board[26].value.current_market_price * (20.0 / 100.0)); //galle fort
+            board[27].value.current_market_price += round_off(board[27].value.current_market_price * (20.0 / 100.0)); //unawatuna
+            board[29].value.current_market_price += round_off(board[29].value.current_market_price * (20.0 / 100.0)); //hikkaduwa
+            board[9].value.current_market_price += round_off(board[9].value.current_market_price * (20.0 / 100.0)); //mount lavinia
+            board[16].value.current_market_price += round_off(board[16].value.current_market_price * (20.0 / 100.0)); //negambo
+            board[39].value.current_market_price += round_off(board[39].value.current_market_price * (20.0 / 100.0)); //galle face
+            board[31].value.current_market_price += round_off(board[31].value.current_market_price * (20.0 / 100.0)); //jaffna
+            board[34].value.current_market_price += round_off(board[34].value.current_market_price * (20.0 / 100.0)); //trincomalee
             break;
         }  
         default : 
