@@ -141,6 +141,10 @@ typedef enum {
     NO_EVENT = -1, TOURISM_BOOM, FUEL_CRISIS, HEAVY_MONSOON, ECONOMIC_RECESSION, STOCK_MARKET_BOOM, GOVERNMENT_HOUSING_PROGRAMME, FOREIGN_INVESTMENT, POLITICAL_UNREST
 } Economic_Events;
 
+typedef enum {
+    NO_REGULATION = -1, INCREASE_PROPERTY_TAX, REDUCE_LOAN_INTERSET, HOUSING_SUBSIDY_REGULATION, LUXURY_PROPERTY_TAX, RAILWAY_MODERNIZATION, ELECTRICITY_TARIFF_REVISION, INSURANCE_REGULATION, ANTI_SPECULATION_ACT
+} Government_Regulations;
+
 typedef struct {
     Market event;
     int property_group;
@@ -157,6 +161,7 @@ typedef struct {
     int current_player;
     Dynamic_Market dynamic_market[2];
     Economic_Events economic_event;
+    Government_Regulations government_regulation;
     int national_event_pointer;
     int inflation_rate;
     float interest_rate;

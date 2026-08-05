@@ -155,7 +155,12 @@ int premium = 0, policy = board[place].insurance.policy;
 
     // for insurance discount
     if (players[game_status.current_player].events[INSURANCE_DISCOUNT].remaining_effect > 0) {
-        premium = round_off((float) premium * (80.0 / 100.0));
+        premium = round_off((double) premium * (80.0 / 100.0));
+    }
+
+    // insurance regulations
+    if (game_status.government_regulation == INSURANCE_REGULATION) {
+        premium -= round_off(premium * (15.0 / 100.0));
     }
 
     if (players[game_status.current_player].cash >= premium) {
@@ -239,8 +244,15 @@ void community_development_fund_payment(Player players[], Cell board[], Game gam
     } 
 }
 
-void settle_outstanding_penalties(Player *player) {
-    if (player->cash >= player->taxes_due) {
+void settle_outstanding_penalties(Player *player, Cell board[], Game game_status) {
+    if (game_status.government_regulation == LUXURY_PROPERTY_TAX) {
+        for (int i = 0; i < NO_OF_CELLS; i++) {
+            if (board[i].owner == player->id && board[i].type == PROPERTY && board[i].buildings.no_of_hotels > 0) {
+                player->taxes_due += round_off(board[i].value.market_price * (25.0 / 100.0));
+            }
+        }
+    }
+    if (player->taxes_due > 0 && player->cash >= player->taxes_due) {
         printf("%s settled outstanding taxes of LKR %i.\n\n", player->name, player->taxes_due);
         player->cash -= player->taxes_due;
         player->taxes_due = 0;

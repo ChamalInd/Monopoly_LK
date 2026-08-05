@@ -209,6 +209,7 @@ void generate_board(Cell board[]) {
             }
         },
         .economic_event = NO_EVENT,
+        .government_regulation = NO_REGULATION,
         .national_event_pointer = 0,
         .inflation_rate = 0,
         .interest_rate = 2.0f,  // demo value

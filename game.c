@@ -310,6 +310,10 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
             if (game_status->rounds % 15 == 0) {
                 economic_events(board, game_status);
             }
+
+            if (game_status->rounds % 20 == 0) {
+                government_regulations(board, game_status);
+            }
         }
 
         game_status->current_player++;

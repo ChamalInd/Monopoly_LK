@@ -46,7 +46,7 @@ void obtain_insurance(Player players[], Cell board[], Game game_status, int prov
 void check_for_insurance_status(Cell board[]);
 void income_tax_payment(Player players[], Cell board[], Game game_status);
 void community_development_fund_payment(Player players[], Cell board[], Game game_status);
-void settle_outstanding_penalties(Player *player);
+void settle_outstanding_penalties(Player *player, Cell board[], Game game_status);
 
 // Functions in events.c
 void property_depreciation(Cell board[], Game game_status);
@@ -56,5 +56,6 @@ void dynamic_property_market(Cell *property_groups[][3], Game *game_status, int 
 void national_event_card_draw(Player player[], Cell board[], Events national_events[], Game *game_status);
 void national_event_card_expiry(Player *player, Cell board[], Events national_events[], Game *game_status);
 void economic_events(Cell board[], Game *game_status);
+void government_regulations(Cell board[], Game *game_status);
 
 #endif

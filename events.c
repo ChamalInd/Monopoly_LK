@@ -357,9 +357,6 @@ void national_event_card_expiry(Player *player, Cell board[], Events national_ev
 
 void economic_events(Cell board[], Game *game_status) {
     switch (game_status->economic_event) {
-        case NO_EVENT : {
-            break;
-        }
         case TOURISM_BOOM : {
             for (int i = 0; i < NO_OF_CELLS; i++) {
                 if (board[i].type == PROPERTY && board[i].group == YELLOW) {
@@ -403,7 +400,7 @@ void economic_events(Cell board[], Game *game_status) {
                 board[i].value.market_price += round_off(board[i].value.market_price * (15.0 / 100.0));
                 board[i].value.current_market_price += round_off(board[i].value.current_market_price * (15.0 / 100.0));
             }
-            game_status->interest_rate -= round_off(game_status->interest_rate * (15.0 / 100.0));
+            game_status->interest_rate -= game_status->interest_rate * (15.0 / 100.0);
             break;
         }
         case STOCK_MARKET_BOOM : {
@@ -411,7 +408,7 @@ void economic_events(Cell board[], Game *game_status) {
                 board[i].value.market_price -= round_off(board[i].value.market_price * (10.0 / 100.0));
                 board[i].value.current_market_price -= round_off(board[i].value.current_market_price * (10.0 / 100.0));
             }
-            game_status->interest_rate += round_off(game_status->interest_rate * (10.0 / 100.0));
+            game_status->interest_rate += game_status->interest_rate * (10.0 / 100.0);
             break;
         }
         case GOVERNMENT_HOUSING_PROGRAMME : {
@@ -435,14 +432,13 @@ void economic_events(Cell board[], Game *game_status) {
             // to be implemented
             break;
         }
+        default :
+            break;
     }
 
     game_status->economic_event = rand() % 8;
 
     switch (game_status->economic_event) {
-        case NO_EVENT : {
-            break;
-        }
         case TOURISM_BOOM : {
             for (int i = 0; i < NO_OF_CELLS; i++) {
                 if (board[i].type == PROPERTY && board[i].group == YELLOW) {
@@ -490,7 +486,7 @@ void economic_events(Cell board[], Game *game_status) {
                 board[i].value.market_price -= round_off(board[i].value.market_price * (15.0 / 100.0));
                 board[i].value.current_market_price -= round_off(board[i].value.current_market_price * (15.0 / 100.0));
             }
-            game_status->interest_rate += round_off(game_status->interest_rate * (15.0 / 100.0));
+            game_status->interest_rate += game_status->interest_rate * (15.0 / 100.0);
             printf("Economic Event\n\tEconomic Recession\n\tProperty values decrease 15%%.\n\tRent decreases 10%%.\n\tLoan interest increases by 15%%\n\n");
             break;
         }
@@ -499,7 +495,7 @@ void economic_events(Cell board[], Game *game_status) {
                 board[i].value.market_price += round_off(board[i].value.market_price * (10.0 / 100.0));
                 board[i].value.current_market_price += round_off(board[i].value.current_market_price * (10.0 / 100.0));
             }
-            game_status->interest_rate -= round_off(game_status->interest_rate * (10.0 / 100.0));
+            game_status->interest_rate -= game_status->interest_rate * (10.0 / 100.0);
             printf("Economic Event\n\tStock Market Boom\n\tProperty values increase 10%%.\n\tLoan interest decreases by 10%%\n\n");
             break;
         }
@@ -525,6 +521,82 @@ void economic_events(Cell board[], Game *game_status) {
         case POLITICAL_UNREST : {
             // to be implemented
             printf("Economic Event\n\tPolitical Unrest\n\tHotel occupancy decreases and the hotel rent drops by 50%%.\n\n");
+            break;
+        }
+        default :
+            break;
+    }
+}
+
+void government_regulations(Cell board[], Game *game_status) {
+    switch (game_status->government_regulation) {
+        case NO_REGULATION : {
+            break;
+        }
+        case INCREASE_PROPERTY_TAX : {
+            game_status->income_tax_rate -= game_status->income_tax_rate * (50.0 / 100.0);
+            break;
+        }
+        case REDUCE_LOAN_INTERSET : {
+            game_status->interest_rate += game_status->interest_rate * (2.0 / 100.0);
+            break;
+        }
+        case HOUSING_SUBSIDY_REGULATION : {
+            for (int i = 0; i < NO_OF_CELLS; i++) {
+                if (board[i].type == PROPERTY) {
+                    board[i].value.house_construction_cost += round_off(board[i].value.house_construction_cost * (30.0 / 100.0));
+                }
+            }
+            break;
+        }
+        default :
+            break;
+    }
+
+    game_status->government_regulation = rand() % 8;
+
+    switch (game_status->government_regulation) {
+        case NO_REGULATION : {
+            break;
+        }
+        case INCREASE_PROPERTY_TAX : {
+            game_status->income_tax_rate += game_status->income_tax_rate * (50.0 / 100.0);
+            printf("Government Regulations\n\tIncome Tax increases by 50%%.\n\n");
+            break;
+        }
+        case REDUCE_LOAN_INTERSET : {
+            game_status->interest_rate -= game_status->interest_rate * (2.0 / 100.0);
+            printf("Government Regulations\n\tInterest decreases by 2%%.\n\n");
+            break;
+        }
+        case HOUSING_SUBSIDY_REGULATION : {
+            for (int i = 0; i < NO_OF_CELLS; i++) {
+                if (board[i].type == PROPERTY) {
+                    board[i].value.house_construction_cost -= round_off(board[i].value.house_construction_cost * (30.0 / 100.0));
+                }
+            }
+            printf("Government Regulations\n\tHouse construction costs reduce 30%%.\n\n");
+            break;
+        }
+        case LUXURY_PROPERTY_TAX : {
+            printf("Government Regulations\n\tHotels incur an annual maintenance tax of 25%% of property value with developments.\n\n");
+            break;
+        }
+        case RAILWAY_MODERNIZATION : {
+            printf("Government Regulations\n\tRailway rents increase 25%%.\n\n");
+            break;
+        }
+        case ELECTRICITY_TARIFF_REVISION : {
+            printf("Government Regulations\n\tUtility rents increase 20%%.\n\n");
+            break;
+        }
+        case INSURANCE_REGULATION : {
+            printf("Government Regulations\n\tInsurance premiums decrease 15%%.\n\n");
+            break;
+        }
+        case ANTI_SPECULATION_ACT : {
+            // to be implemented
+            printf("Government Regulations\n\tPlayers may own at most three undeveloped properties.\n\n");
             break;
         }
     }

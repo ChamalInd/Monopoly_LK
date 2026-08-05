@@ -53,9 +53,7 @@ void player_actions(Player players[], Cell board[], Cell *property_groups[][3], 
         printf("%s Landed on %s.\n\n", players[game_status->current_player].name, board[place_id].name);
     }
 
-    if (players[game_status->current_player].taxes_due > 0) {
-        settle_outstanding_penalties(&players[game_status->current_player]);
-    }
+    settle_outstanding_penalties(&players[game_status->current_player], board, *game_status);
 
     if (board[place_id].type == PROPERTY || board[place_id].type == RAILWAY || board[place_id].type == UTILITY) {
         if (board[place_id].type == PROPERTY) {
@@ -393,6 +391,11 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
             rent *= 2;
         }
 
+        // for government regulations
+        if (game_status.government_regulation == RAILWAY_MODERNIZATION) {
+            rent += round_off(rent * (25.0 / 100.0));
+        }
+
     } else if (place->type == UTILITY) {
         int rent_values[] = {4 * players[game_status.current_player].die_roll, 10 * players[game_status.current_player].die_roll};
         rent = rent_values[owner_status.total_utilities - 1];
@@ -400,6 +403,11 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
         // for power failure
         if (place->ownerptr->events[POWER_FAILURE].remaining_effect > 0) {
             rent = round_off((float) rent / 2.0);
+        }
+
+        // for government regulations
+        if (game_status.government_regulation == ELECTRICITY_TARIFF_REVISION) {
+            rent += round_off(rent * (20.0 / 100.0));
         }
     }
 
@@ -434,6 +442,7 @@ void constructions(Player *player, Cell *place, Cell *property_groups[][3]) {
             return;
         }
     }
+
     if (place->buildings.no_of_houses < 4 && place->buildings.no_of_hotels == 0 && player->cash >= place->value.house_construction_cost) {
         for (int i = 0; i < 3; i++) {
             if (property_groups[place->group][i] == NULL) {
