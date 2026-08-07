@@ -223,7 +223,7 @@ void generate_board(Cell board[]) {
     generate_event_cards(national_events, regional_cards);
     initialize_players(players);
     print_game(game_status, players, board, FALSE, national_events, regional_cards);
-    decide_player_order(players);
+    decide_player_order(players, &game_status);
     game_loop(&game_status, players, board, property_groups, national_events, regional_cards);
 }
 
@@ -240,7 +240,7 @@ void initialize_players(Player players[]) {
             .jail_status = (Jail) {FALSE, 0},
             .loan_status = (Loan) {0, 0, 0, 8}, 
             .events_own = 0,
-            .play_order = 5, // set as 5 for sorting process when deciding the player order
+            .play_order = NONE, 
             .die_roll = NONE,
             .cash = STARTUP_CASH,
             .taxes_due = 0,
@@ -333,73 +333,51 @@ int round_off(double num) {
     }
 }
 
-void sort_players(Player players[]) {
-    int swapped = TRUE;
-
-    while (swapped) {
-        swapped = FALSE;
-        for (int i = 0; i < NO_OF_PLAYERS - 1; i++) {
-            if (players[i].play_order > players[i + 1].play_order) {
-                Player temp;
-                temp = players[i];
-                players[i] = players[i + 1];
-                players[i + 1] = temp;
-                swapped = TRUE;
-            }
-        }
-    }
-}
-
-void decide_player_order(Player players[]) {
-    int max[] = {-1, -1};
-    int i = 0, assigned_players = 0, count;
-
-    while (assigned_players < 4) {
-        for (i = 0; i < NO_OF_PLAYERS; i++) {
-            if (players[i].play_order == 5) {
+void decide_player_order(Player players[], Game *game_status) {
+    while (TRUE) {
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
+            if (players[i].play_order == NONE) {
                 players[i].die_roll = dice_roll();
                 printf("%s rolls %i.\n", players[i].name, players[i].die_roll);
             }
         }
-    
-        for (int x = assigned_players; x < NO_OF_PLAYERS; x++) {
-            max[0] = 0;
-            for (int y = 0; y < NO_OF_PLAYERS; y++) {
-                if (players[y].play_order == 5 && max[0] < players[y].die_roll) {
-                    max[0] = players[y].die_roll;
-                    max[1] = y;
-                }
+
+        int max = 0, count = 0, player = NONE;
+
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
+            if (players[i].play_order == NONE && max < players[i].die_roll) {
+                max = players[i].die_roll;
+                player = i;
             }
-            count = 0;
-            for (int y = 0; y < NO_OF_PLAYERS; y++) {
-                if (players[y].play_order == 5 && max[0] == players[y].die_roll) {
-                    count++;
-                }
-            }
-            if (count != 1) {
-                continue;
-            }
-            
-            players[max[1]].play_order = x + 1;
         }
 
-        sort_players(players);
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
+            if (players[i].play_order == NONE && max == players[i].die_roll) {
+                count++;
+            }
+        }
+
+        if (count == 1) {
+            game_status->current_player = player;
+            printf("\n%s will begin the game.\n\n", players[game_status->current_player].name);
+            
+            int i = game_status->current_player;
+            do {
+                printf("%s\n", players[i].name);
+                i++;
+                i %= NO_OF_PLAYERS;
+            } while (i != game_status->current_player);
+            printf("\n");
+            break;
+
+        } else {
+            for (int i = 0; i < NO_OF_PLAYERS; i++) {
+                if (players[i].die_roll < max) {
+                players[i].play_order = TRUE;
+                }
+            }
+        }
 
         printf("\n");
-
-        assigned_players = 0;
-        for (i = 0; i < NO_OF_PLAYERS; i++) {
-            if (players[i].play_order != 5) {
-                assigned_players++;
-            }
-        }  
     }
-
-    printf("%s will begin the game.\n\n", players[0].name);
-    printf("Turn order:\n");
-    for (i = 0; i < NO_OF_PLAYERS; i++) {
-        printf("%s\n", players[i].name);
-    }
-    printf("\n");
-
 }

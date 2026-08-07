@@ -10,8 +10,7 @@ void initialize_players(Player players[]);
 void generate_event_cards(Events national_events[], Regional regional_cards[]);
 void destroy_property(Cell *place);
 int round_off(double num);
-void sort_players(Player players[]);
-void decide_player_order(Player players[]);
+void decide_player_order(Player players[], Game *game_status);
 
 // Functions in game.c
 void print_game(Game game_status, Player players[], Cell board[], int game_over, Events national_events[], Regional regional_cards[]);

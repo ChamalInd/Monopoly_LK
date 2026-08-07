@@ -222,13 +222,13 @@ void announce_bankruptcy(Player players[], Cell board[], Game game_status, int p
 
 void game_loop(Game *game_status, Player players[], Cell board[], Cell *property_groups[][3], Events national_events[], Regional regional_cards[]) {
     int pass_go = FALSE, round_done = TRUE;
-    int round_tracker = 0;
+    int round_tracker[] = {0, 0, 0, 0};
 
     while (TRUE) {
         // skips bankrupt players
         check_for_bankruptcy(players, board, *game_status, game_status->current_player);
         if (players[game_status->current_player].isBankrupt == TRUE) {
-            round_tracker += 1;
+            round_tracker[game_status->current_player] = 1;
             game_status->current_player = ((game_status->current_player + 1) % NO_OF_PLAYERS);
             continue;
         } 
@@ -274,7 +274,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 
         if (pass_go) {
             players[game_status->current_player].cash += GO_REWARD;
-            round_tracker += 1;
+            round_tracker[game_status->current_player] = 1;
 
             settle_outstanding_penalties(&players[game_status->current_player], board, *game_status);
             property_renovations(&players[game_status->current_player], board);
@@ -289,8 +289,11 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 
         round_done = TRUE;
 
-        if (round_tracker != 4) {
-            round_done = FALSE;
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
+            if (round_tracker[i] == 0) {
+                round_done = FALSE;
+                break;
+            }
         }
 
         player_actions(players, board, property_groups, game_status, national_events);
@@ -298,7 +301,9 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
         if (round_done) {
             // tasks happening at every round
             game_status->rounds++;
-            round_tracker = 0;
+            for (int i = 0; i < NO_OF_PLAYERS; i++) {
+                round_tracker[i] = 0;
+            }
 
             if (game_status->rounds == MAX_ROUNDS) {
                 print_game(*game_status, players, board, game_over, national_events, regional_cards);
