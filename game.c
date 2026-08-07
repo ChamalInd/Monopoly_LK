@@ -4,54 +4,70 @@
 void print_game(Game game_status, Player players[], Cell board[], int game_over, Events national_events[], Regional regional_cards[]) {
     if (game_status.rounds == 0) {
         // declare the start of the game
-        for (int i = 0; i < 60; i++) {
+        for (int i = 0; i < 56; i++) {
             printf("=");
         }
-        printf("\nMONOPOLY-LK Simulation\n");
-        for (int i = 0; i < 60; i++) {
+        printf("\n                 MONOPOLY-LK Simulation\n");
+        for (int i = 0; i < 56; i++) {
             printf("=");
         }
+        printf("\n");
         printf("\nPlayer 1 : Aggressive Investor\nPlayer 2 : Conservative Banker\nPlayer 3 : Risk Taker\nPlayer 4 : Opportunistic Trader\n\nEach player begins with LKR 30000.\n\n");
 
     } else {
         // prints round and market summary
-        for (int i = 0; i < 60; i++) {
-            printf("=");
+        if (game_status.rounds < 10) {
+            printf("\n=================== Round 0%i Summary ===================\n\n", game_status.rounds);
+        } else {
+            printf("\n=================== Round %i Summary ===================\n\n", game_status.rounds);
         }
-        printf("\nRound %i Summary\n", game_status.rounds);
-        for (int i = 0; i < 60; i++) {
-            printf("=");
-        }
-        printf("\n");
-        for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            if (players[i].isBankrupt == FALSE) {
-                Status player_status = calculate_player_status(players[i], board);
 
-                printf("\n%s\nCash : LKR %i\nNet Worth : LKR %i\nProperties : %i\nHotels : %i\nOutstanding Loans : LKR %i\n", players[i].name, players[i].cash, player_status.net_worth, player_status.total_properties, player_status.hotels_built, players[i].loan_status.total_payable);
-                
-                printf("\nActive National Event Cards : \n");
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
+            // if (players[i].isBankrupt == FALSE) {
+                Status player_status = calculate_player_status(players[i], board);
+                printf("Player : %s\n\t", players[i].name);
+                printf(" %-16s : LKR %7i\n\t %-16s : LKR %7i\n\t", "Cash", players[i].cash, "Net Worth", player_status.net_worth);
+                printf(" %-16s : %11i\n\t %-16s : %11i\n\t", "Properties", player_status.total_properties, "Hotels", player_status.hotels_built);
+                printf(" %-16s : LKR %7i\n\n", "Outstanding Loan", players[i].loan_status.total_payable);
+
+                int present = FALSE;
                 for (int j = 0; j < 20; j++) {
+                    present = FALSE;
                     if (players[i].events[j].remaining_effect > 0) {
-                        printf("\t%s : ( Remaining Rounds : %i )\n", national_events[players[i].events[j].event].name, players[i].events[j].remaining_effect);
+                        present = TRUE;
+                        break;
                     }
                 }
-                printf("\n");
 
-                for (int j = 0; j < 60; j++) {
-                    printf("-");
+                if (present == TRUE) {
+                printf("\t Active National Event Cards : \n");
+                int present = FALSE;
+                    for (int j = 0; j < 20; j++) {
+                        present = FALSE;
+                        if (players[i].events[j].remaining_effect > 0) {
+                            present = TRUE;
+
+                            if (players[i].events[j].remaining_effect < 10) {
+                                printf("\t %-23s  (0%i rounds left)\n", national_events[players[i].events[j].event].name, players[i].events[j].remaining_effect);
+                            } else {
+                                printf("\t %-23s  (%i rounds left)\n", national_events[players[i].events[j].event].name, players[i].events[j].remaining_effect);
+                            }
+                        }
+                    }
                 }
-                printf("\n");
-            }
+                printf("\n");                
+            // }
         }
-        printf("\n");
 
-        for (int i = 0; i < 60; i++) {
-            printf("=");
+        printf("=============== Current Market Conditions ==============\n");
+
+        if (game_status.inflation_rate > 0) {
+            printf("\n%-9s : +%2i%%", "Inflation", game_status.inflation_rate);
+        } else {
+            printf("\n%-9s : %2i%%", "Inflation", game_status.inflation_rate);
         }
-        printf("\nCurrent Market Conditions\n");
-        for (int i = 0; i < 60; i++) {
-            printf("=");
-        }
+
+        printf("         %-22s : %.2f%%\n", "Current Loan Interest", game_status.interest_rate);
 
         char *property_groups[] = {
             "Colombo Central",   // BROWN
@@ -65,50 +81,25 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over,
         };
 
         if (game_status.dynamic_market[0].event != NORMAL && game_status.dynamic_market[1].event != NORMAL) {
-            printf("\n\nMarket Boom\n");
-            for (int i = 0; i < 16; i++) {
-                printf("-");
+            if (10 - game_status.rounds % 10 < 10) {
+                printf("\n----------- Market Condition (0%i rounds left) ----------\n\n", 10 - game_status.rounds % 10);
+            } else {
+                printf("\n----------- Market Condition (%i rounds left) ----------\n\n", 10 - game_status.rounds % 10);
             }
-            printf("\n%s (+20%%)\n", property_groups[game_status.dynamic_market[0].property_group]);
-            printf("Rounds Remaining : %i\n", 10 - game_status.rounds % 10);
-
-            printf("\nMarket Decline\n");
-            for (int i = 0; i < 16; i++) {
-                printf("-");
-            }
-            printf("\n%s (-15%%)\n", property_groups[game_status.dynamic_market[1].property_group]);
-            printf("Rounds Remaining : %i\n", 10 - game_status.rounds % 10);
+            printf("%-15s : %-20s (+15%%)\n\n", "Market Boom", property_groups[game_status.dynamic_market[0].property_group]);
+            printf("%-15s : %-20s (-15%%)\n\n", "Market Decline", property_groups[game_status.dynamic_market[1].property_group]);
         }
 
         if (game_status.regional_card != NONE) {
-            printf("\nRegional Development Cards\n");
-            for (int i = 0; i < 28; i++) {
-                printf("-");
+            printf("--------------- Regional Development Cards -------------\n\n");
+
+            if (15 - game_status.rounds % 15 < 10) {
+                printf("%-31s    %s (0%i rounds left)\n", regional_cards[game_status.regional_card].name, regional_cards[game_status.regional_card].value, 15 - game_status.rounds % 15);
+            } else {
+                printf("%-31s    %s (%i rounds left)\n", regional_cards[game_status.regional_card].name, regional_cards[game_status.regional_card].value, 15 - game_status.rounds % 15);
             }
-            printf("\n%s\n(%s)\n", regional_cards[game_status.regional_card].name, regional_cards[game_status.regional_card].value);
-            printf("Rounds Remaining : %i\n", 15 - game_status.rounds % 15);
         }
-
-        printf("\nInflation\n");
-        for (int i = 0; i < 11; i++) {
-            printf("-");
-        }
-        if (game_status.inflation_rate > 0) {
-            printf("\n+%i%%\n", game_status.inflation_rate);
-        } else {
-            printf("\n%i%%\n", game_status.inflation_rate);
-        }
-        printf("\nCurrent Loan Interest\n");
-        for (int i = 0; i < 23; i++) {
-            printf("-");
-        }
-        printf("\n%.2f%%\n\n", game_status.interest_rate);
-        for (int i = 0; i < 60; i++) {
-            printf("=");
-        }
-
-        printf("\n\n");
-
+        printf("\n--------------------------------------------------------\n");
     }
     
     if (game_over == TRUE || game_status.rounds >= MAX_ROUNDS) {
@@ -116,20 +107,21 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over,
         int winner_id = decide_winner(players, board);
         Status player_status = calculate_player_status(players[winner_id], board);
 
-        for (int i = 0; i < 60; i++) {
+        for (int i = 0; i < 56; i++) {
             printf("=");
         }
-        
-        if (winner_id != NONE) {
-            printf("\n\nGAME OVER\n\nWinner : %s\nTotal Cash : LKR %i\nTotal Property Value : LKR %i\nOutstanding Loans : LKR %i\nNet Worth : LKR %i\n\n", players[winner_id].name, players[winner_id].cash, player_status.total_property_value, players[winner_id].loan_status.total_payable, player_status.net_worth);
-        } else {
-            printf("\n\nGAME OVER\n\nNo Winner\n\n");
-        }
-
-        for (int i = 0; i < 60; i++) {
+        printf("\n                       GAME OVER\n");
+        for (int i = 0; i < 56; i++) {
             printf("=");
         }
         printf("\n");
+        
+        if (winner_id != NONE) {
+            printf("\n%-20s : %s\n%-20s : LKR %6i\n%-20s : LKR %6i\n%-20s : LKR %6i\n%-20s : LKR %6i\n", "Winner", players[winner_id].name, "Total Cash", players[winner_id].cash, "Total Property Value", player_status.total_property_value, "Outstanding Loans", players[winner_id].loan_status.total_payable, "Net Worth", player_status.net_worth);
+        } else {
+            printf("No Winner");
+        }
+        printf("\n--------------------------------------------------------\n");
     }
 }
 
@@ -211,6 +203,10 @@ void announce_bankruptcy(Player players[], Cell board[], Game game_status, int p
     players[player].place = 0;
     printf("%s has been declared bankrupt.\n", players[player].name);
     printf("Remaining assets transferred to the Bank.\n\n");
+
+    for (int i = 0; i < 20; i++) {
+        players[player].events[i].remaining_effect = 0;
+    }
 
     for (int i = 0; i < NO_OF_CELLS; i++) {
         if (board[i].owner == players[player].id) {
