@@ -124,6 +124,7 @@ void disaster_occurrence(Cell board[], Game game_status) {
 
     if (game_status.economic_event == HEAVY_MONSOON || board[property].ownerptr->events[HEAVY_FLOODS].remaining_effect > 0) {
         disaster = 1;
+
     } else if (game_status.economic_event == POLITICAL_UNREST) {
         disaster = 2;
     }
@@ -131,6 +132,8 @@ void disaster_occurrence(Cell board[], Game game_status) {
     if (board[property].ownerptr->events[NATIONAL_DISASTER].remaining_effect > 0) {
         disaster = 4;
     }
+
+    board[property].ownerptr->has_disaster_occurred = TRUE;
 
     repair_cost = round_off(board[property].value.market_price * (10.0 / 100.0));
 
@@ -140,7 +143,7 @@ void disaster_occurrence(Cell board[], Game game_status) {
     printf("Affected Property : \n\t%s\n\n", board[property].name);
 
     int covered_by_insurance = FALSE, compensation = 0;
-    char *policy;
+    char *policy = NULL;
 
     switch (board[property].insurance.policy) {
         case BASIC : {

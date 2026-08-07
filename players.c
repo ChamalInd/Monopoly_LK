@@ -206,8 +206,7 @@ void check_for_insurance_action(Player players[], Cell board[], Game game_status
             if (board[i].owner == players[game_status.current_player].id && board[i].type == PROPERTY && board[i].insurance.policy == NO_INSURANCE) {
                 obtain_insurance(players, board, game_status, insurance_company, FALSE, i);
 
-
-            } else if (board[i].owner == players[game_status.current_player].id && board[i].type == PROPERTY && board[i].insurance.policy != NO_INSURANCE && board[i].insurance.duration <= 3 && board[i].insurance.provider == insurance_company) {
+            } else if (board[i].owner == players[game_status.current_player].id && board[i].type == PROPERTY && board[i].insurance.policy != NO_INSURANCE && board[i].insurance.provider == insurance_company) {
                 obtain_insurance(players, board, game_status, insurance_company, TRUE, i);
             }
         }

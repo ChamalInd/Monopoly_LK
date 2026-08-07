@@ -236,6 +236,7 @@ void initialize_players(Player players[]) {
             .name = player_names[i],
             .id = plays[i],
             .isBankrupt = FALSE,
+            .has_disaster_occurred = FALSE,
             .going_to_bid = FALSE,
             .jail_status = (Jail) {FALSE, 0},
             .loan_status = (Loan) {0, 0, 0, 8}, 
@@ -314,6 +315,7 @@ void generate_event_cards(Events national_events[], Regional regional_cards[]) {
 void destroy_property(Cell *place) {
     place->mortgage.status = UNMORTGAGED;
     place->owner = BANK_OF_CEYLON;
+    place->value.building_value = 0;
     place->ownerptr = NULL;
     place->insurance = (Insurance) {NO_INSURANCE, NONE, 0};
     place->depreciation = (Depreciation) {0, 0};

@@ -116,16 +116,44 @@ void refinance_loan(Player *player, Cell board[], Game game_status) {
 }
 
 void obtain_insurance(Player players[], Cell board[], Game game_status, int provider, int has_insurance, int place) {
-int premium = 0, policy = board[place].insurance.policy;
+    int premium = 0, policy = board[place].insurance.policy;
     char *insurance_policy_names[] = {"Basic Property Insurance", "Comprehensive Insurance", "Business Interruption Insurance"};
 
     if (has_insurance == FALSE) {
-        policy = rand() % 3;
+        switch (players[game_status.current_player].id) {
+            case AGGRESSIVE_INVESTOR : {
+                if (board[place].buildings.no_of_houses > 0) {
+                    policy = BASIC;
 
-        while (policy == BUSINESS_INTERRUPTION) {
-            if (board[place].buildings.no_of_hotels == 0) {
-                policy = rand() % 3;
-            } else {
+                } else if (board[place].buildings.no_of_hotels > 0) {
+                    policy = COMPREHENSIVE;
+                } else {
+                    return;
+                }
+                break;
+            }
+            case CONSERVATIVE_BANKER : {
+                policy = COMPREHENSIVE;
+                break;
+            }
+            case RISK_TAKER : {
+                if (players[game_status.current_player].has_disaster_occurred == TRUE) {
+                    policy = rand() % 3;
+
+                    while (board[place].buildings.no_of_hotels == 0 && policy == BUSINESS_INTERRUPTION) {
+                        policy = rand() % 3;
+                    }
+                } else {
+                    return;
+                }
+                break;
+            }
+            case OPPORTUNISTIC_TRADER : {
+                if (board[place].id > 21) {
+                    policy = COMPREHENSIVE;
+                } else {
+                    policy = BASIC;
+                }
                 break;
             }
         }

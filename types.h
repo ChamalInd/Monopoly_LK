@@ -48,6 +48,7 @@ typedef struct {
     char *name;
     int id;
     int isBankrupt;
+    int has_disaster_occurred;
     int going_to_bid;
     Jail jail_status;
     Loan loan_status;
