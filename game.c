@@ -41,12 +41,8 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over,
 
                 if (present == TRUE) {
                 printf("\t Active National Event Cards : \n");
-                int present = FALSE;
                     for (int j = 0; j < 20; j++) {
-                        present = FALSE;
                         if (players[i].events[j].remaining_effect > 0) {
-                            present = TRUE;
-
                             if (players[i].events[j].remaining_effect < 10) {
                                 printf("\t %-23s  (0%i rounds left)\n", national_events[players[i].events[j].event].name, players[i].events[j].remaining_effect);
                             } else {
@@ -105,7 +101,6 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over,
     if (game_over == TRUE || game_status.rounds >= MAX_ROUNDS) {
         // declare the end of the game
         int winner_id = decide_winner(players, board);
-        Status player_status = calculate_player_status(players[winner_id], board);
 
         for (int i = 0; i < 56; i++) {
             printf("=");
@@ -117,6 +112,8 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over,
         printf("\n");
         
         if (winner_id != NONE) {
+            Status player_status = calculate_player_status(players[winner_id], board);
+
             printf("\n%-20s : %s\n%-20s : LKR %6i\n%-20s : LKR %6i\n%-20s : LKR %6i\n%-20s : LKR %6i\n", "Winner", players[winner_id].name, "Total Cash", players[winner_id].cash, "Total Property Value", player_status.total_property_value, "Outstanding Loans", players[winner_id].loan_status.total_payable, "Net Worth", player_status.net_worth);
         } else {
             printf("No Winner");

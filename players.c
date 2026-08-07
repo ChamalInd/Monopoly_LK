@@ -221,7 +221,13 @@ void buy(Player players[], Cell board[], Game game_status) {
     switch (players[game_status.current_player].id) {
         case AGGRESSIVE_INVESTOR : {
             int future_rent = board[NO_OF_CELLS - 1].value.base_rent * 10; // maximum rent might have to pay (Galle Face with a hotel)
-            going_to_buy = players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.market_price + future_rent;
+
+            if (board[players[game_status.current_player].place].id == 37 || board[players[game_status.current_player].place].id == 39) {
+                // prioritize Galle Face and Nuwara Eliya
+                going_to_buy = players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.market_price;
+            } else {
+                going_to_buy = players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.market_price + future_rent;
+            }
             break;
         }
         case CONSERVATIVE_BANKER : {
@@ -281,7 +287,7 @@ int auction(Player players[], Cell board[], Cell *place, Ownership beneficiary, 
                         break;
                     }
                 }
-                if (choice == TRUE) {
+                if (choice == TRUE || place->id == 37 || place->id == 39) { // prioritize Galle Face and Nuwara Eliya 
                     players[i].going_to_bid = TRUE;
                     bidding[i] = i;
                     bidding_players++;
