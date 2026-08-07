@@ -4,38 +4,35 @@
 void obtain_loan(Player *player, Cell board[], Game game_status) {
     double max_loan = 0;
     int total_unmortgaged_property_value = 0;
-    Status player_status = calculate_player_status(*player, board);
 
-    if (player->loan_status.no_of_loans == 0 && player_status.unmortgaged_properties > 0) {
-        for (int i = 0; i < NO_OF_CELLS; i++) {
-            if (board[i].owner == player->id && board[i].mortgage.status == UNMORTGAGED) {
-                total_unmortgaged_property_value += board[i].mortgage.value;
-            }
+    for (int i = 0; i < NO_OF_CELLS; i++) {
+        if (board[i].owner == player->id && board[i].mortgage.status == UNMORTGAGED) {
+            total_unmortgaged_property_value += board[i].mortgage.value;
         }
-
-        max_loan = ((double) total_unmortgaged_property_value) * (75.0 / 100.0);
-
-        player->cash += round_off(max_loan);
-        player->loan_status.no_of_loans++;
-        player->loan_status.total_payable += round_off(max_loan);
-        player->loan_status.loan_duration = 20;
-        player->loan_status.interest_rate = game_status.interest_rate;
-
-        printf("%s obtained a secured loan.\n", player->name);
-        printf("Loan Amount : LKR %i.\n", round_off(max_loan));
-        printf("Outstanding Loan Amount : LKR %i.\n", player->loan_status.total_payable);
-        printf("\nCollateral : \n");
-
-        for (int i = 0; i < NO_OF_CELLS; i++) {
-            if (board[i].owner == player->id && board[i].mortgage.status == UNMORTGAGED) {
-                printf("\t%s\n", board[i].name);
-                board[i].mortgage.status = MORTGAGED;
-            }
-        }
-
-        printf("\nInterest Rate : %.2f%%.\n", player->loan_status.interest_rate);
-        printf("Duration : %i.\n\n", player->loan_status.loan_duration);
     }
+
+    max_loan = ((double) total_unmortgaged_property_value) * (75.0 / 100.0);
+
+    player->cash += round_off(max_loan);
+    player->loan_status.no_of_loans++;
+    player->loan_status.total_payable += round_off(max_loan);
+    player->loan_status.loan_duration = 20;
+    player->loan_status.interest_rate = game_status.interest_rate;
+
+    printf("%s obtained a secured loan.\n", player->name);
+    printf("Loan Amount : LKR %i.\n", round_off(max_loan));
+    printf("Outstanding Loan Amount : LKR %i.\n", player->loan_status.total_payable);
+    printf("\nCollateral : \n");
+
+    for (int i = 0; i < NO_OF_CELLS; i++) {
+        if (board[i].owner == player->id && board[i].mortgage.status == UNMORTGAGED) {
+            printf("\t%s\n", board[i].name);
+            board[i].mortgage.status = MORTGAGED;
+        }
+    }
+
+    printf("\nInterest Rate : %.2f%%.\n", player->loan_status.interest_rate);
+    printf("Duration : %i.\n\n", player->loan_status.loan_duration);
 }
 
 void accumulated_interest(Player *player) {
@@ -72,33 +69,20 @@ void check_for_loan_status(Player players[], Cell board[], Game game_status) {
     }
 }
 
-void repay_outstanding_loan(Player players[], Cell board[], Game game_status, int payment) {
-    if (players[game_status.current_player].cash >= payment) {
-        int amount = 0;
+void repay_outstanding_loan(Player players[], Cell board[], Game game_status) {
+    if (players[game_status.current_player].cash >= players[game_status.current_player].loan_status.total_payable) {
+        int amount = players[game_status.current_player].loan_status.total_payable;
 
-        if (players[game_status.current_player].loan_status.total_payable > payment) {
-            amount = payment;
-
-        } else {
-            for (int i = 0; i < NO_OF_CELLS; i++) {
-                if (board[i].owner == players[game_status.current_player].id && board[i].mortgage.status == MORTGAGED) {
-                    board[i].mortgage.status = UNMORTGAGED;
-                }
-            }
-
-            players[game_status.current_player].loan_status.no_of_loans = 0;
-            players[game_status.current_player].loan_status.loan_duration = 0;
-
-            if (players[game_status.current_player].loan_status.total_payable < payment) {
-                amount = players[game_status.current_player].loan_status.total_payable;
-            } else {
-                amount = payment;
-            }
-        }
-
+        players[game_status.current_player].loan_status.no_of_loans = 0;
+        players[game_status.current_player].loan_status.loan_duration = 0;
         players[game_status.current_player].cash -= amount;
         players[game_status.current_player].loan_status.total_payable -= amount;
-        
+
+        for (int i = 0; i < NO_OF_CELLS; i++) {
+            if (board[i].owner == players[game_status.current_player].id && board[i].mortgage.status == MORTGAGED) {
+                board[i].mortgage.status = UNMORTGAGED;
+            }
+        }
 
         printf("%s repaid LKR %i.\n", players[game_status.current_player].name, amount);
         printf("Outstanding Balance : \n\tLKR %i.\n\n", players[game_status.current_player].loan_status.total_payable);
@@ -114,11 +98,19 @@ void extend_loan(Player *player) {
     printf("Duration : %i.\n\n", player->loan_status.loan_duration);
 }
 
-void increase_loan(Player *player, Cell board[], Game game_status) {
+void refinance_loan(Player *player, Cell board[], Game game_status) {
     Status player_status = calculate_player_status(*player, board);
     if (player_status.unmortgaged_properties > 0) {
         player->loan_status.no_of_loans = 0;
-        printf("%s decided to refinance existing loan of LKR %i.\n\n", player->name, player->loan_status.total_payable);
+        player->loan_status.total_payable = 0;
+
+        for (int i = 0; i < NO_OF_CELLS; i++) {
+            if (board[i].owner == player->id && board[i].mortgage.status == MORTGAGED) {
+                board[i].mortgage.status = UNMORTGAGED;
+            }
+        }
+
+        printf("%s decided to refinance existing loan.\n\n", player->name);
         obtain_loan(player, board, game_status);
     }
 }
@@ -181,6 +173,7 @@ int premium = 0, policy = board[place].insurance.policy;
     } else {
         if (has_insurance == FALSE) {
             printf("Not enough money to purchase insurance premium.\n\n");
+            check_for_bankruptcy(players, board, game_status, game_status.current_player);
 
         } else {
             printf("Not enough money to renew insurance premium.\n\n");

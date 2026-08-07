@@ -200,8 +200,8 @@ void check_for_jailed(Player *player) {
 
 void check_for_bankruptcy(Player players[], Cell board[], Game game_status, int player) {
     Status player_status = calculate_player_status(players[player], board);
-
-    if (players[player].isBankrupt == FALSE && player_status.net_worth < 0) {
+    
+    if (players[player].isBankrupt == FALSE && player_status.net_worth <= 0) {
         players[player].isBankrupt = TRUE;
         announce_bankruptcy(players, board, game_status, player);
     } 
@@ -226,6 +226,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 
     while (TRUE) {
         // skips bankrupt players
+        check_for_bankruptcy(players, board, *game_status, game_status->current_player);
         if (players[game_status->current_player].isBankrupt == TRUE) {
             round_tracker += 1;
             game_status->current_player = ((game_status->current_player + 1) % NO_OF_PLAYERS);
@@ -275,6 +276,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
             players[game_status->current_player].cash += GO_REWARD;
             round_tracker += 1;
 
+            settle_outstanding_penalties(&players[game_status->current_player], board, *game_status);
             property_renovations(&players[game_status->current_player], board);
             building_renovations(&players[game_status->current_player], board);
             accumulated_interest(&players[game_status->current_player]);

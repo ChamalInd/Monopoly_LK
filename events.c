@@ -53,7 +53,7 @@ void inflation(Cell board[], Game *game_status) {
     int inflation_rates[] = {-3, 0, 2, 5, 8, 12};
     game_status->inflation_rate = inflation_rates[rand() % (sizeof(inflation_rates) / sizeof(int))];
     double inflation_value = 1.0 + ((double) game_status->inflation_rate / 100.0);
-    game_status->interest_rate = game_status->income_tax_rate * inflation_value;
+    game_status->interest_rate = game_status->interest_rate * inflation_value;
 
     for (int i = 0; i < NO_OF_CELLS; i++) {
         if (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY) {

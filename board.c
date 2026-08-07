@@ -80,13 +80,13 @@ void generate_board(Cell board[]) {
 
     int cell_base_price[NO_OF_CELLS] = {
         NONE,  1500,   NONE,   1800,   NONE,
-        1,     2500,   NONE,   2700,   3000,
-        NONE,  3500,   1,      3800,   4000,
-        1,     4500,   NONE,   4700,   5000,
+        1500,  2500,   NONE,   2700,   3000,
+        NONE,  3500,   1500,   3800,   4000,
+        1500,  4500,   NONE,   4700,   5000,
         NONE,  5500,   NONE,   5800,   6000,
-        1,     6500,   6800,   1,      7000,
+        1500,  6500,   6800,   1500,   7000,
         NONE,  8000,   8300,   NONE,   8500,
-        1,     NONE,  10000,   NONE,  12000
+        1500,  NONE,  10000,   NONE,  12000
     };
 
     int cell_base_rent[NO_OF_CELLS] = {
@@ -135,13 +135,13 @@ void generate_board(Cell board[]) {
 
     int cell_mortgage_value[NO_OF_CELLS] = {
         NONE,   750,  NONE,   750,  NONE,
-        1,     1250,  NONE,  1250,  1250,
-        NONE,  1750,  1,     1750,  1750,
-        1,     2250,  NONE,  2250,  2250,
+        750,   1250,  NONE,  1250,  1250,
+        NONE,  1750,  750,   1750,  1750,
+        750,   2250,  NONE,  2250,  2250,
         NONE,  2750,  NONE,  2750,  2750,
-        1,     3250,  3250,  1,     3250,
+        750,   3250,  3250,  750,   3250,
         NONE,  4000,  4000,  NONE,  4000,
-        1,     NONE,  5000,  NONE,  5000
+        750,   NONE,  5000,  NONE,  5000
     };
 
     for (int i = 0; i < NO_OF_CELLS; i++) {
@@ -238,7 +238,7 @@ void initialize_players(Player players[]) {
             .isBankrupt = FALSE,
             .going_to_bid = FALSE,
             .jail_status = (Jail) {FALSE, 0},
-            .loan_status = (Loan) {0, 0, 0, 2}, // 2 is a demo number
+            .loan_status = (Loan) {0, 0, 0, 8}, 
             .events_own = 0,
             .play_order = 5, // set as 5 for sorting process when deciding the player order
             .die_roll = NONE,
