@@ -7,7 +7,7 @@
 // Functions in helper.c
 int round_off(double num);
 void destroy_property(Cell *place);
-void unmortgaged_property(Cell board[], Player player);
+void unmortgage_property(Cell board[], Player player);
 int dice_roll(void);
 int decide_winner(Player players[], Cell board[]);
 void check_for_jailed(Player *player);

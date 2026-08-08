@@ -84,7 +84,7 @@ void repay_outstanding_loan(Player players[], Cell board[], Game game_status) {
         players[player].cash -= amount;
         players[player].loan_status.total_payable -= amount;
 
-        unmortgaged_property(board, players[player]);
+        unmortgage_property(board, players[player]);
 
         printf("%s repaid LKR %i.\n", players[player].name, amount);
         printf("Outstanding Balance : \n\tLKR %i.\n\n", players[player].loan_status.total_payable);
@@ -106,7 +106,7 @@ void refinance_loan(Player *player, Cell board[], Game game_status) {
         player->loan_status.no_of_loans = 0;
         player->loan_status.total_payable = 0;
 
-        unmortgaged_property(board, *player);
+        unmortgage_property(board, *player);
 
         printf("%s decided to refinance existing loan.\n\n", player->name);
         obtain_loan(player, board, game_status);

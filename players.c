@@ -237,6 +237,7 @@ int auction(Player players[], Cell board[], Cell *place, Ownership beneficiary, 
 
     highest_bid = starting_price;
 
+    // finding initial bidders
     for (int i = 0; i < NO_OF_PLAYERS; i++) {
         if (players[i].isBankrupt == FALSE && players[i].jail_status.isJailed == FALSE && players[i].id != beneficiary && players[i].cash >= starting_price) {
             if (players[i].id == AGGRESSIVE_INVESTOR) {
@@ -306,6 +307,7 @@ int auction(Player players[], Cell board[], Cell *place, Ownership beneficiary, 
                 }
             }
 
+            // auction process
             for (int i = 0; i < NO_OF_PLAYERS; i++) {   
                 if (bidding[i] != NONE) { 
                     if (players[bidding[i]].cash >= highest_bid + 250) {
@@ -350,6 +352,7 @@ int auction(Player players[], Cell board[], Cell *place, Ownership beneficiary, 
         }
     }
 
+    // resetting auction parameters
     for (int i = 0; i < NO_OF_PLAYERS; i++) {
         players[i].going_to_bid = FALSE;
     }

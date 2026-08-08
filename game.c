@@ -127,7 +127,6 @@ void print_game_over(Player players[], Cell board[]) {
 void game_loop(Game *game_status, Player players[], Cell board[], Cell *property_groups[][3], Events national_events[], Regional regional_cards[]) {
     int pass_go = FALSE, round_done = TRUE;
     int round_tracker[] = {0, 0, 0, 0};
-    print_game_start();
 
     while (TRUE) {
         // skips bankrupt players

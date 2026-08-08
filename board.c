@@ -44,6 +44,7 @@ void initialize_game(Cell board[]) {
     generate_board(board);
     generate_event_cards(national_events, regional_cards);
     initialize_players(players);
+    print_game_start();
     decide_player_order(players, &game_status);
     game_loop(&game_status, players, board, property_groups, national_events, regional_cards);
 }
