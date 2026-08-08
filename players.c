@@ -57,7 +57,7 @@ void player_actions(Player players[], Cell board[], Cell *property_groups[][3], 
         if (board[place_id].type == PROPERTY) {
 
             if (board[place_id].owner == players[game_status->current_player].id && board[place_id].group != NO_COLOR && players[game_status->current_player].events[LABOUR_STRIKE].remaining_effect <= 0) {
-                constructions(&players[game_status->current_player], &board[place_id], property_groups);
+                constructions(players, board, property_groups, *game_status);
             }
         }
 
@@ -231,7 +231,7 @@ void buy(Player players[], Cell board[], Game game_status) {
             break;
         }
         case CONSERVATIVE_BANKER : {
-            going_to_buy = round_off(players[game_status.current_player].cash / 2.0) >= board[players[game_status.current_player].place].value.market_price;
+            going_to_buy = game_status.economic_event != ECONOMIC_RECESSION && (round_off(players[game_status.current_player].cash / 2.0) >= board[players[game_status.current_player].place].value.market_price);
             break;
         }
         case RISK_TAKER : {
@@ -295,7 +295,7 @@ int auction(Player players[], Cell board[], Cell *place, Ownership beneficiary, 
                     bidding[i] = NONE;
                 }
 
-            } else if ((players[i].id == CONSERVATIVE_BANKER || players[i].id == OPPORTUNISTIC_TRADER) && starting_price < place->value.market_price) {
+            } else if (((players[i].id == CONSERVATIVE_BANKER && game_status.economic_event != ECONOMIC_RECESSION) || players[i].id == OPPORTUNISTIC_TRADER) && starting_price < place->value.market_price) {
                 players[i].going_to_bid = TRUE;
                 bidding[i] = i;
                 bidding_players++;
@@ -426,7 +426,7 @@ void raise_money(Player players[], Cell board[], Game game_status, int amount_to
     int available_count = 0;
 
     for (int i = 0; i < NO_OF_CELLS; i++) {
-        if (board[i].owner == players[game_status.current_player].id && board[i].mortgage.status == UNMORTGAGED && (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY)) {
+        if (i != players[game_status.current_player].place && board[i].owner == players[game_status.current_player].id && board[i].mortgage.status == UNMORTGAGED && (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY)) {
             available[i] = &board[i];
             available_count++;
         } else {
@@ -582,44 +582,77 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
     }
 }
 
-void constructions(Player *player, Cell *place, Cell *property_groups[][3]) {
+void constructions(Player players[], Cell board[], Cell *property_groups[][3], Game game_status) {
     for (int j = 0; j < 3; j++) {
-        if (property_groups[place->group][j] == NULL) {
+        if (property_groups[board[players[game_status.current_player].place].group][j] == NULL) {
             continue;
         }
-        if (property_groups[place->group][j]->owner != player->id) {
+        if (property_groups[board[players[game_status.current_player].place].group][j]->owner != players[game_status.current_player].id) {
             return;
         }
     }
 
-    if (place->buildings.no_of_houses < 4 && place->buildings.no_of_hotels == 0 && player->cash >= place->value.house_construction_cost) {
+    int going_to_build_houses = FALSE, going_to_build_hotels = FALSE;
+
+    switch (players[game_status.current_player].id) {
+        case AGGRESSIVE_INVESTOR : {
+            going_to_build_houses = board[players[game_status.current_player].place].buildings.no_of_houses < 4 && board[players[game_status.current_player].place].buildings.no_of_hotels == 0 && players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.house_construction_cost;
+            going_to_build_hotels = board[players[game_status.current_player].place].buildings.no_of_houses == 4 && players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.hotel_construction_cost;
+            break;
+        }
+        case CONSERVATIVE_BANKER : {
+            if (game_status.economic_event != ECONOMIC_RECESSION) {
+                going_to_build_houses = board[players[game_status.current_player].place].buildings.no_of_houses < 4 && board[players[game_status.current_player].place].buildings.no_of_hotels == 0 && players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.house_construction_cost;
+                going_to_build_hotels = players[game_status.current_player].loan_status.no_of_loans == 0 && board[players[game_status.current_player].place].buildings.no_of_houses == 4 && players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.hotel_construction_cost;
+            }
+            break;
+        }
+        case RISK_TAKER : {
+            if (board[players[game_status.current_player].place].value.market_price > HIGH_VALUE_PROPERTY && (players[game_status.current_player].cash < board[players[game_status.current_player].place].value.house_construction_cost || players[game_status.current_player].cash < board[players[game_status.current_player].place].value.hotel_construction_cost)) {
+                raise_money(players, board, game_status, board[players[game_status.current_player].place].value.hotel_construction_cost);
+            }
+
+            going_to_build_houses = board[players[game_status.current_player].place].buildings.no_of_houses < 4 && board[players[game_status.current_player].place].buildings.no_of_hotels == 0 && players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.house_construction_cost;
+            going_to_build_hotels = board[players[game_status.current_player].place].buildings.no_of_houses == 4 && players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.hotel_construction_cost;
+            break;
+        }
+        case OPPORTUNISTIC_TRADER : {
+            if (game_status.inflation_rate < 0 || game_status.government_regulation == HOUSING_SUBSIDY_REGULATION) {
+                going_to_build_houses = board[players[game_status.current_player].place].buildings.no_of_houses < 4 && board[players[game_status.current_player].place].buildings.no_of_hotels == 0 && players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.house_construction_cost;
+                going_to_build_hotels = board[players[game_status.current_player].place].buildings.no_of_houses == 4 && players[game_status.current_player].cash >= board[players[game_status.current_player].place].value.hotel_construction_cost;
+            }
+            break;
+        }
+    }
+
+    if (going_to_build_houses == TRUE) {
         for (int i = 0; i < 3; i++) {
-            if (property_groups[place->group][i] == NULL) {
+            if (property_groups[board[players[game_status.current_player].place].group][i] == NULL) {
                 continue;
             }
-            if (place->buildings.no_of_houses > (property_groups[place->group][i]->buildings.no_of_houses) && property_groups[place->group][i]->buildings.no_of_hotels == 0) {
+            if (board[players[game_status.current_player].place].buildings.no_of_houses > (property_groups[board[players[game_status.current_player].place].group][i]->buildings.no_of_houses) && property_groups[board[players[game_status.current_player].place].group][i]->buildings.no_of_hotels == 0) {
                 return;
             }
         }
-        place->buildings.no_of_houses++;
-        place->value.building_value = place->value.house_construction_cost * place->buildings.no_of_houses;
-        player->cash -= place->value.house_construction_cost;
+        board[players[game_status.current_player].place].buildings.no_of_houses++;
+        board[players[game_status.current_player].place].value.building_value = board[players[game_status.current_player].place].value.house_construction_cost * board[players[game_status.current_player].place].buildings.no_of_houses;
+        players[game_status.current_player].cash -= board[players[game_status.current_player].place].value.house_construction_cost;
 
-        printf("%s constructed one house on %s.\n", player->name, place->name);
-        printf("Construction cost : LKR %i.\n\n", place->value.house_construction_cost);
+        printf("%s constructed one house on %s.\n", players[game_status.current_player].name, board[players[game_status.current_player].place].name);
+        printf("Construction cost : LKR %i.\n\n", board[players[game_status.current_player].place].value.house_construction_cost);
 
-    } else if (place->buildings.no_of_houses == 4 && player->cash >= place->value.hotel_construction_cost) {
-        place->buildings.no_of_houses = 0;
-        place->buildings.no_of_hotels++;
-        place->value.building_value = place->value.hotel_construction_cost;
-        player->cash -= place->value.hotel_construction_cost;
-        place->buildings.age = 0;
-        place->buildings.condition = 100;
-        place->buildings.has_damaged = FALSE;
-        place->buildings.rent_reduction_rate = 0;
+    } else if (going_to_build_hotels == TRUE) {
+        board[players[game_status.current_player].place].buildings.no_of_houses = 0;
+        board[players[game_status.current_player].place].buildings.no_of_hotels++;
+        board[players[game_status.current_player].place].value.building_value = board[players[game_status.current_player].place].value.hotel_construction_cost;
+        players[game_status.current_player].cash -= board[players[game_status.current_player].place].value.hotel_construction_cost;
+        board[players[game_status.current_player].place].buildings.age = 0;
+        board[players[game_status.current_player].place].buildings.condition = 100;
+        board[players[game_status.current_player].place].buildings.has_damaged = FALSE;
+        board[players[game_status.current_player].place].buildings.rent_reduction_rate = 0;
 
-        printf("%s upgraded houses in %s to a Hotel.\n", player->name, place->name);
-        printf("Upgrade cost : LKR %i.\n\n", place->value.hotel_construction_cost);
+        printf("%s upgraded houses in %s to a Hotel.\n", players[game_status.current_player].name, board[players[game_status.current_player].place].name);
+        printf("Upgrade cost : LKR %i.\n\n", board[players[game_status.current_player].place].value.hotel_construction_cost);
     }
 }
 

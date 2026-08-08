@@ -249,7 +249,7 @@ void initialize_players(Player players[]) {
         };
 
         for (int j = 0; j < 20; j++) {
-            players[i].events[j] = (National_Events) {j, NONE};
+            players[i].events[j] = (National_Events) {j, NONE, NONE};
         }
     }
 }
@@ -298,8 +298,7 @@ void generate_event_cards(Events national_events[], Regional regional_cards[]) {
     for (int i = 0; i < 20; i++) {
         national_events[i] = (Events) {
             .name = event_names[i],
-            .event = event_description[i],
-            .property = NONE
+            .event = event_description[i]
         };
     }
 

@@ -23,13 +23,15 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over,
         }
 
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            // if (players[i].isBankrupt == FALSE) {
-                Status player_status = calculate_player_status(players[i], board);
-                printf("Player : %s\n\t", players[i].name);
+            Status player_status = calculate_player_status(players[i], board);
+            printf("Player : %s ", players[i].name);
+            if (players[i].isBankrupt == TRUE) {
+                printf("(Bankrupt)\n\t");
+            } else {
+                printf("\n\t");
                 printf(" %-16s : LKR %7i\n\t %-16s : LKR %7i\n\t", "Cash", players[i].cash, "Net Worth", player_status.net_worth);
                 printf(" %-16s : %11i\n\t %-16s : %11i\n\t", "Properties", player_status.total_properties, "Hotels", player_status.hotels_built);
                 printf(" %-16s : LKR %7i\n\n", "Outstanding Loan", players[i].loan_status.total_payable);
-
                 int present = FALSE;
                 for (int j = 0; j < 20; j++) {
                     present = FALSE;
@@ -38,7 +40,7 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over,
                         break;
                     }
                 }
-
+            
                 if (present == TRUE) {
                 printf("\t Active National Event Cards : \n");
                     for (int j = 0; j < 20; j++) {
@@ -51,8 +53,8 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over,
                         }
                     }
                 }
-                printf("\n");                
-            // }
+            }
+            printf("\n"); 
         }
 
         printf("=============== Current Market Conditions ==============\n");
@@ -198,6 +200,8 @@ void check_for_bankruptcy(Player players[], Cell board[], Game game_status, int 
 
 void announce_bankruptcy(Player players[], Cell board[], Game game_status, int player) {
     players[player].place = 0;
+    players[player].cash = 0;
+    players[player].loan_status.total_payable = 0;
     printf("%s has been declared bankrupt.\n", players[player].name);
     printf("Remaining assets transferred to the Bank.\n\n");
 
@@ -274,7 +278,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
             building_renovations(&players[game_status->current_player], board);
             accumulated_interest(&players[game_status->current_player]);
             check_for_loan_status(players, board, *game_status);
-            national_event_card_expiry(&players[game_status->current_player], board, national_events, game_status);
+            national_event_card_expiry(players, board, national_events, game_status);
             
             printf("%s passed GO.\n", players[game_status->current_player].name);
             printf("Collected LKR 2000.\nCurrent Balance LKR %i.\n\n", players[game_status->current_player].cash);

@@ -116,7 +116,7 @@ void dynamic_property_market(Cell *property_groups[][3], Game *game_status, int 
 
 void disaster_occurrence(Cell board[], Game game_status) {
     int property = rand() % 40, disaster = 0, repair_cost = NONE;
-    while (board[property].type != PROPERTY || board[property].owner == BANK_OF_CEYLON || board[property].owner == NO_OWNER) {
+    while (board[property].type != PROPERTY || board[property].owner == BANK_OF_CEYLON || board[property].owner == NO_OWNER || board[property].ownerptr->isBankrupt == TRUE) {
         property = rand() % 40; 
     }
 
@@ -232,7 +232,7 @@ void national_event_card_draw(Player players[], Cell board[], Events national_ev
                 rand_property = rand() % NO_OF_CELLS;
             }
 
-            national_events[POLITICAL_RALLY].property = rand_property;
+            players[game_status->current_player].events[POLITICAL_RALLY].property = rand_property;
             board[rand_property].buildings.has_damaged = TRUE;
             break;
         }
@@ -311,9 +311,9 @@ void national_event_card_draw(Player players[], Cell board[], Events national_ev
         case PROPERTY_REVALUATION : {
             players[game_status->current_player].events[game_status->national_event_pointer].remaining_effect = 15;
             int group = rand() % 8;
-            national_events[PROPERTY_REVALUATION].property = group;
+            players[game_status->current_player].events[PROPERTY_REVALUATION].property = group;
             for (int i = 0; i < NO_OF_CELLS; i++) {
-                if (board[i].group == national_events[PROPERTY_REVALUATION].property) {
+                if (board[i].group == players[game_status->current_player].events[PROPERTY_REVALUATION].property) {
                     board[i].value.market_price += round_off((double) board[i].value.market_price * (15.0 / 100.0));
                 }
             }
@@ -353,25 +353,25 @@ void national_event_card_draw(Player players[], Cell board[], Events national_ev
     game_status->national_event_pointer %= 20;
 }
 
-void national_event_card_expiry(Player *player, Cell board[], Events national_events[], Game *game_status) {
+void national_event_card_expiry(Player players[], Cell board[], Events national_events[], Game *game_status) {
     for (int i = 0; i < 20; i++) {
-        if (player->events[i].remaining_effect == NONE) { 
+        if (players[game_status->current_player].events[i].remaining_effect == NONE) { 
             continue;
         }
 
-        if (player->events[i].remaining_effect > 0) {
-            player->events[i].remaining_effect--;
+        if (players[game_status->current_player].events[i].remaining_effect > 0) {
+            players[game_status->current_player].events[i].remaining_effect--;
         } 
         
-        if (player->events[i].remaining_effect == 0) {
-            player->events[i].remaining_effect = NONE;
+        if (players[game_status->current_player].events[i].remaining_effect == 0) {
+            players[game_status->current_player].events[i].remaining_effect = NONE;
 
-            switch (player->events[i].event) {
+            switch (players[game_status->current_player].events[i].event) {
                 case POLITICAL_RALLY : {
-                    if (national_events[POLITICAL_RALLY].property != NONE && board[national_events[POLITICAL_RALLY].property].buildings.condition >= 25) {
-                        board[national_events[POLITICAL_RALLY].property].buildings.has_damaged = FALSE;
+                    if (players[game_status->current_player].events[POLITICAL_RALLY].property != NONE && board[players[game_status->current_player].events[POLITICAL_RALLY].property].buildings.condition >= 25) {
+                        board[players[game_status->current_player].events[POLITICAL_RALLY].property].buildings.has_damaged = FALSE;
                     }
-                    national_events[POLITICAL_RALLY].property = NONE;
+                    players[game_status->current_player].events[POLITICAL_RALLY].property = NONE;
                     break;
                 }
                 case STOCK_MARKET_RISE : {
@@ -424,11 +424,11 @@ void national_event_card_expiry(Player *player, Cell board[], Events national_ev
                 }
                 case PROPERTY_REVALUATION : {
                     for (int j = 0; j < NO_OF_CELLS; j++) {
-                        if (board[j].group == national_events[PROPERTY_REVALUATION].property) {
+                        if (board[j].group == players[game_status->current_player].events[PROPERTY_REVALUATION].property) {
                             board[j].value.market_price -= round_off((double) board[j].value.market_price * (15.0 / 100.0));
                         }
                     }
-                    national_events[PROPERTY_REVALUATION].property = NONE;
+                    players[game_status->current_player].events[PROPERTY_REVALUATION].property = NONE;
                     break;
                 }
                 case CURRENCY_DEPRECIATION : {

@@ -198,10 +198,10 @@ void obtain_insurance(Player players[], Cell board[], Game game_status, int prov
 
         printf("Property : %s.\n", board[place].name);
         printf("Premium : LKR %i.\n\n", premium);
+
     } else {
         if (has_insurance == FALSE) {
             printf("Not enough money to purchase insurance premium.\n\n");
-            check_for_bankruptcy(players, board, game_status, game_status.current_player);
 
         } else {
             printf("Not enough money to renew insurance premium.\n\n");
