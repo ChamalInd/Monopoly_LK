@@ -174,8 +174,6 @@ Status calculate_player_status(Player player, Cell board[]) {
         .total_utilities = utilities,
         .unmortgaged_properties = unmortgaged_properties,
         .hotels_built = hotels,
-        .assets = assets,
-        .liabilities = liabilities,
         .net_worth = net_worth
     };
 

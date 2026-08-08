@@ -183,8 +183,6 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
             round_tracker[game_status->current_player] = 1;
 
             settle_outstanding_penalties(&players[game_status->current_player], board, *game_status);
-            property_renovations(&players[game_status->current_player], board);
-            building_renovations(&players[game_status->current_player], board);
             accumulated_interest(&players[game_status->current_player]);
             check_for_loan_status(players, board, *game_status);
             national_event_card_expiry(players, board, game_status);

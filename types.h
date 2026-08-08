@@ -25,8 +25,6 @@ typedef struct{
     int total_utilities;
     int unmortgaged_properties;
     int hotels_built;
-    int assets;
-    int liabilities;
     int net_worth;
 } Status;
 

@@ -10,11 +10,13 @@ void player_actions(Player players[], Cell board[], Cell *property_groups[][3], 
     }
 
     if (board[place_id].type == PROPERTY || board[place_id].type == RAILWAY || board[place_id].type == UTILITY) {
-        if (board[place_id].type == PROPERTY) {
-
-            if (board[place_id].owner == players[player].id && board[place_id].group != NO_COLOR && players[player].events[LABOUR_STRIKE].remaining_effect <= 0) {
+        if (board[place_id].type == PROPERTY && board[place_id].owner == players[player].id) {
+            if (board[place_id].group != NO_COLOR && players[player].events[LABOUR_STRIKE].remaining_effect <= 0) {
                 constructions(players, board, property_groups, *game_status);
             }
+
+            property_renovations(&players[player], board);
+            building_renovations(&players[player], board);
         }
 
         if (board[place_id].owner == BANK_OF_CEYLON) {
@@ -191,7 +193,7 @@ void buy(Player players[], Cell board[], Game game_status) {
             break;
         }
         case CONSERVATIVE_BANKER : {
-            going_to_buy = game_status.economic_event != ECONOMIC_RECESSION && (board[place_id].type == RAILWAY || board[place_id].type == UTILITY) || (board[place_id].type == PROPERTY && round_off(players[player].cash / 2.0) >= board[place_id].value.market_price);
+            going_to_buy = game_status.economic_event != ECONOMIC_RECESSION && (board[place_id].type == RAILWAY || board[place_id].type == UTILITY || (board[place_id].type == PROPERTY && round_off(players[player].cash / 2.0) >= board[place_id].value.market_price));
             break;
         }
         case RISK_TAKER : {

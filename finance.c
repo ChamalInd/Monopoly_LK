@@ -29,8 +29,8 @@ void obtain_loan(Player *player, Cell board[], Game game_status) {
     printf("\nCollateral : \n");
 
     for (int i = 0; i < no_of_collaterals; i++) {
-        printf("\t%s\n", board[i].name);
-        board[i].mortgage.status = MORTGAGED;
+        printf("\t%s\n", board[collateral_ids[i]].name);
+        board[collateral_ids[i]].mortgage.status = MORTGAGED;
     }
 
     printf("\nInterest Rate : %.2f%%.\n", player->loan_status.interest_rate);
@@ -303,8 +303,8 @@ void tax_payments(Player players[], Cell board[], Game game_status, int tax) {
         amount = round_off((double) player_status.net_worth * (game_status.income_tax_rate / 100.0));
         tax_name = "Income Tax";
 
-    } else if (tax == COMMUNITY_DEVELOPMENT_FUND && player_status.assets > 0) {
-        amount = round_off((double) player_status.assets * (game_status.community_fund_rate / 100.0));
+    } else if (tax == COMMUNITY_DEVELOPMENT_FUND && player_status.total_property_value > 0) {
+        amount = round_off((double) player_status.total_property_value * (game_status.community_fund_rate / 100.0));
         tax_name = "Community Development Fund";
     }
 
