@@ -285,7 +285,7 @@ int auction(Player players[], Cell board[], Cell *place, Ownership beneficiary, 
     printf("Bidders : [");
     for (int i = 0; i < NO_OF_PLAYERS; i++) {
         if (players[i].going_to_bid == TRUE) {
-            printf(" %s ", players[i].name);
+            printf(" <%s> ", players[i].name);
         }
     }
     printf("]\n\n");

@@ -181,17 +181,6 @@ void generate_board(Cell board[]) {
         UNMORTGAGED,      CANNOT_MORTGAGED, UNMORTGAGED, CANNOT_MORTGAGED, UNMORTGAGED
     };
 
-    int cell_mortgage_value[NO_OF_CELLS] = {
-        NONE,   750,  NONE,   750,  NONE,
-        750,   1250,  NONE,  1250,  1250,
-        NONE,  1750,  750,   1750,  1750,
-        750,   2250,  NONE,  2250,  2250,
-        NONE,  2750,  NONE,  2750,  2750,
-        750,   3250,  3250,  750,   3250,
-        NONE,  4000,  4000,  NONE,  4000,
-        750,   NONE,  5000,  NONE,  5000
-    };
-
     for (int i = 0; i < NO_OF_CELLS; i++) {
         board[i] = (Cell) {
             .name = cell_names[i],
@@ -224,7 +213,7 @@ void generate_board(Cell board[]) {
             },
             .mortgage = (Mortgage) {
                 .status = cell_mortgage_status[i],
-                .value = cell_mortgage_value[i]
+                .value = cell_base_price[i] / 2
             }
         };
     }

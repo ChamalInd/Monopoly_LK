@@ -138,6 +138,7 @@ Status calculate_player_status(Player player, Cell board[]) {
                 case PROPERTY : {
                     hotels += board[i].buildings.no_of_hotels;
                     assets += board[i].value.building_value;
+                    total_property_value += board[i].value.market_price;
                     properties++;
                     break;
                 }
@@ -157,7 +158,6 @@ Status calculate_player_status(Player player, Cell board[]) {
             if (board[i].mortgage.status == UNMORTGAGED) {
                 unmortgaged_properties++;
             }
-            total_property_value += board[i].value.market_price;
             assets += board[i].value.market_price;
         }
     }
