@@ -231,7 +231,7 @@ void buy(Player players[], Cell board[], Game game_status) {
             break;
         }
         case CONSERVATIVE_BANKER : {
-            going_to_buy = game_status.economic_event != ECONOMIC_RECESSION && (round_off(players[game_status.current_player].cash / 2.0) >= board[players[game_status.current_player].place].value.market_price);
+            going_to_buy = game_status.economic_event != ECONOMIC_RECESSION && (board[players[game_status.current_player].place].type == RAILWAY || board[players[game_status.current_player].place].type == UTILITY) || (board[players[game_status.current_player].place].type == PROPERTY && round_off(players[game_status.current_player].cash / 2.0) >= board[players[game_status.current_player].place].value.market_price);
             break;
         }
         case RISK_TAKER : {
@@ -658,7 +658,31 @@ void constructions(Player players[], Cell board[], Cell *property_groups[][3], G
 
 void property_renovations(Player *player, Cell board[]) {
     for (int i = 0; i < NO_OF_CELLS; i++) {
-        if (board[i].owner == player->id && board[i].depreciation.age >= 50) {
+        int going_to_renovate = FALSE;
+
+        switch (player->id) {
+            case AGGRESSIVE_INVESTOR : {
+                going_to_renovate = TRUE;
+                break;
+            }
+            case CONSERVATIVE_BANKER : {
+                // do not renovate until depreciation reaches 10%
+                going_to_renovate = board[i].depreciation.percentage >= 10;
+                break;
+            } 
+            case RISK_TAKER : {
+                // ignore until repair becomes unavoidable
+                going_to_renovate = board[i].depreciation.percentage == 30;
+                break;
+            }
+            case OPPORTUNISTIC_TRADER : {
+                // do not renovate until depreciation reaches 15%
+                going_to_renovate = board[i].depreciation.percentage >= 15;
+                break;
+            }
+        }
+
+        if (board[i].owner == player->id && board[i].depreciation.age >= 50 && going_to_renovate) {
             double renovation_cost = (double) board[i].value.current_market_price * (10.0 / 100.0);
             if (player->cash >= round_off(renovation_cost)) {
                 player->cash -= round_off(renovation_cost);

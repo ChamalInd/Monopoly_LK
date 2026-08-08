@@ -116,94 +116,109 @@ void dynamic_property_market(Cell *property_groups[][3], Game *game_status, int 
 
 void disaster_occurrence(Cell board[], Game game_status) {
     int property = rand() % 40, disaster = 0, repair_cost = NONE;
-    while (board[property].type != PROPERTY || board[property].owner == BANK_OF_CEYLON || board[property].owner == NO_OWNER || board[property].ownerptr->isBankrupt == TRUE) {
-        property = rand() % 40; 
-    }
+    int available[NO_OF_CELLS] = {
+        FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+        FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+        FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+        FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE
+    };
+    int available_count = 0;
 
-    disaster = rand() % 6;
-
-    if (game_status.economic_event == HEAVY_MONSOON || board[property].ownerptr->events[HEAVY_FLOODS].remaining_effect > 0) {
-        disaster = 1;
-
-    } else if (game_status.economic_event == POLITICAL_UNREST) {
-        disaster = 2;
-    }
-
-    if (board[property].ownerptr->events[NATIONAL_DISASTER].remaining_effect > 0) {
-        disaster = 4;
-    }
-
-    board[property].ownerptr->has_disaster_occurred = TRUE;
-
-    repair_cost = round_off(board[property].value.market_price * (10.0 / 100.0));
-
-    char *disaster_names[] = {"Fire", "Flood", "Riot", "Vandalism", "Building Collapse", "Electrical Failure"};
-
-    printf("%s occurred.\n", disaster_names[disaster]);
-    printf("Affected Property : \n\t%s\n\n", board[property].name);
-
-    int covered_by_insurance = FALSE, compensation = 0;
-    char *policy = NULL;
-
-    switch (board[property].insurance.policy) {
-        case BASIC : {
-            if (disaster < 2) {
-                compensation = round_off(repair_cost * (80.0 / 100.0));
-                covered_by_insurance = TRUE;
-            } else {
-                covered_by_insurance = FALSE;
-                policy = "Basic Property";
-            }
-            break;
+    for (int i = 0; i < NO_OF_CELLS; i++) {
+        if (board[i].type == PROPERTY && board[i].ownerptr != NULL) {
+            available[available_count] = i;
+            available_count++;
         }
-        case COMPREHENSIVE : {
-            if (disaster < 4) {
-                compensation = repair_cost;
-                covered_by_insurance = TRUE;
-            } else {
-                covered_by_insurance = FALSE;
-                policy = "Comprehensive";
-            }
-            break;
-        }
-        case BUSINESS_INTERRUPTION : {
-            int lost_rent = board[property].value.base_rent * 10 * 5;
-            compensation = repair_cost + lost_rent;
-            covered_by_insurance = TRUE;
-            break;
-        }
-        default :
-            compensation = NONE;
-            break;
     }
 
-    if (compensation != NONE) {
-        if (covered_by_insurance == TRUE) {
-            printf("Insurance claim Approved.\n\n");
-            printf("Compensation Paid : LKR %i.\n\n", compensation);
-            board[property].ownerptr->cash += compensation;
+    if (available_count > 0) {
+        property = available[rand() % available_count];
 
-            if (board[property].ownerptr->cash >= repair_cost) {
-                board[property].ownerptr->cash -= repair_cost;
-                if (board[property].insurance.policy == BASIC) {
-                    printf("%s Paid the rest : LKR %i.\n\n", board[property].ownerptr->name, repair_cost - compensation);
+        disaster = rand() % 6;
+
+        if (game_status.economic_event == HEAVY_MONSOON || board[property].ownerptr->events[HEAVY_FLOODS].remaining_effect > 0) {
+            disaster = 1;
+
+        } else if (game_status.economic_event == POLITICAL_UNREST) {
+            disaster = 2;
+        }
+
+        if (board[property].ownerptr->events[NATIONAL_DISASTER].remaining_effect > 0) {
+            disaster = 4;
+        }
+
+        board[property].ownerptr->has_disaster_occurred = TRUE;
+
+        repair_cost = round_off(board[property].value.market_price * (10.0 / 100.0));
+
+        char *disaster_names[] = {"Fire", "Flood", "Riot", "Vandalism", "Building Collapse", "Electrical Failure"};
+
+        printf("%s occurred.\n", disaster_names[disaster]);
+        printf("Affected Property : \n\t%s\n\n", board[property].name);
+
+        int covered_by_insurance = FALSE, compensation = 0;
+        char *policy = NULL;
+
+        switch (board[property].insurance.policy) {
+            case BASIC : {
+                if (disaster < 2) {
+                    compensation = round_off(repair_cost * (80.0 / 100.0));
+                    covered_by_insurance = TRUE;
+                } else {
+                    covered_by_insurance = FALSE;
+                    policy = "Basic Property";
                 }
+                break;
+            }
+            case COMPREHENSIVE : {
+                if (disaster < 4) {
+                    compensation = repair_cost;
+                    covered_by_insurance = TRUE;
+                } else {
+                    covered_by_insurance = FALSE;
+                    policy = "Comprehensive";
+                }
+                break;
+            }
+            case BUSINESS_INTERRUPTION : {
+                int lost_rent = board[property].value.base_rent * 10 * 5;
+                compensation = repair_cost + lost_rent;
+                covered_by_insurance = TRUE;
+                break;
+            }
+            default :
+                compensation = NONE;
+                break;
+        }
+
+        if (compensation != NONE) {
+            if (covered_by_insurance == TRUE) {
+                printf("Insurance claim Approved.\n\n");
+                printf("Compensation Paid : LKR %i.\n\n", compensation);
+                board[property].ownerptr->cash += compensation;
+
+                if (board[property].ownerptr->cash >= repair_cost) {
+                    board[property].ownerptr->cash -= repair_cost;
+                    if (board[property].insurance.policy == BASIC) {
+                        printf("%s Paid the rest : LKR %i.\n\n", board[property].ownerptr->name, repair_cost - compensation);
+                    }
+                }
+            } else {
+                printf("%s Insurance doesn't cover %s.\n\n", policy, disaster_names[disaster]);
+
+                if (board[property].ownerptr->cash >= repair_cost) {
+                    board[property].ownerptr->cash -= repair_cost;
+                    printf("%s Paid the repair cost : LKR %i.\n\n", board[property].ownerptr->name, repair_cost);
+                }
+
             }
         } else {
-            printf("%s Insurance doesn't cover %s.\n\n", policy, disaster_names[disaster]);
+            printf("%s isn't insured.\n\n", board[property].name);
 
             if (board[property].ownerptr->cash >= repair_cost) {
                 board[property].ownerptr->cash -= repair_cost;
                 printf("%s Paid the repair cost : LKR %i.\n\n", board[property].ownerptr->name, repair_cost);
             }
-
-        }
-    } else {
-        printf("%s isn't insured.\n\n", board[property].name);
-
-        if (board[property].ownerptr->cash >= repair_cost) {
-            board[property].ownerptr->cash -= repair_cost;
-            printf("%s Paid the repair cost : LKR %i.\n\n", board[property].ownerptr->name, repair_cost);
         }
     }
 }
@@ -353,7 +368,7 @@ void national_event_card_draw(Player players[], Cell board[], Events national_ev
     game_status->national_event_pointer %= 20;
 }
 
-void national_event_card_expiry(Player players[], Cell board[], Events national_events[], Game *game_status) {
+void national_event_card_expiry(Player players[], Cell board[], Game *game_status) {
     for (int i = 0; i < 20; i++) {
         if (players[game_status->current_player].events[i].remaining_effect == NONE) { 
             continue;

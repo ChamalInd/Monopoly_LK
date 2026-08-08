@@ -40,7 +40,7 @@ void print_game(Game game_status, Player players[], Cell board[], int game_over,
                         break;
                     }
                 }
-            
+
                 if (present == TRUE) {
                 printf("\t Active National Event Cards : \n");
                     for (int j = 0; j < 20; j++) {
@@ -278,7 +278,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
             building_renovations(&players[game_status->current_player], board);
             accumulated_interest(&players[game_status->current_player]);
             check_for_loan_status(players, board, *game_status);
-            national_event_card_expiry(players, board, national_events, game_status);
+            national_event_card_expiry(players, board, game_status);
             
             printf("%s passed GO.\n", players[game_status->current_player].name);
             printf("Collected LKR 2000.\nCurrent Balance LKR %i.\n\n", players[game_status->current_player].cash);
