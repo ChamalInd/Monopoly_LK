@@ -4,10 +4,14 @@
 void obtain_loan(Player *player, Cell board[], Game game_status) {
     double max_loan = 0;
     int total_unmortgaged_property_value = 0;
+    int collateral_ids[NO_OF_CELLS];
+    int no_of_collaterals = 0;
 
     for (int i = 0; i < NO_OF_CELLS; i++) {
         if (board[i].owner == player->id && board[i].mortgage.status == UNMORTGAGED) {
             total_unmortgaged_property_value += board[i].mortgage.value;
+            collateral_ids[no_of_collaterals] = board[i].id;
+            no_of_collaterals++;
         }
     }
 
@@ -24,11 +28,9 @@ void obtain_loan(Player *player, Cell board[], Game game_status) {
     printf("Outstanding Loan Amount : LKR %i.\n", player->loan_status.total_payable);
     printf("\nCollateral : \n");
 
-    for (int i = 0; i < NO_OF_CELLS; i++) {
-        if (board[i].owner == player->id && board[i].mortgage.status == UNMORTGAGED) {
-            printf("\t%s\n", board[i].name);
-            board[i].mortgage.status = MORTGAGED;
-        }
+    for (int i = 0; i < no_of_collaterals; i++) {
+        printf("\t%s\n", board[i].name);
+        board[i].mortgage.status = MORTGAGED;
     }
 
     printf("\nInterest Rate : %.2f%%.\n", player->loan_status.interest_rate);
@@ -43,52 +45,52 @@ void accumulated_interest(Player *player) {
 }
 
 void check_for_loan_status(Player players[], Cell board[], Game game_status) {
-    if (players[game_status.current_player].isBankrupt == FALSE) {
-        if (players[game_status.current_player].loan_status.loan_duration > 0) {
-            players[game_status.current_player].loan_status.loan_duration--;
-            if (players[game_status.current_player].loan_status.loan_duration == 3) {
-                printf("Loan of %s for LKR %i will overdue after 3 rounds.\n\n", players[game_status.current_player].name, players[game_status.current_player].loan_status.total_payable);
+    int player = game_status.current_player;
+
+    if (players[player].isBankrupt == FALSE) {
+        if (players[player].loan_status.loan_duration > 0) {
+            players[player].loan_status.loan_duration--;
+            if (players[player].loan_status.loan_duration == 3) {
+                printf("Loan of %s for LKR %i will overdue after 3 rounds.\n\n", players[player].name, players[player].loan_status.total_payable);
             }
         } 
         
-        if (players[game_status.current_player].loan_status.no_of_loans == 1 && players[game_status.current_player].loan_status.loan_duration == 0) {
-            players[game_status.current_player].loan_status.loan_duration = 0;
-            players[game_status.current_player].loan_status.no_of_loans = 0;
-            players[game_status.current_player].loan_status.total_payable = 0;
+        if (players[player].loan_status.no_of_loans == 1 && players[player].loan_status.loan_duration == 0) {
+            players[player].loan_status.loan_duration = 0;
+            players[player].loan_status.no_of_loans = 0;
+            players[player].loan_status.total_payable = 0;
         
-            printf("%s has defaulted.\n", players[game_status.current_player].name);
+            printf("%s has defaulted.\n", players[player].name);
             printf("Collateral has been foreclosed.\nOutstanding debt cleared.\n\n");
             for (int j = 0; j < NO_OF_CELLS; j++) {
-                if (board[j].owner == players[game_status.current_player].id && board[j].mortgage.status == MORTGAGED) {
+                if (board[j].owner == players[player].id && board[j].mortgage.status == MORTGAGED) {
                     destroy_property(&board[j]);
                     auction(players, board, &board[j], BANK_OF_CEYLON, game_status);
                 }
             }
-            check_for_bankruptcy(players, board, game_status, game_status.current_player);
+            check_for_bankruptcy(players, board, game_status, player);
         }
     }
 }
 
 void repay_outstanding_loan(Player players[], Cell board[], Game game_status) {
-    if (players[game_status.current_player].cash >= players[game_status.current_player].loan_status.total_payable) {
-        int amount = players[game_status.current_player].loan_status.total_payable;
+    int player = game_status.current_player;
 
-        players[game_status.current_player].loan_status.no_of_loans = 0;
-        players[game_status.current_player].loan_status.loan_duration = 0;
-        players[game_status.current_player].cash -= amount;
-        players[game_status.current_player].loan_status.total_payable -= amount;
+    if (players[player].cash >= players[player].loan_status.total_payable) {
+        int amount = players[player].loan_status.total_payable;
 
-        for (int i = 0; i < NO_OF_CELLS; i++) {
-            if (board[i].owner == players[game_status.current_player].id && board[i].mortgage.status == MORTGAGED) {
-                board[i].mortgage.status = UNMORTGAGED;
-            }
-        }
+        players[player].loan_status.no_of_loans = 0;
+        players[player].loan_status.loan_duration = 0;
+        players[player].cash -= amount;
+        players[player].loan_status.total_payable -= amount;
 
-        printf("%s repaid LKR %i.\n", players[game_status.current_player].name, amount);
-        printf("Outstanding Balance : \n\tLKR %i.\n\n", players[game_status.current_player].loan_status.total_payable);
+        unmortgaged_property(board, players[player]);
+
+        printf("%s repaid LKR %i.\n", players[player].name, amount);
+        printf("Outstanding Balance : \n\tLKR %i.\n\n", players[player].loan_status.total_payable);
         
     } else {
-        check_for_bankruptcy(players, board, game_status, game_status.current_player);
+        check_for_bankruptcy(players, board, game_status, player);
     }
 }
 
@@ -104,11 +106,7 @@ void refinance_loan(Player *player, Cell board[], Game game_status) {
         player->loan_status.no_of_loans = 0;
         player->loan_status.total_payable = 0;
 
-        for (int i = 0; i < NO_OF_CELLS; i++) {
-            if (board[i].owner == player->id && board[i].mortgage.status == MORTGAGED) {
-                board[i].mortgage.status = UNMORTGAGED;
-            }
-        }
+        unmortgaged_property(board, *player);
 
         printf("%s decided to refinance existing loan.\n\n", player->name);
         obtain_loan(player, board, game_status);
@@ -149,7 +147,7 @@ void obtain_insurance(Player players[], Cell board[], Game game_status, int prov
                 break;
             }
             case OPPORTUNISTIC_TRADER : {
-                if (board[place].id > 21) {
+                if (board[place].value.market_price == HIGH_VALUE_PROPERTY) {
                     policy = COMPREHENSIVE;
                 } else {
                     policy = BASIC;
@@ -216,53 +214,114 @@ void check_for_insurance_status(Cell board[]) {
             board[i].insurance.duration--;
             if (board[i].insurance.duration == 3) {
                 printf("Insurance policy on %s expires in 3 rounds.\n\n", board[i].name);
+
+            } else if (board[i].insurance.duration == 0) {
+                printf("Insurance policy on %s has expired.\n\n", board[i].name);
+                board[i].insurance.duration = 0;
+                board[i].insurance.policy = NO_INSURANCE;
+                board[i].insurance.provider = NONE;
+            }
+        } 
+    }
+}
+
+void insurance_compensation(Cell board[], int property, int disaster, char *disaster_name) {
+    int covered_by_insurance = FALSE, compensation = 0;
+    char *policy = NULL;
+    int repair_cost = round_off(board[property].value.market_price * (10.0 / 100.0));
+
+    switch (board[property].insurance.policy) {
+        case BASIC : {
+            if (disaster < 2) {
+                compensation = round_off(repair_cost * (80.0 / 100.0));
+                covered_by_insurance = TRUE;
+            } else {
+                covered_by_insurance = FALSE;
+                policy = "Basic Property";
+            }
+            break;
+        }
+        case COMPREHENSIVE : {
+            if (disaster < 4) {
+                compensation = repair_cost;
+                covered_by_insurance = TRUE;
+            } else {
+                covered_by_insurance = FALSE;
+                policy = "Comprehensive";
+            }
+            break;
+        }
+        case BUSINESS_INTERRUPTION : {
+            int lost_rent = board[property].value.base_rent * 10 * 5;
+            compensation = repair_cost + lost_rent;
+            covered_by_insurance = TRUE;
+            break;
+        }
+        default :
+            compensation = NONE;
+            break;
+    }
+
+    if (compensation != NONE) {
+        if (covered_by_insurance == TRUE) {
+            printf("Insurance claim Approved.\n\n");
+            printf("Compensation Paid : LKR %i.\n\n", compensation);
+
+            board[property].ownerptr->cash += compensation;
+
+            if (board[property].ownerptr->cash >= repair_cost) {
+                board[property].ownerptr->cash -= repair_cost;
+                if (board[property].insurance.policy == BASIC) {
+                    printf("%s Paid the rest : LKR %i.\n\n", board[property].ownerptr->name, repair_cost - compensation);
+                }
+            }
+        } else {
+            printf("%s Insurance doesn't cover %s.\n\n", policy, disaster_name);
+
+            if (board[property].ownerptr->cash >= repair_cost) {
+                board[property].ownerptr->cash -= repair_cost;
+                printf("%s Paid the repair cost : LKR %i.\n\n", board[property].ownerptr->name, repair_cost);
             }
         }
-        if (board[i].type == PROPERTY && board[i].insurance.policy != NO_INSURANCE && board[i].insurance.duration == 0) {
-            printf("Insurance policy on %s has expired.\n\n", board[i].name);
-            board[i].insurance.duration = 0;
-            board[i].insurance.policy = NO_INSURANCE;
-            board[i].insurance.provider = NONE;
+    } else {
+        printf("%s isn't insured.\n\n", board[property].name);
+
+        if (board[property].ownerptr->cash >= repair_cost) {
+            board[property].ownerptr->cash -= repair_cost;
+            printf("%s Paid the repair cost : LKR %i.\n\n", board[property].ownerptr->name, repair_cost);
         }
     }
 }
 
-void income_tax_payment(Player players[], Cell board[], Game game_status) {
-    Status player_status = calculate_player_status(players[game_status.current_player], board);
-    if (player_status.net_worth > 0) {
-        int amount = round_off((double) player_status.net_worth * (game_status.income_tax_rate / 100.0));
+void tax_payments(Player players[], Cell board[], Game game_status, int tax) {
+    int player = game_status.current_player;
+    Status player_status = calculate_player_status(players[player], board);
+    int amount = 0;
+    char *tax_name;
 
-        printf("Income Tax Amount : LKR %i.\n", amount);
-        if (players[game_status.current_player].cash >= amount) {
-            players[game_status.current_player].cash -= amount;
-            printf("%s paid Full Income Tax Amount.\nRemaining Balance : LKR %i.\n\n", players[game_status.current_player].name, players[game_status.current_player].cash);
+    if (tax == INCOME_TAX && player_status.net_worth > 0) {
+        amount = round_off((double) player_status.net_worth * (game_status.income_tax_rate / 100.0));
+        tax_name = "Income Tax";
+
+    } else if (tax == COMMUNITY_DEVELOPMENT_FUND && player_status.assets > 0) {
+        amount = round_off((double) player_status.assets * (game_status.community_fund_rate / 100.0));
+        tax_name = "Community Development Fund";
+    }
+
+    if (amount > 0) {
+        printf("%s Amount : LKR %i.\n", tax_name, amount);
+
+        if (players[player].cash >= amount) {
+            players[player].cash -= amount;
+            printf("%s paid Full %s Amount.\nRemaining Balance : LKR %i.\n\n", players[player].name, tax_name, players[player].cash);
+
         } else {
-            players[game_status.current_player].taxes_due += (amount - players[game_status.current_player].cash);
-            players[game_status.current_player].cash = 0;
-            printf("%s partially paid Income Tax.\nRemaining Balance : LKR %i.\n\n", players[game_status.current_player].name, players[game_status.current_player].cash);
-            check_for_bankruptcy(players, board, game_status, game_status.current_player);
+            players[player].taxes_due += (amount - players[player].cash);
+            players[player].cash = 0;
+            printf("%s partially paid %s.\nRemaining Balance : LKR %i.\n\n", players[player].name, tax_name, players[player].cash);
+            check_for_bankruptcy(players, board, game_status, player);
         }
     }
-}
-
-void community_development_fund_payment(Player players[], Cell board[], Game game_status) {
-    Status player_status = calculate_player_status(players[game_status.current_player], board);
-    int assets = player_status.total_property_value + players[game_status.current_player].cash;
-
-    if (assets > 0) {
-        int amount = round_off((double) assets * (game_status.community_fund_rate / 100.0));
-
-        printf("Community Development Fund Amount : LKR %i.\n", amount);
-        if (players[game_status.current_player].cash >= amount) {
-            players[game_status.current_player].cash -= amount;
-            printf("%s paid Community Development Fund Amount.\nRemaining Balance : LKR %i.\n\n", players[game_status.current_player].name, players[game_status.current_player].cash);
-        } else {
-            players[game_status.current_player].taxes_due += (amount - players[game_status.current_player].cash);
-            players[game_status.current_player].cash = 0;
-            printf("%s partially paid Community Development Fund.\nRemaining Balance : LKR %i.\n\n", players[game_status.current_player].name, players[game_status.current_player].cash);
-            check_for_bankruptcy(players, board, game_status, game_status.current_player);
-        }
-    } 
 }
 
 void settle_outstanding_penalties(Player *player, Cell board[], Game game_status) {

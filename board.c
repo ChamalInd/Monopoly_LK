@@ -1,6 +1,53 @@
 // Board initialization and movement logic
 #include "functions.h"
 
+void initialize_game(Cell board[]) {
+    Player players[NO_OF_PLAYERS];
+
+    Cell *property_groups[8][3] = {
+        {&board[1], &board[3], NULL},
+        {&board[6], &board[8], &board[9]},
+        {&board[11], &board[13], &board[14]},
+        {&board[16], &board[18], &board[19]},
+        {&board[21], &board[23], &board[24]},
+        {&board[26], &board[27], &board[29]},
+        {&board[31], &board[32], &board[34]},
+        {&board[37], &board[39], NULL}
+    };
+
+    Events national_events[20];
+    Regional regional_cards[12];
+
+    Game game_status = (Game) {
+        .rounds = 0,
+        .current_player = 0,
+        .dynamic_market = {
+            (Dynamic_Market) {
+                .event = NORMAL,
+                .property_group = NONE
+            },
+            (Dynamic_Market) {
+                .event = NORMAL,
+                .property_group = NONE
+            }
+        },
+        .economic_event = NO_EVENT,
+        .government_regulation = NO_REGULATION,
+        .regional_card = NONE,
+        .national_event_pointer = 0,
+        .inflation_rate = 0,
+        .interest_rate = 8.0f,  // assuming stable economy
+        .income_tax_rate = 15.0f,
+        .community_fund_rate = 10.0f
+    };
+
+    generate_board(board);
+    generate_event_cards(national_events, regional_cards);
+    initialize_players(players);
+    decide_player_order(players, &game_status);
+    game_loop(&game_status, players, board, property_groups, national_events, regional_cards);
+}
+
 void generate_board(Cell board[]) {
     char *cell_names[NO_OF_CELLS] = {
         "GO",
@@ -180,51 +227,6 @@ void generate_board(Cell board[]) {
             }
         };
     }
-
-    Player players[NO_OF_PLAYERS];
-
-    Cell *property_groups[8][3] = {
-        {&board[1], &board[3], NULL},
-        {&board[6], &board[8], &board[9]},
-        {&board[11], &board[13], &board[14]},
-        {&board[16], &board[18], &board[19]},
-        {&board[21], &board[23], &board[24]},
-        {&board[26], &board[27], &board[29]},
-        {&board[31], &board[32], &board[34]},
-        {&board[37], &board[39], NULL}
-    };
-
-    Events national_events[20];
-    Regional regional_cards[12];
-
-    Game game_status = (Game) {
-        .rounds = 0,
-        .current_player = 0,
-        .dynamic_market = {
-            (Dynamic_Market) {
-                .event = NORMAL,
-                .property_group = NONE
-            },
-            (Dynamic_Market) {
-                .event = NORMAL,
-                .property_group = NONE
-            }
-        },
-        .economic_event = NO_EVENT,
-        .government_regulation = NO_REGULATION,
-        .regional_card = NONE,
-        .national_event_pointer = 0,
-        .inflation_rate = 0,
-        .interest_rate = 8.0f,  // assuming stable economy
-        .income_tax_rate = 15.0f,
-        .community_fund_rate = 10.0f
-    };
-
-    generate_event_cards(national_events, regional_cards);
-    initialize_players(players);
-    print_game(game_status, players, board, FALSE, national_events, regional_cards);
-    decide_player_order(players, &game_status);
-    game_loop(&game_status, players, board, property_groups, national_events, regional_cards);
 }
 
 void initialize_players(Player players[]) {
@@ -293,7 +295,7 @@ void generate_event_cards(Events national_events[], Regional regional_cards[]) {
         "Flood Damage", "Transport Strike", "Electricity Tariff Increase", "Water Shortage"
     };
 
-    char *regional_values[] = {"+40%", "+25%", "+20%", "+30%", "+35%", "+30%", "+20%", "-30%", "-20%", "-40%", "+25%", "+20% & -10%"};
+    char *regional_values[] = {"+40%", "+25%", "+20%", "+30%", "+35%", "+30%", "+20%", "-30%", "-20%", "-40%", "+25%", "+20%"};
 
     for (int i = 0; i < 20; i++) {
         national_events[i] = (Events) {
@@ -309,29 +311,6 @@ void generate_event_cards(Events national_events[], Regional regional_cards[]) {
         };
     }
       
-}
-
-void destroy_property(Cell *place) {
-    place->mortgage.status = UNMORTGAGED;
-    place->owner = BANK_OF_CEYLON;
-    place->value.building_value = 0;
-    place->ownerptr = NULL;
-    place->insurance = (Insurance) {NO_INSURANCE, NONE, 0};
-    place->depreciation = (Depreciation) {0, 0};
-    place->buildings.no_of_hotels = 0;
-    place->buildings.no_of_houses = 0;
-    place->buildings.condition = 100;
-    place->buildings.rent_reduction_rate = 0;
-    place->buildings.age = 0;
-    place->buildings.has_damaged = FALSE;
-}
-
-int round_off(double num) {
-    if ((num - (int) num) >= 0.5) {
-        return (int) num + 1;
-    } else {
-        return (int) num;
-    }
 }
 
 void decide_player_order(Player players[], Game *game_status) {

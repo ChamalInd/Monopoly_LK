@@ -8,6 +8,6 @@ int main(void) {
     Cell board[NO_OF_CELLS];
     srand(1);
 
-    generate_board(board);
+    initialize_game(board);
     return 0;
 }

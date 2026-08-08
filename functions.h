@@ -4,25 +4,32 @@
 
 #include "types.h"
 
-// Functions in board.c
-void generate_board(Cell board[]);
-void initialize_players(Player players[]);
-void generate_event_cards(Events national_events[], Regional regional_cards[]);
-void destroy_property(Cell *place);
+// Functions in helper.c
 int round_off(double num);
-void decide_player_order(Player players[], Game *game_status);
-
-// Functions in game.c
-void print_game(Game game_status, Player players[], Cell board[], int game_over, Events national_events[], Regional regional_cards[]);
+void destroy_property(Cell *place);
+void unmortgaged_property(Cell board[], Player player);
 int dice_roll(void);
 int decide_winner(Player players[], Cell board[]);
 void check_for_jailed(Player *player);
 void check_for_bankruptcy(Player players[], Cell board[], Game game_status, int player);
 void announce_bankruptcy(Player players[], Cell board[], Game game_status, int player);
+Status calculate_player_status(Player player, Cell board[]);
+
+// Functions in board.c
+void initialize_game(Cell board[]);
+void generate_board(Cell board[]);
+void initialize_players(Player players[]);
+void generate_event_cards(Events national_events[], Regional regional_cards[]);
+void decide_player_order(Player players[], Game *game_status);
+
+// Functions in game.c
+void print_game_start();
+void print_round_summary(Game game_status, Player players[], Cell board[], Events national_events[]);
+void print_dynamic_market(Game game_status, Regional regional_cards[]);
+void print_game_over(Player players[], Cell board[]);
 void game_loop(Game *game_status, Player players[], Cell board[], Cell *property_groups[][3], Events national_events[], Regional regional_cards[]);
 
 // Functions in players.c
-Status calculate_player_status(Player player, Cell board[]);
 void player_actions(Player players[], Cell board[], Cell *property_groups[][3], Game *game_status, Events national_events[]);
 void check_for_bank_action(Player player[], Cell board[], Game game_status);
 void check_for_insurance_action(Player players[], Cell board[], Game game_status);
@@ -43,8 +50,8 @@ void extend_loan(Player *player);
 void refinance_loan(Player *player, Cell board[], Game game_status);
 void obtain_insurance(Player players[], Cell board[], Game game_status, int provider, int has_insurance, int place);
 void check_for_insurance_status(Cell board[]);
-void income_tax_payment(Player players[], Cell board[], Game game_status);
-void community_development_fund_payment(Player players[], Cell board[], Game game_status);
+void insurance_compensation(Cell board[], int property, int disaster, char *disaster_name);
+void tax_payments(Player players[], Cell board[], Game game_status, int tax);
 void settle_outstanding_penalties(Player *player, Cell board[], Game game_status);
 
 // Functions in events.c
