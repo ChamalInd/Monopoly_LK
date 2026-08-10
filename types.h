@@ -5,7 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
+#define SEED          time(NULL)
 #define NO_OF_PLAYERS          4
 #define NO_OF_CELLS           40
 #define TRUE                   1

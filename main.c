@@ -6,7 +6,7 @@
 
 int main(void) {
     Cell board[NO_OF_CELLS];
-    srand(1);
+    srand(SEED);
 
     initialize_game(board);
     return 0;

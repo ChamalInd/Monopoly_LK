@@ -39,6 +39,23 @@ int dice_roll(void) {
     return die_1 + die_2;
 }
 
+void sort_players(Player players[]) {
+    int swapped = TRUE;
+
+    while (swapped) {
+        swapped = FALSE;
+        for (int i = 0; i < NO_OF_PLAYERS - 1; i++) {
+            if (players[i].play_order > players[i + 1].play_order) {
+                Player temp;
+                temp = players[i];
+                players[i] = players[i + 1];
+                players[i + 1] = temp;
+                swapped = TRUE;
+            }
+        }
+    }
+}
+
 int decide_winner(Player players[], Cell board[]) {
     int winner_id = NONE, non_bankrupt_count = 0, max_net_worth = NONE;
     int non_bankrupt_players[NO_OF_PLAYERS] = {NONE, NONE, NONE, NONE};

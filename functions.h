@@ -9,6 +9,7 @@ int round_off(double num);
 void destroy_property(Cell *place);
 void unmortgage_property(Cell board[], Player player);
 int dice_roll(void);
+void sort_players(Player players[]);
 int decide_winner(Player players[], Cell board[]);
 void check_for_jailed(Player *player);
 void check_for_bankruptcy(Player players[], Cell board[], Game game_status, int player);
@@ -20,7 +21,7 @@ void initialize_game(Cell board[]);
 void generate_board(Cell board[]);
 void initialize_players(Player players[]);
 void generate_event_cards(Events national_events[], Regional regional_cards[]);
-void decide_player_order(Player players[], Game *game_status);
+void decide_player_order(Player players[]);
 
 // Functions in game.c
 void print_game_start();
