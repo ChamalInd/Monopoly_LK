@@ -233,7 +233,7 @@ void initialize_players(Player players[]) {
             .jail_status = (Jail) {FALSE, 0},
             .loan_status = (Loan) {0, 0, 0, 8}, 
             .events_own = 0,
-            .play_order = NO_OF_PLAYERS + 1,
+            .play_order = NO_OF_PLAYERS + 1, 
             .die_roll = NONE,
             .cash = STARTUP_CASH,
             .taxes_due = 0,
