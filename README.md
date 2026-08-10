@@ -27,46 +27,46 @@ The board contains 40 squares, indexed `0`–`39`, arranged clockwise.
 
 | # | Name | Type | Group |
 |---|------|------|-------|
-| 0 | GO | Start | — |
-| 1 | Pettah | Property | Brown |
-| 2 | Community Development Fund | Event (Tax) | — |
-| 3 | Maradana | Property | Brown |
-| 4 | Income Tax | Tax | — |
-| 5 | Colombo Fort Railway Station | Railway | — |
-| 6 | Bambalapitiya | Property | Light Blue |
-| 7 | National Event Card | Event | — |
-| 8 | Wellawatta | Property | Light Blue |
-| 9 | Mount Lavinia | Property | Light Blue |
-| 10 | Jail / Just Visiting | Special | — |
-| 11 | Nugegoda | Property | Pink |
-| 12 | Ceylon Electricity Board | Utility | — |
-| 13 | Maharagama | Property | Pink |
-| 14 | Kottawa | Property | Pink |
-| 15 | Kandy Railway Station | Railway | — |
-| 16 | Negombo | Property | Orange |
-| 17 | Sri Lanka Insurance | Insurance | — |
-| 18 | Katunayake | Property | Orange |
-| 19 | Ja-Ela | Property | Orange |
-| 20 | Free Parking | Special | — |
-| 21 | Kandy City | Property | Red |
-| 22 | National Event Card | Event | — |
-| 23 | Peradeniya | Property | Red |
-| 24 | Katugastota | Property | Red |
-| 25 | Galle Railway Station | Railway | — |
-| 26 | Galle Fort | Property | Yellow |
-| 27 | Unawatuna | Property | Yellow |
-| 28 | National Water Supply and Drainage Board | Utility | — |
-| 29 | Hikkaduwa | Property | Yellow |
-| 30 | Go To Jail | Special | — |
-| 31 | Jaffna Town | Property | Green |
-| 32 | Nallur | Property | Green |
-| 33 | Ceylinco Insurance | Insurance | — |
-| 34 | Trincomalee | Property | Green |
-| 35 | Jaffna Railway Station | Railway | — |
-| 36 | National Event Card | Event | — |
-| 37 | Nuwara Eliya | Property | Dark Blue |
-| 38 | Bank of Ceylon | Bank | — |
-| 39 | Galle Face | Property | Dark Blue |
+| 1 | GO | Start | — |
+| 2 | Pettah | Property | Brown |
+| 3 | Community Development Fund | Event (Tax) | — |
+| 4 | Maradana | Property | Brown |
+| 5 | Income Tax | Tax | — |
+| 6 | Colombo Fort Railway Station | Railway | — |
+| 7 | Bambalapitiya | Property | Light Blue |
+| 8 | National Event Card | Event | — |
+| 9 | Wellawatta | Property | Light Blue |
+| 10 | Mount Lavinia | Property | Light Blue |
+| 11 | Jail / Just Visiting | Special | — |
+| 12 | Nugegoda | Property | Pink |
+| 13 | Ceylon Electricity Board | Utility | — |
+| 14 | Maharagama | Property | Pink |
+| 15 | Kottawa | Property | Pink |
+| 16 | Kandy Railway Station | Railway | — |
+| 17 | Negombo | Property | Orange |
+| 18 | Sri Lanka Insurance | Insurance | — |
+| 19 | Katunayake | Property | Orange |
+| 20 | Ja-Ela | Property | Orange |
+| 21 | Free Parking | Special | — |
+| 22 | Kandy City | Property | Red |
+| 23 | National Event Card | Event | — |
+| 24 | Peradeniya | Property | Red |
+| 25 | Katugastota | Property | Red |
+| 26 | Galle Railway Station | Railway | — |
+| 27 | Galle Fort | Property | Yellow |
+| 28 | Unawatuna | Property | Yellow |
+| 29 | National Water Supply and Drainage Board | Utility | — |
+| 30 | Hikkaduwa | Property | Yellow |
+| 31 | Go To Jail | Special | — |
+| 32 | Jaffna Town | Property | Green |
+| 33 | Nallur | Property | Green |
+| 34 | Ceylinco Insurance | Insurance | — |
+| 35 | Trincomalee | Property | Green |
+| 36 | Jaffna Railway Station | Railway | — |
+| 37 | National Event Card | Event | — |
+| 38 | Nuwara Eliya | Property | Dark Blue |
+| 39 | Bank of Ceylon | Bank | — |
+| 40 | Galle Face | Property | Dark Blue |
 
 ---
 
