@@ -45,7 +45,7 @@ void sort_players(Player players[]) {
     while (swapped) {
         swapped = FALSE;
         for (int i = 0; i < NO_OF_PLAYERS - 1; i++) {
-            if (players[i].play_order > players[i + 1].play_order) {
+            if (players[i].play_order == FALSE && players[i].die_roll < players[i + 1].die_roll) {
                 Player temp;
                 temp = players[i];
                 players[i] = players[i + 1];

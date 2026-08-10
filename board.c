@@ -233,7 +233,7 @@ void initialize_players(Player players[]) {
             .jail_status = (Jail) {FALSE, 0},
             .loan_status = (Loan) {0, 0, 0, 8}, 
             .events_own = 0,
-            .play_order = NO_OF_PLAYERS + 1, 
+            .play_order = FALSE, 
             .die_roll = NONE,
             .cash = STARTUP_CASH,
             .taxes_due = 0,
@@ -304,53 +304,48 @@ void generate_event_cards(Events national_events[], Regional regional_cards[]) {
 }
 
 void decide_player_order(Player players[]) {
-    int max[] = {-1, -1};
-    int i = 0, assigned_players = 0, count;
+    int assigned_players = 0, count;
 
-    while (assigned_players < 4) {
-        for (i = 0; i < NO_OF_PLAYERS; i++) {
-            if (players[i].play_order == 5) {
+    while (assigned_players < NO_OF_PLAYERS) {
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
+            if (players[i].play_order == FALSE) {
                 players[i].die_roll = dice_roll();
                 printf("%s rolls %i.\n", players[i].name, players[i].die_roll);
             }
         }
-           
-        for (int x = assigned_players; x < NO_OF_PLAYERS; x++) {
-            max[0] = 0;
-            for (int y = 0; y < NO_OF_PLAYERS; y++) {
-                if (players[y].play_order == 5 && max[0] < players[y].die_roll) {
-                    max[0] = players[y].die_roll;
-                    max[1] = y;
-                }
-            }
-            count = 0;
-            for (int y = 0; y < NO_OF_PLAYERS; y++) {
-                if (players[y].play_order == 5 && max[0] == players[y].die_roll) {
-                    count++;
-                     }
-            }
-            if (count != 1) {
-                continue;
-            }
-            
-            players[max[1]].play_order = x + 1;
-        }
 
         sort_players(players);
+        
+        for (int x = 0; x < NO_OF_PLAYERS; x++) {
+            count = 0;
+            if (players[x].play_order == FALSE) {
+                for (int y = 0; y < NO_OF_PLAYERS; y++) {
+                    if (players[y].play_order == FALSE && players[x].die_roll == players[y].die_roll) {
+                        count++;
+                    }
+                }
+            }
+            
+            if (count > 1) {
+                players[x].play_order = FALSE;
+            } else {
+                players[x].play_order = TRUE;
+            }
+        }
 
         printf("\n");
 
         assigned_players = 0;
-        for (i = 0; i < NO_OF_PLAYERS; i++) {
-            if (players[i].play_order != 5) {
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
+            if (players[i].play_order == TRUE) {
                 assigned_players++;
             }
-        }  
+        } 
     }
 
     printf("%s will begin the game.\n\n", players[0].name);
     printf("Turn order:\n");
-    for (i = 0; i < NO_OF_PLAYERS; i++) {
+    for (int i = 0; i < NO_OF_PLAYERS; i++) {
         printf("%s\n", players[i].name);
     }
     printf("\n");
