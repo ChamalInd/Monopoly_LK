@@ -60,10 +60,10 @@ void property_depreciation(Cell board[], Game game_status);
 void building_depreciation(Cell board[]);
 void inflation(Cell board[], Game *game_status);
 void dynamic_property_market(Cell *property_groups[][3], Game *game_status, int event);
-void disaster_occurrence(Cell board[], Game game_status);
+void disaster_occurrence(Player players[], Cell board[], Game game_status);
 void national_event_card_draw(Player players[], Cell board[], Events national_events[], Game *game_status);
 void national_event_card_expiry(Player players[], Cell board[], Game *game_status);
-void economic_events(Cell board[], Game *game_status);
+void economic_events(Player players[], Cell board[], Game *game_status);
 void government_regulations(Cell board[], Game *game_status);
 void regional_card_draw(Cell board[], Game *game_status);
 

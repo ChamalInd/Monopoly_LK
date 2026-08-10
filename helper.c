@@ -16,12 +16,7 @@ void destroy_property(Cell *place) {
     place->ownerptr = NULL;
     place->insurance = (Insurance) {NO_INSURANCE, NONE, 0};
     place->depreciation = (Depreciation) {0, 0};
-    place->buildings.no_of_hotels = 0;
-    place->buildings.no_of_houses = 0;
-    place->buildings.condition = 100;
-    place->buildings.rent_reduction_rate = 0;
-    place->buildings.age = 0;
-    place->buildings.has_damaged = FALSE;
+    place->buildings = (Building) {0, 0, 100, 0, 0, FALSE};
 }
 
 void unmortgage_property(Cell board[], Player player) {

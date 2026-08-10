@@ -180,7 +180,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 
         if (pass_go) {
             players[game_status->current_player].cash += GO_REWARD;
-            round_tracker[game_status->current_player] = 1;
+            round_tracker[game_status->current_player]++;
 
             settle_outstanding_penalties(&players[game_status->current_player], board, *game_status);
             accumulated_interest(&players[game_status->current_player]);
@@ -206,7 +206,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
             // tasks happening at every round
             game_status->rounds++;
             for (int i = 0; i < NO_OF_PLAYERS; i++) {
-                round_tracker[i] = 0;
+                round_tracker[i]--;
             }
 
             if (game_status->rounds == MAX_ROUNDS) {
@@ -222,7 +222,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
 
             if (game_status->rounds % 10 == 0) {
                 inflation(board, game_status);
-                disaster_occurrence(board, *game_status);
+                disaster_occurrence(players, board, *game_status);
 
                 for (int i = 0; i < 2; i++) {
                     dynamic_property_market(property_groups, game_status, i);
@@ -230,7 +230,7 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
             }
 
             if (game_status->rounds % 15 == 0) {
-                economic_events(board, game_status);
+                economic_events(players, board, game_status);
                 regional_card_draw(board, game_status);
             }
 

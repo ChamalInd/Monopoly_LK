@@ -115,7 +115,7 @@ void dynamic_property_market(Cell *property_groups[][3], Game *game_status, int 
     }
 }
 
-void disaster_occurrence(Cell board[], Game game_status) {
+void disaster_occurrence(Player players[], Cell board[], Game game_status) {
     int property = rand() % 40, disaster = 0;
     int available[NO_OF_CELLS];
     int available_count = 0;
@@ -132,15 +132,20 @@ void disaster_occurrence(Cell board[], Game game_status) {
 
         disaster = rand() % 6;
 
-        if (game_status.economic_event == HEAVY_MONSOON || board[property].ownerptr->events[HEAVY_FLOODS].remaining_effect > 0) {
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
+            if (players[i].events[HEAVY_FLOODS].remaining_effect > 0) {
+                disaster = 1;
+                break;
+            } else if (players[i].events[NATIONAL_DISASTER].remaining_effect > 0) {
+                disaster = 4;
+            }
+        }
+
+        if (game_status.economic_event == HEAVY_MONSOON) {
             disaster = 1;
 
         } else if (game_status.economic_event == POLITICAL_UNREST) {
             disaster = 2;
-        }
-
-        if (board[property].ownerptr->events[NATIONAL_DISASTER].remaining_effect > 0) {
-            disaster = 4;
         }
 
         board[property].ownerptr->has_disaster_occurred = TRUE;
@@ -172,6 +177,7 @@ void national_event_card_draw(Player players[], Cell board[], Events national_ev
         }
         case HEAVY_FLOODS : {
             players[player].events[current_event].remaining_effect = 1;
+            disaster_occurrence(players, board, *game_status);
             break;
         }
         case POLITICAL_RALLY : {
@@ -183,6 +189,7 @@ void national_event_card_draw(Player players[], Cell board[], Events national_ev
 
             players[player].events[POLITICAL_RALLY].property = rand_property;
             board[rand_property].buildings.has_damaged = TRUE;
+            printf("%s is closed for 2 rounds.\n\n", board[rand_property].name);
             break;
         }
         case STOCK_MARKET_RISE : {
@@ -290,6 +297,7 @@ void national_event_card_draw(Player players[], Cell board[], Events national_ev
         }
         case NATIONAL_DISASTER : {
             players[player].events[current_event].remaining_effect = 1;
+            disaster_occurrence(players, board, *game_status);
             break;
         }
         default : {
@@ -322,6 +330,7 @@ void national_event_card_expiry(Player players[], Cell board[], Game *game_statu
                     if (players[player].events[POLITICAL_RALLY].property != NONE && board[players[player].events[POLITICAL_RALLY].property].buildings.condition >= 25) {
                         board[players[player].events[POLITICAL_RALLY].property].buildings.has_damaged = FALSE;
                     }
+                    printf("%s is open again.\n\n", board[players[player].events[POLITICAL_RALLY].property].name);
                     players[player].events[POLITICAL_RALLY].property = NONE;
                     break;
                 }
@@ -398,7 +407,7 @@ void national_event_card_expiry(Player players[], Cell board[], Game *game_statu
     }
 }
 
-void economic_events(Cell board[], Game *game_status) {
+void economic_events(Player players[], Cell board[], Game *game_status) {
     switch (game_status->economic_event) {
         case TOURISM_BOOM : {
             for (int i = 0; i < NO_OF_CELLS; i++) {
@@ -517,6 +526,7 @@ void economic_events(Cell board[], Game *game_status) {
             board[34].value.current_market_price -= round_off(board[34].value.current_market_price * (10.0 / 100.0)); // trincomalee
             board[39].value.current_market_price -= round_off(board[39].value.current_market_price * (10.0 / 100.0)); // galle face
             printf("Economic Event\n\tHeavy Monsoon\n\tCoastal properties lose 10%% value.\n\n");
+            disaster_occurrence(players, board, *game_status);
             break;
         }
         case ECONOMIC_RECESSION : {
