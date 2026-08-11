@@ -182,13 +182,12 @@ void game_loop(Game *game_status, Player players[], Cell board[], Cell *property
             players[game_status->current_player].cash += GO_REWARD;
             round_tracker[game_status->current_player]++;
 
-            settle_outstanding_penalties(&players[game_status->current_player], board, *game_status);
             accumulated_interest(&players[game_status->current_player]);
             check_for_loan_status(players, board, *game_status);
             national_event_card_expiry(players, board, game_status);
             
             printf("%s passed GO.\n", players[game_status->current_player].name);
-            printf("Collected LKR 2000.\nCurrent Balance LKR %i.\n\n", players[game_status->current_player].cash);
+            printf("Collected LKR %i.\nCurrent Balance LKR %i.\n\n", GO_REWARD, players[game_status->current_player].cash);
         }
 
         round_done = TRUE;

@@ -54,6 +54,7 @@ void inflation(Cell board[], Game *game_status) {
     game_status->inflation_rate = inflation_rates[rand() % (sizeof(inflation_rates) / sizeof(int))];
     double inflation_value = 1.0 + ((double) game_status->inflation_rate / 100.0);
     game_status->interest_rate = game_status->interest_rate * inflation_value;
+    game_status->community_fund_rate = game_status->community_fund_rate * inflation_value;
 
     for (int i = 0; i < NO_OF_CELLS; i++) {
         if (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY) {
@@ -197,6 +198,7 @@ void national_event_card_draw(Player players[], Cell board[], Events national_ev
             for (int i = 0; i < NO_OF_CELLS; i++) {
                 if (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY) {
                     board[i].value.market_price += round_off((double) board[i].value.market_price * (10.0 / 100.0));
+                    board[i].value.current_market_price += round_off((double) board[i].value.current_market_price * (10.0 / 100.0));
                 }
             }
             break;
@@ -206,6 +208,7 @@ void national_event_card_draw(Player players[], Cell board[], Events national_ev
             for (int i = 0; i < NO_OF_CELLS; i++) {
                 if (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY) {
                     board[i].value.market_price -= round_off((double) board[i].value.market_price * (15.0 / 100.0));
+                    board[i].value.current_market_price -= round_off((double) board[i].value.current_market_price * (15.0 / 100.0));
                 }
             }
             break;
@@ -247,6 +250,7 @@ void national_event_card_draw(Player players[], Cell board[], Events national_ev
             for (int i = 0; i < NO_OF_CELLS; i++) {
                 if (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY) {
                     board[i].value.market_price += round_off((double) board[i].value.market_price * (15.0 / 100.0));
+                    board[i].value.current_market_price += round_off((double) board[i].value.current_market_price * (15.0 / 100.0));
                 }
             }
             break;
@@ -256,6 +260,7 @@ void national_event_card_draw(Player players[], Cell board[], Events national_ev
             for (int i = 0; i < NO_OF_CELLS; i++) {
                 if (board[i].type == RAILWAY) {
                     board[i].value.market_price += round_off((double) board[i].value.market_price * (20.0 / 100.0));
+                    board[i].value.current_market_price += round_off((double) board[i].value.current_market_price * (20.0 / 100.0));
                 }
             }
             break;
@@ -271,6 +276,7 @@ void national_event_card_draw(Player players[], Cell board[], Events national_ev
             for (int i = 0; i < NO_OF_CELLS; i++) {
                 if (board[i].group == players[player].events[PROPERTY_REVALUATION].property) {
                     board[i].value.market_price += round_off((double) board[i].value.market_price * (15.0 / 100.0));
+                    board[i].value.current_market_price += round_off((double) board[i].value.current_market_price * (15.0 / 100.0));
                 }
             }
             break;
@@ -338,6 +344,7 @@ void national_event_card_expiry(Player players[], Cell board[], Game *game_statu
                     for (int j = 0; j < NO_OF_CELLS; j++) {
                         if (board[j].type == PROPERTY || board[j].type == RAILWAY || board[j].type == UTILITY) {
                             board[j].value.market_price -= round_off((double) board[j].value.market_price * (10.0 / 100.0));
+                            board[j].value.current_market_price -= round_off((double) board[j].value.current_market_price * (10.0 / 100.0));
                         }   
                     }
                     break;
@@ -346,6 +353,7 @@ void national_event_card_expiry(Player players[], Cell board[], Game *game_statu
                     for (int j = 0; j < NO_OF_CELLS; j++) {
                         if (board[j].type == PROPERTY || board[j].type == RAILWAY || board[j].type == UTILITY) {
                             board[j].value.market_price += round_off((double) board[j].value.market_price * (15.0 / 100.0));
+                            board[j].value.current_market_price += round_off((double) board[j].value.current_market_price * (15.0 / 100.0));
                         }                        
                     }
                     break;
@@ -370,6 +378,7 @@ void national_event_card_expiry(Player players[], Cell board[], Game *game_statu
                     for (int j = 0; j < NO_OF_CELLS; j++) {
                         if (board[j].type == PROPERTY || board[j].type == RAILWAY || board[j].type == UTILITY) {
                             board[j].value.market_price -= round_off((double) board[j].value.market_price * (15.0 / 100.0));
+                            board[j].value.current_market_price -= round_off((double) board[j].value.current_market_price * (15.0 / 100.0));
                         }
                     }
                     break;
@@ -378,6 +387,7 @@ void national_event_card_expiry(Player players[], Cell board[], Game *game_statu
                     for (int j = 0; j < NO_OF_CELLS; j++) {
                         if (board[j].type == RAILWAY) {
                             board[j].value.market_price -= round_off((double) board[j].value.market_price * (20.0 / 100.0));
+                            board[j].value.current_market_price -= round_off((double) board[j].value.current_market_price * (20.0 / 100.0));
                         }
                     }
                     break;
@@ -386,6 +396,7 @@ void national_event_card_expiry(Player players[], Cell board[], Game *game_statu
                     for (int j = 0; j < NO_OF_CELLS; j++) {
                         if (board[j].group == players[player].events[PROPERTY_REVALUATION].property) {
                             board[j].value.market_price -= round_off((double) board[j].value.market_price * (15.0 / 100.0));
+                            board[j].value.current_market_price -= round_off((double) board[j].value.current_market_price * (15.0 / 100.0));
                         }
                     }
                     players[player].events[PROPERTY_REVALUATION].property = NONE;

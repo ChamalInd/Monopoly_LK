@@ -9,6 +9,8 @@ void player_actions(Player players[], Cell board[], Cell *property_groups[][3], 
         printf("%s Landed on %s.\n\n", players[player].name, board[place_id].name);
     }
 
+    settle_outstanding_penalties(&players[game_status->current_player], board, *game_status);
+
     if (board[place_id].type == PROPERTY || board[place_id].type == RAILWAY || board[place_id].type == UTILITY) {
         if (board[place_id].type == PROPERTY && board[place_id].owner == players[player].id) {
             if (board[place_id].group != NO_COLOR && players[player].events[LABOUR_STRIKE].remaining_effect <= 0) {
@@ -193,7 +195,7 @@ void buy(Player players[], Cell board[], Game game_status) {
             break;
         }
         case CONSERVATIVE_BANKER : {
-            going_to_buy = game_status.economic_event != ECONOMIC_RECESSION && (board[place_id].type == RAILWAY || board[place_id].type == UTILITY || (board[place_id].type == PROPERTY && round_off(players[player].cash / 2.0) >= board[place_id].value.market_price));
+            going_to_buy = game_status.economic_event != ECONOMIC_RECESSION && ((players[player].cash >= board[place_id].value.market_price && (board[place_id].type == RAILWAY || board[place_id].type == UTILITY)) || (round_off(players[player].cash / 2.0) >= board[place_id].value.market_price && board[place_id].type == PROPERTY));
             break;
         }
         case RISK_TAKER : {
@@ -464,7 +466,7 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
             rent = round_off((double) rent * (150.0 / 100.0));
         }
         // for political unrest
-        if (game_status.economic_event == POLITICAL_UNREST) {
+        if (game_status.economic_event == POLITICAL_UNREST && place->buildings.no_of_hotels > 0) {
             rent = round_off((double) rent * (50.0 / 100.0));
         }
         // for southern tourism boom
@@ -572,7 +574,7 @@ void constructions(Player players[], Cell board[], Cell *property_groups[][3], G
     }
 
     int going_to_build_houses = FALSE, going_to_build_hotels = FALSE;
-    int basic_housing_rules = board[place_id].buildings.no_of_houses < 4 && board[place_id].buildings.no_of_hotels == 0 && players[player].cash >= board[place_id].value.house_construction_cost;
+    int basic_housing_rules = board[place_id].buildings.no_of_houses < 4 && players[player].cash >= board[place_id].value.house_construction_cost;
     int basic_hotel_rules = board[place_id].buildings.no_of_houses == 4 && players[player].cash >= board[place_id].value.hotel_construction_cost;
 
     switch (players[player].id) {

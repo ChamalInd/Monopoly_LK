@@ -113,7 +113,7 @@ void check_for_jailed(Player *player) {
 void check_for_bankruptcy(Player players[], Cell board[], Game game_status, int player) {
     Status player_status = calculate_player_status(players[player], board);
     
-    if (players[player].isBankrupt == FALSE && player_status.net_worth <= 0) {
+    if (players[player].isBankrupt == FALSE && player_status.net_worth < 0) {
         players[player].isBankrupt = TRUE;
         announce_bankruptcy(players, board, game_status, player);
     } 
