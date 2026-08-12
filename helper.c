@@ -9,6 +9,29 @@ int round_off(double num) {
     }
 }
 
+void add_items(int int_array[], char *str_array[], char *file_name, int type) {
+    FILE *fp = fopen(file_name, "r");
+    char buffer[100];
+    int i = 0;
+
+    while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+        size_t len = strlen(buffer);
+        if (len > 0 && buffer[len - 1] == '\n') {
+            buffer[len - 1] = '\0';
+        }
+
+        if (type == STRING) {
+            str_array[i] = strdup(buffer);
+
+        } else {
+            int_array[i] = atoi(buffer);
+        }
+        i++;
+    }
+
+    fclose(fp);
+}
+
 void destroy_property(Cell *place) {
     place->mortgage.status = UNMORTGAGED;
     place->owner = BANK_OF_CEYLON;

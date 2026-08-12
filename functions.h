@@ -6,6 +6,7 @@
 
 // Functions in helper.c
 int round_off(double num);
+void add_items(int int_array[], char *str_array[], char *file_name, int type);
 void destroy_property(Cell *place);
 void unmortgage_property(Cell board[], Player player);
 int dice_roll(void);

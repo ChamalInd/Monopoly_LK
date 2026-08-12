@@ -13,12 +13,15 @@
 #define TRUE                   1
 #define FALSE                  0
 #define NONE                  -1
-#define INITIAL_INTEREST_RATE  8
+#define INITIAL_INTEREST_RATE  8 // assuming stable economy
 #define MAX_DEPRECIATION      30
 #define MAX_ROUNDS           500
 #define STARTUP_CASH       30000
 #define GO_REWARD           2000
 #define HIGH_VALUE_PROPERTY 5000
+#define BUFFER_SIZE          100
+#define INTEGER                0
+#define STRING                 1
 
 // Declaring data structures required for players
 typedef struct{

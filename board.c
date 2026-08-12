@@ -36,7 +36,7 @@ void initialize_game(Cell board[]) {
         .regional_card = NONE,
         .national_event_pointer = 0,
         .inflation_rate = 0,
-        .interest_rate = (float) INITIAL_INTEREST_RATE,  // assuming stable economy
+        .interest_rate = (float) INITIAL_INTEREST_RATE,  
         .income_tax_rate = 15.0f,
         .community_fund_rate = 10.0f
     };
@@ -50,136 +50,25 @@ void initialize_game(Cell board[]) {
 }
 
 void generate_board(Cell board[]) {
-    char *cell_names[NO_OF_CELLS] = {
-        "GO",
-        "Pettah",
-        "Community Development Fund",
-        "Maradana",
-        "Income Tax",
-        "Colombo Fort Railway Station",
-        "Bambalapitiya",
-        "National Event Cards",
-        "Wellawatta",
-        "Mount Lavinia",
-        "Jail (Just Visiting)",
-        "Nugegoda",
-        "Ceylon Electricity Board",
-        "Maharagama",
-        "Kottawa",
-        "Kandy Railway Station",
-        "Negombo",
-        "Sri Lanka Insurance",
-        "Katunayake",
-        "Ja-Ela",
-        "Free Parking",
-        "Kandy City",
-        "National Event Card",
-        "Peradeniya",
-        "Katugastota",
-        "Galle Railway Station",
-        "Galle Fort",
-        "Unawatuna",
-        "National Water Supply and Drainage Board",
-        "Hikkaduwa",
-        "Go To Jail",
-        "Jaffna Town",
-        "Nallur",
-        "Ceylinco Insurance",
-        "Trincomalee",
-        "Jaffna Railway Station",
-        "National Event Card",
-        "Nuwara Eliya",
-        "Bank of Ceylon",
-        "Galle Face"
-    };
-
-    Type cell_types[NO_OF_CELLS] = {
-        START,      PROPERTY,   EVENT,          PROPERTY,   TAX,
-        RAILWAY,    PROPERTY,   EVENT,          PROPERTY,   PROPERTY,
-        SPECIAL,    PROPERTY,   UTILITY,        PROPERTY,   PROPERTY,
-        RAILWAY,    PROPERTY,   SRI_LANKA_INSURANCE,      PROPERTY,   PROPERTY,
-        SPECIAL,    PROPERTY,   EVENT,          PROPERTY,   PROPERTY,
-        RAILWAY,    PROPERTY,   PROPERTY,       UTILITY,    PROPERTY,
-        SPECIAL,    PROPERTY,   PROPERTY,       CEYLINCO,  PROPERTY,
-        RAILWAY,    EVENT,      PROPERTY,       BANK,       PROPERTY
-    };
-
-    Color cell_colors[NO_OF_CELLS] = {
-        NO_COLOR,   BROWN,      NO_COLOR,    BROWN,      NO_COLOR,
-        NO_COLOR,   LIGHT_BLUE, NO_COLOR,    LIGHT_BLUE, LIGHT_BLUE,
-        NO_COLOR,   PINK,       NO_COLOR,    PINK,       PINK,
-        NO_COLOR,   ORANGE,     NO_COLOR,    ORANGE,     ORANGE,
-        NO_COLOR,   RED,        NO_COLOR,    RED,        RED,
-        NO_COLOR,   YELLOW,     YELLOW,      NO_COLOR,   YELLOW,
-        NO_COLOR,   GREEN,      GREEN,       NO_COLOR,   GREEN,
-        NO_COLOR,   NO_COLOR,   DARK_BLUE,   NO_COLOR,   DARK_BLUE
-    };
-
-    Ownership cell_owners[NO_OF_CELLS] = {
-        NO_OWNER,       BANK_OF_CEYLON, NO_OWNER,       BANK_OF_CEYLON, NO_OWNER,
-        BANK_OF_CEYLON, BANK_OF_CEYLON, NO_OWNER,       BANK_OF_CEYLON, BANK_OF_CEYLON,
-        NO_OWNER,       BANK_OF_CEYLON, BANK_OF_CEYLON, BANK_OF_CEYLON, BANK_OF_CEYLON,
-        BANK_OF_CEYLON, BANK_OF_CEYLON, NO_OWNER,       BANK_OF_CEYLON, BANK_OF_CEYLON,
-        NO_OWNER,       BANK_OF_CEYLON, NO_OWNER,       BANK_OF_CEYLON, BANK_OF_CEYLON,
-        BANK_OF_CEYLON, BANK_OF_CEYLON, BANK_OF_CEYLON, BANK_OF_CEYLON, BANK_OF_CEYLON,
-        NO_OWNER,       BANK_OF_CEYLON, BANK_OF_CEYLON, NO_OWNER,       BANK_OF_CEYLON,
-        BANK_OF_CEYLON, NO_OWNER,       BANK_OF_CEYLON, NO_OWNER,       BANK_OF_CEYLON
-    };
-
-    int cell_base_price[NO_OF_CELLS] = {
-        NONE,  1500,   NONE,   1800,   NONE,
-        1500,  2500,   NONE,   2700,   3000,
-        NONE,  3500,   1500,   3800,   4000,
-        1500,  4500,   NONE,   4700,   5000,
-        NONE,  5500,   NONE,   5800,   6000,
-        1500,  6500,   6800,   1500,   7000,
-        NONE,  8000,   8300,   NONE,   8500,
-        1500,  NONE,  10000,   NONE,  12000
-    };
-
-    int cell_base_rent[NO_OF_CELLS] = {
-        NONE, 100,  NONE, 120,  NONE,
-        NONE, 180,  NONE, 200,   220,
-        NONE, 260,  NONE, 280,   300,
-        NONE, 350,  NONE, 370,   400,
-        NONE, 450,  NONE, 480,   500,
-        NONE, 600,   620, NONE,  650,
-        NONE, 750,   780, NONE,  800,
-        NONE, NONE, 1000, NONE, 1200
-    };
-
-    int cell_price_of_house[NO_OF_CELLS] = {
-        NONE,   500,  NONE,   500,  NONE,
-        NONE,   750,  NONE,   750,   750,
-        NONE,  1000,  NONE,  1000,  1000,
-        NONE,  1250,  NONE,  1250,  1250,
-        NONE,  1500,  NONE,  1500,  1500,
-        NONE,  2000,  2000,  NONE,  2000,
-        NONE,  2500,  2500,  NONE,  2500,
-        NONE,  NONE,  3000,  NONE,  3000
-    };
-
-    int cell_price_of_hotel[NO_OF_CELLS] = {
-        NONE,  2000,  NONE,  2000,  NONE,
-        NONE,  3000,  NONE,  3000,  3000,
-        NONE,  4000,  NONE,  4000,  4000,
-        NONE,  5000,  NONE,  5000,  5000,
-        NONE,  6000,  NONE,  6000,  6000,
-        NONE,  8000,  8000,  NONE,  8000,
-        NONE, 10000, 10000,  NONE, 10000,
-        NONE,  NONE, 12000,  NONE, 12000
-    };
-
-    Mortgage_Status cell_mortgage_status[NO_OF_CELLS] = {
-        CANNOT_MORTGAGED, UNMORTGAGED, CANNOT_MORTGAGED, UNMORTGAGED, CANNOT_MORTGAGED,
-        UNMORTGAGED,      UNMORTGAGED, CANNOT_MORTGAGED, UNMORTGAGED, UNMORTGAGED,
-        CANNOT_MORTGAGED, UNMORTGAGED, UNMORTGAGED,      UNMORTGAGED, UNMORTGAGED,
-        UNMORTGAGED,      UNMORTGAGED, CANNOT_MORTGAGED, UNMORTGAGED, UNMORTGAGED,
-        CANNOT_MORTGAGED, UNMORTGAGED, CANNOT_MORTGAGED, UNMORTGAGED, UNMORTGAGED,
-        UNMORTGAGED,      UNMORTGAGED, UNMORTGAGED,      UNMORTGAGED, UNMORTGAGED,
-        CANNOT_MORTGAGED, UNMORTGAGED, UNMORTGAGED,      CANNOT_MORTGAGED, UNMORTGAGED,
-        UNMORTGAGED,      CANNOT_MORTGAGED, UNMORTGAGED, CANNOT_MORTGAGED, UNMORTGAGED
-    };
+    char *cell_names[NO_OF_CELLS];
+    int cell_types[NO_OF_CELLS];
+    int cell_colors[NO_OF_CELLS];
+    int cell_owners[NO_OF_CELLS];
+    int cell_base_price[NO_OF_CELLS];
+    int cell_base_rent[NO_OF_CELLS];
+    int cell_price_of_house[NO_OF_CELLS];
+    int cell_price_of_hotel[NO_OF_CELLS];
+    int cell_mortgage_status[NO_OF_CELLS];
+    
+    add_items(NULL, cell_names, "Data/cell_names", STRING);
+    add_items(cell_types, NULL, "Data/cell_types", INTEGER);
+    add_items(cell_colors, NULL, "Data/cell_colors", INTEGER);
+    add_items(cell_owners, NULL, "Data/cell_owners", INTEGER);
+    add_items(cell_base_price, NULL, "Data/base_price", INTEGER);
+    add_items(cell_base_rent, NULL, "Data/base_rent", INTEGER);
+    add_items(cell_price_of_house, NULL, "Data/house_cost", INTEGER);
+    add_items(cell_price_of_hotel, NULL, "Data/hotel_cost", INTEGER);
+    add_items(cell_mortgage_status, NULL, "Data/mortgage_status", INTEGER);
 
     for (int i = 0; i < NO_OF_CELLS; i++) {
         board[i] = (Cell) {
@@ -247,45 +136,11 @@ void initialize_players(Player players[]) {
 }
 
 void generate_event_cards(Events national_events[], Regional regional_cards[]) {
-    char *event_names[] = {
-        "Tourism Hype", "Fuel Shortage", "Heavy Floods", "Political Rally", 
-        "Stock Market Rise", "Economic Downturn", "Housing Subsidy", 
-        "Interest Rate Cut", "Interest Rate Increase", "Tax Amnesty", 
-        "Power Failure", "Foreign Funding", "Port Expansion", "Festival Season", 
-        "Labour Strike", "Insurance Discount", "Property Revaluation", 
-        "Currency Depreciation", "Government Grant", "National Disaster"
-    };
+    char *event_names[20];
+    char *event_description[20];
 
-    char *event_description[] = {
-        "Hotels earn double rent for 5 rounds",
-        "Railway rent doubles for 5 rounds",
-        "Random coastal property damaged",
-        "One random property closed for 2 rounds",
-        "All property values increase by 10%",
-        "Property values decrease by 15%",
-        "House construction cost reduced by 30%",
-        "Loan interest reduced by 2%",
-        "Loan interest increased by 2%",
-        "Each player receives LKR 2,000",
-        "Utility income halved for 3 rounds",
-        "Commercial property values increase by 15%",
-        "Railway station values increase by 20%",
-        "Hotels receive 50% additional rent",
-        "Construction suspended for 2 rounds",
-        "Premiums reduced by 20%",
-        "Random property group appreciates by 15%",
-        "Construction costs increase by 10%",
-        "Random player receives LKR 5,000",
-        "Random developed property damaged"
-    };
-
-    char *regional_names[] = {
-        "Southern Tourism Boom", "Port City Expansion", "IT Industry Growth", "Northern Development Programme", 
-        "Tea Export Boom", "Airport Expansion", "University City Growth", "Beach Pollution",
-        "Flood Damage", "Transport Strike", "Electricity Tariff Increase", "Water Shortage"
-    };
-
-    char *regional_values[] = {"+40%", "+25%", "+20%", "+30%", "+35%", "+30%", "+20%", "-30%", "-20%", "-40%", "+25%", "+20%"};
+    add_items(NULL, event_names, "Data/event_names", STRING);
+    add_items(NULL, event_description, "Data/event_description", STRING);
 
     for (int i = 0; i < 20; i++) {
         national_events[i] = (Events) {
@@ -293,6 +148,12 @@ void generate_event_cards(Events national_events[], Regional regional_cards[]) {
             .event = event_description[i]
         };
     }
+
+    char *regional_names[12];
+    char *regional_values[12];
+
+    add_items(NULL, regional_names, "Data/regional_names", STRING);
+    add_items(NULL, regional_values, "Data/regional_values", STRING);
 
     for (int i = 0; i < 12; i++) {
         regional_cards[i] = (Regional) {
