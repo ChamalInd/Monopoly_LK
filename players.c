@@ -67,7 +67,7 @@ void check_for_bank_action(Player players[], Cell board[], Game game_status) {
                     // refinance loan when necessary
                     refinance_loan(&players[player], board, game_status);
                 
-                } else if (players[player].cash >= (players[player].loan_status.total_payable * 2)) {
+                } else if (players[player].cash >= ((players[player].loan_status.total_payable + players[player].loan_status.accumulated_interest) * 2)) {
                     // if cash is more than double the payable, pay the loan
                     repay_outstanding_loan(players, board, game_status);
 
@@ -88,7 +88,7 @@ void check_for_bank_action(Player players[], Cell board[], Game game_status) {
                     // refinance loan when necessary
                     refinance_loan(&players[player], board, game_status);
 
-                } else if (players[player].cash >= players[player].loan_status.total_payable) {
+                } else if (players[player].cash >= (players[player].loan_status.total_payable + players[player].loan_status.accumulated_interest)) {
                     // pay loans when sufficient funds exists
                     repay_outstanding_loan(players, board, game_status);  
 
@@ -144,7 +144,7 @@ void check_for_bank_action(Player players[], Cell board[], Game game_status) {
                     // refinance loan when necessary
                     refinance_loan(&players[player], board, game_status);
 
-                } else if (players[player].cash >= players[player].loan_status.total_payable) {
+                } else if (players[player].cash >= (players[player].loan_status.total_payable + players[player].loan_status.accumulated_interest)) {
                     // pay loans when sufficient funds exists
                     repay_outstanding_loan(players, board, game_status);  
 
@@ -574,7 +574,7 @@ void constructions(Player players[], Cell board[], Cell *property_groups[][3], G
     }
 
     int going_to_build_houses = FALSE, going_to_build_hotels = FALSE;
-    int basic_housing_rules = board[place_id].buildings.no_of_houses < 4 && players[player].cash >= board[place_id].value.house_construction_cost;
+    int basic_housing_rules = board[place_id].buildings.no_of_houses < 4 && board[place_id].buildings.no_of_hotels == 0 && players[player].cash >= board[place_id].value.house_construction_cost;
     int basic_hotel_rules = board[place_id].buildings.no_of_houses == 4 && players[player].cash >= board[place_id].value.hotel_construction_cost;
 
     switch (players[player].id) {

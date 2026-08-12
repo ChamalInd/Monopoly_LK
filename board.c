@@ -36,7 +36,7 @@ void initialize_game(Cell board[]) {
         .regional_card = NONE,
         .national_event_pointer = 0,
         .inflation_rate = 0,
-        .interest_rate = 8.0f,  // assuming stable economy
+        .interest_rate = (float) INITIAL_INTEREST_RATE,  // assuming stable economy
         .income_tax_rate = 15.0f,
         .community_fund_rate = 10.0f
     };
@@ -231,7 +231,7 @@ void initialize_players(Player players[]) {
             .has_disaster_occurred = FALSE,
             .going_to_bid = FALSE,
             .jail_status = (Jail) {FALSE, 0},
-            .loan_status = (Loan) {0, 0, 0, 8}, 
+            .loan_status = (Loan) {0, 0, 0, 0, (float) INITIAL_INTEREST_RATE}, 
             .events_own = 0,
             .play_order = FALSE, 
             .die_roll = NONE,

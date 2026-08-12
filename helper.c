@@ -123,6 +123,7 @@ void announce_bankruptcy(Player players[], Cell board[], Game game_status, int p
     players[player].place = 0;
     players[player].cash = 0;
     players[player].loan_status.total_payable = 0;
+    players[player].loan_status.accumulated_interest = 0;
     printf("%s has been declared bankrupt.\n", players[player].name);
     printf("Remaining assets transferred to the Bank.\n\n");
 
@@ -175,6 +176,7 @@ Status calculate_player_status(Player player, Cell board[]) {
     }
 
     liabilities += player.loan_status.total_payable;
+    liabilities += player.loan_status.accumulated_interest;
     liabilities += player.taxes_due;
 
     net_worth = assets - liabilities;

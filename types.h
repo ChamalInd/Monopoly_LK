@@ -13,6 +13,7 @@
 #define TRUE                   1
 #define FALSE                  0
 #define NONE                  -1
+#define INITIAL_INTEREST_RATE  8
 #define MAX_DEPRECIATION      30
 #define MAX_ROUNDS           500
 #define STARTUP_CASH       30000
@@ -39,6 +40,7 @@ typedef struct {
     int no_of_loans;
     int loan_duration;
     int total_payable;
+    int accumulated_interest;
     float interest_rate;
 } Loan;
 

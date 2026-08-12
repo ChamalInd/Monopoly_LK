@@ -17,15 +17,21 @@ void obtain_loan(Player *player, Cell board[], Game game_status) {
 
     max_loan = ((double) total_unmortgaged_property_value) * (75.0 / 100.0);
 
-    player->cash += round_off(max_loan);
+    if (player->loan_status.total_payable > 0) {
+        player->cash += round_off(max_loan - player->loan_status.total_payable);
+        
+    } else {
+        player->cash += round_off(max_loan);
+    }
+
     player->loan_status.no_of_loans++;
-    player->loan_status.total_payable += round_off(max_loan);
+    player->loan_status.total_payable = round_off(max_loan);
     player->loan_status.loan_duration = 20;
     player->loan_status.interest_rate = game_status.interest_rate;
 
     printf("%s obtained a secured loan.\n", player->name);
     printf("Loan Amount : LKR %i.\n", round_off(max_loan));
-    printf("Outstanding Loan Amount : LKR %i.\n", player->loan_status.total_payable);
+    printf("Outstanding Loan Amount : LKR %i.\n", player->loan_status.total_payable + player->loan_status.accumulated_interest);
     printf("\nCollateral : \n");
 
     for (int i = 0; i < no_of_collaterals; i++) {
@@ -39,8 +45,8 @@ void obtain_loan(Player *player, Cell board[], Game game_status) {
 
 void accumulated_interest(Player *player) {
     if (player->isBankrupt == FALSE && player->loan_status.no_of_loans == 1 && player->loan_status.loan_duration > 0) {
-        double interest = ((double) player->loan_status.total_payable) * (player->loan_status.interest_rate / 100.0);
-        player->loan_status.total_payable += round_off(interest);
+        double interest = ((double) player->loan_status.total_payable + player->loan_status.accumulated_interest) * (player->loan_status.interest_rate / 100.0);
+        player->loan_status.accumulated_interest = round_off(interest);
     }
 }
 
@@ -51,7 +57,7 @@ void check_for_loan_status(Player players[], Cell board[], Game game_status) {
         if (players[player].loan_status.loan_duration > 0) {
             players[player].loan_status.loan_duration--;
             if (players[player].loan_status.loan_duration == 3) {
-                printf("Loan of %s for LKR %i will overdue after 3 rounds.\n\n", players[player].name, players[player].loan_status.total_payable);
+                printf("Loan of %s for LKR %i will overdue after 3 rounds.\n\n", players[player].name, players[player].loan_status.total_payable + players[player].loan_status.accumulated_interest);
             }
         } 
         
@@ -59,6 +65,7 @@ void check_for_loan_status(Player players[], Cell board[], Game game_status) {
             players[player].loan_status.loan_duration = 0;
             players[player].loan_status.no_of_loans = 0;
             players[player].loan_status.total_payable = 0;
+            players[player].loan_status.accumulated_interest = 0;
         
             printf("%s has defaulted.\n", players[player].name);
             printf("Collateral has been foreclosed.\nOutstanding debt cleared.\n\n");
@@ -75,19 +82,19 @@ void check_for_loan_status(Player players[], Cell board[], Game game_status) {
 
 void repay_outstanding_loan(Player players[], Cell board[], Game game_status) {
     int player = game_status.current_player;
+    int amount = players[player].loan_status.total_payable + players[player].loan_status.accumulated_interest;
 
-    if (players[player].cash >= players[player].loan_status.total_payable) {
-        int amount = players[player].loan_status.total_payable;
-
+    if (players[player].cash >= amount) {
         players[player].loan_status.no_of_loans = 0;
         players[player].loan_status.loan_duration = 0;
         players[player].cash -= amount;
-        players[player].loan_status.total_payable -= amount;
+        players[player].loan_status.total_payable = 0;
+        players[player].loan_status.accumulated_interest = 0;
 
         unmortgage_property(board, players[player]);
 
         printf("%s repaid LKR %i.\n", players[player].name, amount);
-        printf("Outstanding Balance : \n\tLKR %i.\n\n", players[player].loan_status.total_payable);
+        printf("Outstanding Balance : \n\tLKR %i.\n\n", players[player].loan_status.total_payable + players[player].loan_status.accumulated_interest);
         
     } else {
         check_for_bankruptcy(players, board, game_status, player);
@@ -96,7 +103,7 @@ void repay_outstanding_loan(Player players[], Cell board[], Game game_status) {
 
 void extend_loan(Player *player) {
     player->loan_status.loan_duration = 20;
-    printf("%s extended the loan of LKR %i.\n", player->name, player->loan_status.total_payable);
+    printf("%s extended the loan of LKR %i.\n", player->name, player->loan_status.total_payable + player->loan_status.accumulated_interest);
     printf("Duration : %i.\n\n", player->loan_status.loan_duration);
 }
 
@@ -104,7 +111,6 @@ void refinance_loan(Player *player, Cell board[], Game game_status) {
     Status player_status = calculate_player_status(*player, board);
     if (player_status.unmortgaged_properties > 0) {
         player->loan_status.no_of_loans = 0;
-        player->loan_status.total_payable = 0;
 
         unmortgage_property(board, *player);
 

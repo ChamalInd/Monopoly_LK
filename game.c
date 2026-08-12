@@ -29,7 +29,7 @@ void print_round_summary(Game game_status, Player players[], Cell board[], Event
             printf("\n\t");
             printf(" %-16s : LKR %7i\n\t %-16s : LKR %7i\n\t", "Cash", players[i].cash, "Net Worth", player_status.net_worth);
             printf(" %-16s : %11i\n\t %-16s : %11i\n\t", "Properties", player_status.total_properties, "Hotels", player_status.hotels_built);
-            printf(" %-16s : LKR %7i\n\n", "Outstanding Loan", players[i].loan_status.total_payable);
+            printf(" %-16s : LKR %7i\n\n", "Outstanding Loan", players[i].loan_status.total_payable + players[i].loan_status.accumulated_interest);
             int present = FALSE;
             for (int j = 0; j < 20; j++) {
                 present = FALSE;
@@ -117,7 +117,7 @@ void print_game_over(Player players[], Cell board[]) {
 
         printf("\n%-20s : %s\n", "Winner", players[winner_id].name);
         printf("%-20s : LKR %6i\n%-20s : LKR %6i\n", "Total Cash", players[winner_id].cash, "Total Property Value", player_status.total_property_value);
-        printf("%-20s : LKR %6i\n%-20s : LKR %6i\n", "Outstanding Loans", players[winner_id].loan_status.total_payable, "Net Worth", player_status.net_worth);
+        printf("%-20s : LKR %6i\n%-20s : LKR %6i\n", "Outstanding Loans", players[winner_id].loan_status.total_payable + players[winner_id].loan_status.accumulated_interest, "Net Worth", player_status.net_worth);
     } else {
         printf("No Winner");
     }
