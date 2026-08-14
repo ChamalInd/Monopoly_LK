@@ -1,35 +1,78 @@
 # MONOPOLY-LK
 
-A Sri Lankan-themed simulation of Monopoly, written entirely in C for **SCS 1301 — Data Structures and Program Design using C** (University of Colombo School of Computing). Four autonomous, AI-controlled players — each with a distinct investment strategy — compete across a 40-square board modelled on real Sri Lankan locations, from Pettah to Galle Face, complete with banking, insurance, taxation, inflation, and a dynamic property market.
+A complete, autonomous Monopoly-style simulation set in Sri Lanka, written in C for
+**SCS 1301 — Data Structures and Program Design using C** at the University of Colombo
+School of Computing (UCSC).
 
-Once started, the simulation requires **no user interaction**. All buying, bidding, borrowing, insuring, building, and selling decisions are made programmatically by each player's assigned behavioral strategy.
+Four computer-controlled players — each following a distinct financial personality — buy,
+develop, mortgage, insure, borrow, and trade their way around a 40-square board modelled
+on real Sri Lankan locations, from Pettah and Maradana in Colombo to Jaffna, Trincomalee,
+and Galle Face. On top of classic Monopoly mechanics, the game layers banking, insurance,
+taxation, inflation, property depreciation, and a rotating dynamic property market to
+mirror the behaviour of the real Sri Lankan economy.
 
----
-
-## Overview
-
-MONOPOLY-LK follows the traditional structure of Monopoly — roll dice, move around the board, buy properties, collect rent, build houses and hotels — but layers in systems meant to mirror the Sri Lankan economy:
-
-- **Commercial banking** — secured loans against mortgaged collateral, interest accrual, refinancing, extensions, and foreclosure on default.
-- **Insurance** — three policy tiers (Basic, Comprehensive, Business Interruption) covering fire, flood, riot, vandalism, earthquake, and lost rental income.
-- **Taxation** — a flat Income Tax on net worth and a Community Development Fund levy on property holdings.
-- **Inflation & dynamic markets** — periodic inflation/deflation cycles and rotating property-group booms/declines that shift purchase prices, rents, and construction costs.
-- **Building depreciation & maintenance** — houses and hotels lose condition over time, cutting into rental income until the owner pays for upkeep.
-- **Random events** — 20 National Event Cards, 12 Regional Development Cards, 8 Economic Events, and 8 Government Regulations, each with a defined effect and expiry.
-
-The game runs for a maximum of **500 rounds**, or until only one player remains solvent — whichever comes first. The winner is whoever has the highest net worth at that point.
+Once the program starts, **no user interaction is required** — every purchase, bid, loan,
+insurance policy, and construction decision is made programmatically by each player's
+strategy. The simulation runs until one player remains solvent or **500 rounds** elapse,
+and the player with the highest net worth wins.
 
 ---
 
-## Board Layout
+## Quick Start
 
-The board contains 40 squares, indexed `0`–`39`, arranged clockwise.
+Requires a C99-compatible compiler (GCC recommended). No external libraries.
 
-| # | Name | Type | Group |
-|---|------|------|-------|
+```bash
+gcc *.c -o monopoly
+./monopoly
+```
+
+The run is fully deterministic: the RNG is seeded with a fixed constant (`SEED` in
+`types.h`), so the same build produces the same game every time — useful for debugging
+and for reproducible submissions. To keep a full log of a run:
+
+```bash
+./monopoly > output.txt
+```
+
+---
+
+## What Happens in a Turn
+
+Each round, every solvent, non-jailed player takes a turn in dice-determined order:
+
+1. **Resolve outstanding penalties** (e.g. Luxury Property Tax).
+2. **Roll two six-sided dice** and move clockwise around the board.
+3. **Resolve the landing square** — buy or auction a property, pay rent, draw an event
+   card, pay tax, take a loan, buy insurance, go to jail, or collect GO money
+   (LKR 2,000 when passing GO).
+4. **Build** houses/hotels if the player owns a monopoly, and **manage** finances.
+5. **End turn** — the next player goes.
+
+At the end of every round, global systems tick: buildings depreciate, properties age,
+insurance policies count down, and periodic events fire on fixed schedules.
+
+## Periodic Event Schedule
+
+| Interval | Trigger |
+|----------|---------|
+| Every round | Building condition decay, property ageing/depreciation, insurance expiry |
+| Every 10 rounds | New inflation rate, possible disaster, property-market review (boom + decline) |
+| Every 15 rounds | Economic event, Regional Development Card draw |
+| Every 20 rounds | New Government Regulation |
+
+---
+
+## The Board
+
+40 squares, indexed `0`–`39` clockwise (displayed to the user as Square 1–40), starting
+from GO.
+
+| # | Square | Type | Group |
+|---|--------|------|-------|
 | 1 | GO | Start | — |
 | 2 | Pettah | Property | Brown |
-| 3 | Community Development Fund | Event (Tax) | — |
+| 3 | Community Development Fund | Tax | — |
 | 4 | Maradana | Property | Brown |
 | 5 | Income Tax | Tax | — |
 | 6 | Colombo Fort Railway Station | Railway | — |
@@ -55,7 +98,7 @@ The board contains 40 squares, indexed `0`–`39`, arranged clockwise.
 | 26 | Galle Railway Station | Railway | — |
 | 27 | Galle Fort | Property | Yellow |
 | 28 | Unawatuna | Property | Yellow |
-| 29 | National Water Supply and Drainage Board | Utility | — |
+| 29 | NWSDB (Water Board) | Utility | — |
 | 30 | Hikkaduwa | Property | Yellow |
 | 31 | Go To Jail | Special | — |
 | 32 | Jaffna Town | Property | Green |
@@ -68,14 +111,14 @@ The board contains 40 squares, indexed `0`–`39`, arranged clockwise.
 | 39 | Bank of Ceylon | Bank | — |
 | 40 | Galle Face | Property | Dark Blue |
 
----
+### Properties
 
-## Property Groups & Values
+22 residential properties across 8 colour groups. Owning **every** property in a group
+establishes a monopoly, the only way to build. Buildings must be constructed evenly across
+a group, max 4 houses per property; a hotel replaces all 4 houses.
 
-Every property's mortgage value is fixed at exactly **50% of its purchase price**.
-
-| Group | Property | Price (LKR) | Base Rent | Mortgage | House Cost | Hotel Cost |
-|-------|----------|-------------:|----------:|---------:|-----------:|-----------:|
+| Group | Property | Price | Base Rent | Mortgage | House | Hotel |
+|-------|----------|------:|----------:|---------:|------:|------:|
 | Brown | Pettah | 1,500 | 100 | 750 | 500 | 2,000 |
 | Brown | Maradana | 1,800 | 120 | 900 | 500 | 2,000 |
 | Light Blue | Bambalapitiya | 2,500 | 180 | 1,250 | 750 | 3,000 |
@@ -99,83 +142,151 @@ Every property's mortgage value is fixed at exactly **50% of its purchase price*
 | Dark Blue | Nuwara Eliya | 10,000 | 1,000 | 5,000 | 3,000 | 12,000 |
 | Dark Blue | Galle Face | 12,000 | 1,200 | 6,000 | 3,000 | 12,000 |
 
-**Rent multipliers by development:** No buildings = 1×, 1 house = 2×, 2 houses = 3×, 3 houses = 5×, 4 houses = 7×, hotel = 10× base rent (before market/event/condition modifiers).
+Mortgage value is always **50% of purchase price**.
 
-## Railways & Utilities
+**Rent multipliers by development:** no buildings 1× · 1 house 2× · 2 houses 3× ·
+3 houses 5× · 4 houses 7× · hotel 10× the base rent (before market/event/condition
+modifiers).
 
-| Type | Purchase Price | Mortgage Value |
-|------|----------------:|----------------:|
-| Railway (×4) | LKR 1,500 | LKR 750 |
-| Utility (×2) | LKR 1,500 | LKR 750 |
+### Railways & Utilities
 
-- **Railway rent** scales with stations owned by the same player: 1 → LKR 250, 2 → LKR 500, 3 → LKR 1,000, 4 → LKR 2,000.
-- **Utility rent** is dice-based: 4× the roll with one utility owned, 10× the roll with both.
+| Type | Price | Mortgage | Income |
+|------|------:|---------:|--------|
+| Railway (×4) | 1,500 | 750 | 250 / 500 / 1,000 / 2,000 for 1 / 2 / 3 / 4 owned |
+| Utility (×2) | 1,500 | 750 | 4× dice roll (one), 10× dice roll (both) |
 
----
-
-## Player Strategies
-
-| Player | Core Behaviour |
-|--------|-----------------|
-| **Aggressive Investor** | Expands rapidly, prioritises completing monopolies and premium properties (Galle Face, Nuwara Eliya), builds houses/hotels the moment it's legal, borrows to fund construction, rarely sells. |
-| **Conservative Banker** | Buys only when cash reserves stay healthy, avoids loans unless facing bankruptcy, always insures developed property comprehensively, prefers railways/utilities for stable income, pulls back during recessions. |
-| **Risk Taker** | Buys aggressively, always maximises loans and refinances often, bids until cash runs out, builds hotels early, sells weaker assets to fund premium developments, ignores depreciation until forced to repair. |
-| **Opportunistic Trader** | Evaluates projected appreciation vs. cost before every purchase, favours discounted auctions, adapts construction and insurance decisions to current inflation/regulation conditions, maintains a balanced portfolio. |
+Railways and utilities can be mortgaged but never built upon or insured.
 
 ---
 
-## Core Systems
+## The Sri Lankan Economy
 
-**Banking & Loans** — Each player may hold at most one active loan at a time. The maximum loan is 75% of the total mortgage value of unmortgaged collateral (properties, railways, utilities — buildings don't count). Loans run for 20 rounds, accrue interest every complete round, and can be repaid, extended, or refinanced from the Bank of Ceylon square. Failure to repay in time triggers foreclosure: collateral reverts to the bank, buildings are demolished, and insurance on those properties is cancelled.
+This is where MONOPOLY-LK departs from the classic game.
 
-**Insurance** — Landing on Sri Lanka Insurance or Ceylinco Insurance lets a player buy or renew a policy on any uninsured property they own. Basic Insurance (5% premium) covers fire/flood at 80% compensation; Comprehensive (10%) covers fire/flood/riot/vandalism/earthquake at 100%; Business Interruption (15%) covers hotels, including five rounds of lost rent. Policies last 20 rounds with a reminder at 3 rounds remaining.
+### Banking & Loans
+Landing on **Bank of Ceylon** lets a player take one financial action: obtain, extend,
+refinance, partially repay, or fully repay a loan. A player may hold **one active loan**
+at a time, capped at **75% of the mortgage value of all unmortgaged collateral**
+(properties, railways, utilities — never buildings). Pledged collateral becomes
+*loan-locked*: it cannot be sold, traded, auctioned, or re-mortgaged, but still earns
+rent and can be developed. Loans run 20 rounds, compound interest every round, and
+default (foreclosure) if not settled in time — collateral reverts to the bank, buildings
+are demolished, insurance is cancelled, and the debt is cleared.
 
-**Taxation** — Income Tax (starting at 15%) is charged on net worth when landing on the Income Tax square. The Community Development Fund square levies 10% on the market value of owned properties.
+### Insurance
+Landing on **Sri Lanka Insurance** or **Ceylinco Insurance** lets a player insure any
+owned property. Three policies, each valid 20 rounds (renewal reminder at 3 rounds left):
 
-**Inflation & Dynamic Market** — Every 10 rounds, an inflation/deflation rate (-3% to +12%) is applied to prices, rents, and construction costs, and one property group enters a Market Boom while another enters a Market Decline, each lasting 10 rounds.
+| Policy | Premium | Covers | Compensation |
+|--------|---------|--------|--------------|
+| Basic | 5% of property value | Fire, flood | 80% of repair cost |
+| Comprehensive | 10% of property value | Fire, flood, riot, vandalism, earthquake | 100% of repair cost |
+| Business Interruption | 15% of property value | Hotels: repair + 5 rounds of lost rent | Full |
 
-**Depreciation & Maintenance** — Properties older than 50 rounds lose up to 30% of their value over time unless renovated. Buildings lose 2% condition per round; once condition drops below 25% the building stops earning rent until the owner pays for maintenance.
+Every 10 rounds a random **disaster** (fire, flood, riot, collapse, electrical failure)
+may strike a developed property. Uninsured owners pay full repair costs; damaged buildings
+earn no rent until repaired.
 
-**Random Events** — National Event Cards (drawn on Event squares), Regional Development Cards, Economic Events, and Government Regulations fire on fixed intervals (every turn, 15, and 20 rounds respectively) and expire automatically, reversing their effects.
+### Taxation
+- **Income Tax** (base 15% of net worth) is charged when landing on the square; the rate
+  moves with the market.
+- **Community Development Fund** levies 10% of the market value of a player's properties
+  (land only, not buildings) when landed upon.
+- Government regulations can add penalties like the **Luxury Property Tax** on hotels,
+  tracked as taxes-due and settled at the start of a turn.
+
+### Inflation & the Dynamic Market
+Every 10 rounds a new inflation/deflation rate (−3% to +12%) is applied to property
+prices, rents, construction costs, premiums, repairs, and new loan rates — but **not** to
+existing loans. The same review cycle picks one property group for a **Market Boom**
+(prices, rents, and mortgage values up; construction cheaper to develop) and another for a
+**Market Decline** (values and rents down, auction prices cheaper), each lasting 10 rounds.
+A group can't boom or decline twice in a row.
+
+### Depreciation & Maintenance
+- **Buildings** start at 100% condition and decay 2% per round. Rent scales with condition
+  (100% ≥90, 90% ≥75, 75% ≥50, 50% ≥25, below 25% the building is closed until
+  maintenance). Maintenance at turn start restores 100%: 5% of construction cost per
+  house, 8% per hotel. Ignore it for 20+ rounds and the building suffers structural damage
+  (15% value loss, 25% rent cut, 50% pricier maintenance).
+- **Properties** age each round; past 50 rounds they lose 1% of value every 5 rounds up to
+  a 30% cap. Landing on an owned property lets the owner renovate (10% of current market
+  value), resetting age and depreciation.
+
+### Cards & Regulations
+- **National Event Cards** (20) — drawn on the three Event squares, e.g. Tourism Hype,
+  Fuel Shortage, Interest Rate Cuts, Tax Amnesty, National Disaster. Effects last 15
+  rounds per player, then expire and reverse.
+- **Economic Events** (8) every 15 rounds — Tourism Boom, Fuel Crisis, Heavy Monsoon,
+  Economic Recession, Stock Market Boom, Government Housing Programme, Foreign
+  Investment, Political Unrest — affecting every player.
+- **Regional Development Cards** (12) every 15 rounds — Southern Tourism Boom, Port City
+  Expansion, IT Industry Growth, Northern Development Programme, Tea Export Boom, Airport
+  Expansion, University City Growth, Beach Pollution, Flood Damage, Transport Strike,
+  Electricity Tariff Increase, Water Shortage — targeting specific property groups for 15
+  rounds.
+- **Government Regulations** (8) every 20 rounds — Property Tax hikes, Loan Interest cuts,
+  Housing Subsidies, Luxury Property Tax, Railway Modernization, Electricity Tariff
+  Revision, Insurance Regulation, Anti-Speculation Act.
+
+Active market conditions, inflation, and loan interest are printed at the end of every
+round.
 
 ---
 
-## File-by-File Breakdown
+## The Four Players
 
-| File | Purpose |
-|------|---------|
-| **`main.c`** | Program entry point. Seeds the RNG and hands off to `initialize_game()`. |
-| **`types.h`** | All shared data types: `Player`, `Cell`, `Game`, `Status`, and the enums for property colours, ownership, insurance policies, national/regional/economic events, and government regulations. Also defines global constants (`STARTUP_CASH`, `MAX_ROUNDS`, `GO_REWARD`, etc.). |
-| **`functions.h`** | Prototypes for every function across the project, grouped by the source file that implements them. |
-| **`board.c`** | Builds the 40-square board (names, types, colour groups, prices, rents, construction costs, mortgage values), initialises the four players' starting state, generates the National Event/Regional Development card decks, and determines turn order via dice roll-off. |
-| **`game.c`** | The simulation's outer loop: prints the game-start banner, drives the per-turn/per-round cycle (movement, GO payouts, periodic triggers for inflation/market reviews/events/regulations), prints round summaries and current market conditions, decides the winner, and prints the end-of-game report. |
-| **`players.c`** | Core turn logic and AI decision-making: dispatches the correct action for whatever square a player lands on, purchase decisions and auctions per strategy, rent calculation (including all market/event/depreciation modifiers), raising cash by selling/auctioning property, house/hotel construction per strategy, and property/building renovation logic. |
-| **`finance.c`** | The banking and insurance subsystem: obtaining, extending, refinancing, and repaying loans; interest accrual and default/foreclosure handling; purchasing/renewing insurance and calculating premiums; processing insurance claims and disaster compensation; Income Tax and Community Development Fund collection; and settling any outstanding penalties (e.g. Luxury Property Tax). |
-| **`events.c`** | All time-based and random systems: property and building depreciation, inflation, the rotating dynamic property market (boom/decline), disaster occurrence and resolution, drawing and expiring National Event Cards, Economic Events, Government Regulations, and Regional Development Cards. |
-| **`helper.c`** | Shared utility functions: rounding, resetting a property back to bank ownership, unmortgaging a player's properties, rolling dice, deciding the winner by net worth, jail entry/release logic, bankruptcy detection and processing, and computing a player's full financial `Status` (cash, properties, railways, utilities, hotels, unmortgaged count, net worth). |
+Each player starts with **LKR 30,000**, no properties, no loans, no insurance.
+
+| Player | Personality |
+|--------|-------------|
+| **Aggressive Investor** | Buys fast, chases monopolies and premium estates (Galle Face, Nuwara Eliya), builds immediately, borrows to fund construction, never sells unless bankrupt. |
+| **Conservative Banker** | Buys only when 50%+ cash remains, avoids debt, prefers railways/utilities, always comprehensively insures developments, renovates early, keeps the biggest emergency reserve. |
+| **Risk Taker** | Maxes out loans, refinances constantly, bids until broke, builds hotels early, ignores maintenance until forced, sells weaker assets to fund premium ones. |
+| **Opportunistic Trader** | Evaluates expected return before every decision, hunts discounted auctions, adapts to booms/regulations, delays builds during inflation, accelerates during subsidies, keeps a balanced portfolio. |
+
+Turn order is decided by a pre-game dice roll-off (ties rerolled); bankrupt players are
+skipped; jailed players must pay LKR 300 bail, roll doubles, or wait out three turns.
 
 ---
 
-## Building & Running
+## Project Layout
 
-**Requirements:** GCC or any C99-compatible compiler.
+| File | Responsibility |
+|------|----------------|
+| `main.c` | Entry point — seeds the RNG (prints the seed) and starts the game. |
+| `types.h` | All shared types: `Player`, `Cell`, `Game`, plus enums for colours, ownership, mortgage status, insurance policies, events, regulations — and global constants (`STARTUP_CASH`, `MAX_ROUNDS`, `GO_REWARD`, …). |
+| `functions.h` | Prototypes for every function, grouped by implementation file. |
+| `board.c` | Builds the 40-square board and player state, loads card decks, and decides turn order. |
+| `game.c` | The simulation engine — turn/round loop, periodic triggers, round summaries, market report, winner declaration. |
+| `players.c` | Per-turn AI: landing actions, purchase/auction decisions, rent calculation, cash-raising, construction, renovations. |
+| `finance.c` | Banking & insurance subsystem — loans (interest, extend, refinance, foreclosure), policies & claims, tax collection, penalty settlement. |
+| `events.c` | Time-based systems — depreciation, inflation, dynamic market, disasters, national/economic/regional events, government regulations. |
+| `helper.c` | Shared utilities — dice roll, rounding, unmortgaging, jail logic, bankruptcy handling, net-worth/status computation. |
 
-```bash
-gcc *.c -o monopoly
-./monopoly
-```
+### Data Files (`Data/`)
 
-To capture the full simulation log to a file:
+The board is **data-driven**: instead of hard-coded numbers, the game reads its
+configuration at startup, so values can be tweaked without recompiling logic.
 
-```bash
-./monopoly > output.txt
-```
+| File | Contents |
+|------|----------|
+| `cell_names` | The 40 square names (one per line) |
+| `cell_types` | Square type code per cell (0 start … 9 Ceylinco) |
+| `cell_colors` | Property colour group per cell (−1 = not a property) |
+| `cell_owners` | Initial ownership (all bank-owned) |
+| `base_price` / `base_rent` | Purchase price and base rent per cell |
+| `house_cost` / `hotel_cost` | Construction costs per cell |
+| `mortgage_status` | Initial mortgage state per cell |
+| `event_names` / `event_description` | The 20 National Event Cards |
+| `regional_names` / `regional_values` | The 12 Regional Development Cards |
 
 ---
 
 ## Sample Output
 
 ```
+Seed : 1786354770
 ========================================================
                  MONOPOLY-LK Simulation
 ========================================================
@@ -219,8 +330,3 @@ Net Worth            : LKR  96220
 
 ---
 
-## Tech Stack
-
-- **Language:** C (C99, no external dependencies beyond the standard library)
-- **RNG:** `rand()` with a fixed seed for deterministic, reproducible runs
-- **Build:** GCC (`gcc *.c -o monopoly`)
