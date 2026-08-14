@@ -462,7 +462,7 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
             rent *= 2;
         }
         // for festival season
-        if (place->ownerptr->events[FESTIVAL_SEASON].remaining_effect > 0) { 
+        if (place->ownerptr->events[FESTIVAL_SEASON].remaining_effect > 0 && place->buildings.no_of_hotels > 0) { 
             rent = round_off((double) rent * (150.0 / 100.0));
         }
         // for political unrest
@@ -470,7 +470,7 @@ void rent(Player players[], Cell *place, Cell board[], Game game_status) {
             rent = round_off((double) rent * (50.0 / 100.0));
         }
         // for southern tourism boom
-        if (game_status.regional_card == SOUTHERN_TOURISM_BOOM) {
+        if (game_status.regional_card == SOUTHERN_TOURISM_BOOM && place->buildings.no_of_hotels > 0) {
             // Galle face | unawatuna | hikkaduwa
             if (place->id == 39 || place->id == 27 || place->id == 29) {
                 rent += round_off(rent * (40.0 / 100.0));

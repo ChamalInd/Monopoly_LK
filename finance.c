@@ -19,7 +19,7 @@ void obtain_loan(Player *player, Cell board[], Game game_status) {
 
     if (player->loan_status.total_payable > 0) {
         player->cash += round_off(max_loan - player->loan_status.total_payable);
-        
+    
     } else {
         player->cash += round_off(max_loan);
     }
@@ -153,7 +153,7 @@ void obtain_insurance(Player players[], Cell board[], Game game_status, int prov
                 break;
             }
             case OPPORTUNISTIC_TRADER : {
-                if (board[place].value.market_price == HIGH_VALUE_PROPERTY) {
+                if (board[place].value.market_price >= HIGH_VALUE_PROPERTY) {
                     policy = COMPREHENSIVE;
                 } else {
                     policy = BASIC;
@@ -209,7 +209,6 @@ void obtain_insurance(Player players[], Cell board[], Game game_status, int prov
 
         } else {
             printf("Not enough money to renew insurance premium.\n\n");
-            check_for_bankruptcy(players, board, game_status, game_status.current_player);
         }
     }   
 }
