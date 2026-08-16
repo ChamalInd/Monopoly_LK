@@ -233,7 +233,7 @@ void check_for_insurance_status(Cell board[]) {
 void insurance_compensation(Cell board[], int property, int disaster, char *disaster_name) {
     int covered_by_insurance = FALSE, compensation = 0;
     char *policy = NULL;
-    int repair_cost = round_off(board[property].value.market_price * (10.0 / 100.0));
+    int repair_cost = round_off(board[property].value.market_price * (10.0 / 100.0)); // assumed that the repair cost is the same as the renovation cost for depreciated properties
 
     switch (board[property].insurance.policy) {
         case BASIC : {

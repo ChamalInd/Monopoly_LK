@@ -8,8 +8,6 @@ int main(void) {
     Cell board[NO_OF_CELLS];
     srand(SEED);
 
-    printf("Seed : %li\n", SEED);
-
     initialize_game(board);
     return 0;
 }
