@@ -27,9 +27,7 @@ gcc *.c -o monopoly
 ./monopoly
 ```
 
-The run is fully deterministic: the RNG is seeded with a fixed constant (`SEED` in
-`types.h`), so the same build produces the same game every time — useful for debugging
-and for reproducible submissions. To keep a full log of a run:
+To keep a full log of a run:
 
 ```bash
 ./monopoly > output.txt

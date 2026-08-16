@@ -11,25 +11,31 @@ int round_off(double num) {
 
 void add_items(int int_array[], char *str_array[], char *file_name, int type) {
     FILE *fp = fopen(file_name, "r");
-    char buffer[100];
-    int i = 0;
 
-    while (fgets(buffer, sizeof(buffer), fp) != NULL) {
-        size_t len = strlen(buffer);
-        if (len > 0 && buffer[len - 1] == '\n') {
-            buffer[len - 1] = '\0';
+    if (fp != NULL) {
+        char buffer[100];
+        int i = 0;
+
+        while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+            size_t len = strlen(buffer);
+            if (len > 0 && buffer[len - 1] == '\n') {
+                buffer[len - 1] = '\0';
+            }
+
+            if (type == STRING) {
+                str_array[i] = strdup(buffer);
+
+            } else {
+                int_array[i] = atoi(buffer);
+            }
+            i++;
         }
 
-        if (type == STRING) {
-            str_array[i] = strdup(buffer);
-
-        } else {
-            int_array[i] = atoi(buffer);
-        }
-        i++;
+        fclose(fp);
+    } else {
+        printf("Some essential files doesn't exists.\n");
+        exit(1);
     }
-
-    fclose(fp);
 }
 
 void destroy_property(Cell *place) {
@@ -155,7 +161,7 @@ void announce_bankruptcy(Player players[], Cell board[], Game game_status, int p
     }
 
     for (int i = 0; i < NO_OF_CELLS; i++) {
-        if (board[i].owner == players[player].id) {
+        if (board[i].owner == players[player].id && (board[i].type == PROPERTY || board[i].type == RAILWAY || board[i].type == UTILITY)) {
             destroy_property(&board[i]);
             auction(players, board, &board[i], BANK_OF_CEYLON, game_status);
         }

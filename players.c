@@ -230,109 +230,118 @@ void buy(Player players[], Cell board[], Game game_status) {
 }
 
 int auction(Player players[], Cell board[], Cell *place, Ownership beneficiary, Game game_status) {
-    int bidding_players = 0, highest_bid = 0, bidder = NONE;
-    int bidding[NO_OF_PLAYERS];
+    if (place->type == PROPERTY || place->type == RAILWAY || place->type == UTILITY) {
+        int bidding_players = 0, highest_bid = 0, bidder = NONE;
+        int bidding[NO_OF_PLAYERS];
 
-    int starting_price = place->value.market_price / 2;
+        int starting_price = place->value.market_price / 2;
 
-    if (place->type == PROPERTY && place->group == game_status.dynamic_market[MARKET_DECLINE].property_group) {
-        starting_price = round_off((double) starting_price * 75.0 / 100.0);
-    }
+        if (place->type == PROPERTY && place->group == game_status.dynamic_market[MARKET_DECLINE].property_group) {
+            starting_price = round_off((double) starting_price * 75.0 / 100.0);
+        }
 
-    highest_bid = starting_price;
+        highest_bid = starting_price;
 
-    // finding initial bidders
-    for (int i = 0; i < NO_OF_PLAYERS; i++) {
-        if (players[i].isBankrupt == FALSE && players[i].jail_status.isJailed == FALSE && players[i].id != beneficiary && players[i].cash >= starting_price) {
-            if (players[i].id == AGGRESSIVE_INVESTOR) {
-                int choice = FALSE;
-                for (int j = 0; j < NO_OF_CELLS; j++) {
-                    // prioritize having a monopoly
-                    if (board[j].group == place->group && board[j].owner == players[i].id) {
-                        choice = TRUE;
-                        break;
+        // finding initial bidders
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
+            if (players[i].isBankrupt == FALSE && players[i].jail_status.isJailed == FALSE && players[i].id != beneficiary && players[i].cash >= starting_price) {
+                if (players[i].id == AGGRESSIVE_INVESTOR) {
+                    int choice = FALSE;
+                    for (int j = 0; j < NO_OF_CELLS; j++) {
+                        // prioritize having a monopoly
+                        if (board[j].group == place->group && board[j].owner == players[i].id) {
+                            choice = TRUE;
+                            break;
+                        }
                     }
-                }
-                if (choice == TRUE || place->id == 37 || place->id == 39) { // prioritize Galle Face and Nuwara Eliya 
+                    if (choice == TRUE || place->id == 37 || place->id == 39) { // prioritize Galle Face and Nuwara Eliya 
+                        players[i].going_to_bid = TRUE;
+                        bidding[i] = i;
+                        bidding_players++;
+                    } else {
+                        bidding[i] = NONE;
+                    }
+
+                } else if (((players[i].id == CONSERVATIVE_BANKER && game_status.economic_event != ECONOMIC_RECESSION) || players[i].id == OPPORTUNISTIC_TRADER) && starting_price < place->value.market_price) {
+                    // both participate when price is discounted
                     players[i].going_to_bid = TRUE;
                     bidding[i] = i;
                     bidding_players++;
+
+                } else if (players[i].id == RISK_TAKER) {
+                    // always participates
+                    players[i].going_to_bid = TRUE;
+                    bidding[i] = i;
+                    bidding_players++;
+
                 } else {
                     bidding[i] = NONE;
                 }
-
-            } else if (((players[i].id == CONSERVATIVE_BANKER && game_status.economic_event != ECONOMIC_RECESSION) || players[i].id == OPPORTUNISTIC_TRADER) && starting_price < place->value.market_price) {
-                // both participate when price is discounted
-                players[i].going_to_bid = TRUE;
-                bidding[i] = i;
-                bidding_players++;
-
-            } else if (players[i].id == RISK_TAKER) {
-                // always participates
-                players[i].going_to_bid = TRUE;
-                bidding[i] = i;
-                bidding_players++;
-
+                
             } else {
                 bidding[i] = NONE;
             }
-            
-        } else {
-            bidding[i] = NONE;
         }
-    }
-    printf("Auction Started.\n");
-    printf("Property :\n\t%s\n", place->name);
-    printf("Opening Bid : \n\tLKR %i.\n\n", starting_price);
-    printf("Bidders : [");
-    for (int i = 0; i < NO_OF_PLAYERS; i++) {
-        if (players[i].going_to_bid == TRUE) {
-            printf(" <%s> ", players[i].name);
-        }
-    }
-    printf("]\n\n");
-
-    if (bidding_players == 1) {
+        printf("Auction Started.\n");
+        printf("Property :\n\t%s\n", place->name);
+        printf("Opening Bid : \n\tLKR %i.\n\n", starting_price);
+        printf("Bidders : [");
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             if (players[i].going_to_bid == TRUE) {
-                bidder = i;
-                printf("%s bids LKR %i.\n\n", players[i].name, highest_bid);
-                break;
+                printf(" <%s> ", players[i].name);
             }
         }
+        printf("]\n\n");
 
-    } else {
-        while (bidding_players > 1) {
+        if (bidding_players == 1) {
             for (int i = 0; i < NO_OF_PLAYERS; i++) {
                 if (players[i].going_to_bid == TRUE) {
-                    bidding[i] = i;
-                } else {
-                    bidding[i] = NONE;
+                    bidder = i;
+                    printf("%s bids LKR %i.\n\n", players[i].name, highest_bid);
+                    break;
                 }
             }
 
-            // auction process
-            for (int i = 0; i < NO_OF_PLAYERS; i++) {   
-                if (bidding[i] != NONE) { 
-                    if (players[bidding[i]].cash >= highest_bid + 250) {
-                        if (players[i].id == AGGRESSIVE_INVESTOR && highest_bid + 250 < round_off(place->value.market_price * (120.0 / 100.0))) {
-                            // exists auction when bid exceeds 120%
-                            highest_bid += 250;
-                            bidder = bidding[i];
-                            printf("%s bids LKR %i.\n", players[bidding[i]].name, highest_bid);
+        } else {
+            while (bidding_players > 1) {
+                for (int i = 0; i < NO_OF_PLAYERS; i++) {
+                    if (players[i].going_to_bid == TRUE) {
+                        bidding[i] = i;
+                    } else {
+                        bidding[i] = NONE;
+                    }
+                }
 
-                        } else if ((players[i].id == CONSERVATIVE_BANKER || players[i].id == OPPORTUNISTIC_TRADER) && highest_bid + 250 < place->value.market_price) {
-                            // exists auction when bid is higher than market price
-                            highest_bid += 250;
-                            bidder = bidding[i];
-                            printf("%s bids LKR %i.\n", players[bidding[i]].name, highest_bid);
-                        
-                        } else if (players[i].id == RISK_TAKER) {
-                            // never withdraws
-                            highest_bid += 250;
-                            bidder = bidding[i];
-                            printf("%s bids LKR %i.\n", players[bidding[i]].name, highest_bid);
+                // auction process
+                for (int i = 0; i < NO_OF_PLAYERS; i++) {   
+                    if (bidding[i] != NONE) { 
+                        if (players[bidding[i]].cash >= highest_bid + 250) {
+                            if (players[i].id == AGGRESSIVE_INVESTOR && highest_bid + 250 < round_off(place->value.market_price * (120.0 / 100.0))) {
+                                // exists auction when bid exceeds 120%
+                                highest_bid += 250;
+                                bidder = bidding[i];
+                                printf("%s bids LKR %i.\n", players[bidding[i]].name, highest_bid);
 
+                            } else if ((players[i].id == CONSERVATIVE_BANKER || players[i].id == OPPORTUNISTIC_TRADER) && highest_bid + 250 < place->value.market_price) {
+                                // exists auction when bid is higher than market price
+                                highest_bid += 250;
+                                bidder = bidding[i];
+                                printf("%s bids LKR %i.\n", players[bidding[i]].name, highest_bid);
+                            
+                            } else if (players[i].id == RISK_TAKER) {
+                                // never withdraws
+                                highest_bid += 250;
+                                bidder = bidding[i];
+                                printf("%s bids LKR %i.\n", players[bidding[i]].name, highest_bid);
+
+                            } else {
+                                players[bidding[i]].going_to_bid = FALSE;
+                                bidding_players--;
+                                if (bidding_players == 0) {
+                                    break;
+                                }
+                                printf("%s withdraws.\n", players[bidding[i]].name);
+                            }
                         } else {
                             players[bidding[i]].going_to_bid = FALSE;
                             bidding_players--;
@@ -341,58 +350,52 @@ int auction(Player players[], Cell board[], Cell *place, Ownership beneficiary, 
                             }
                             printf("%s withdraws.\n", players[bidding[i]].name);
                         }
-                    } else {
-                        players[bidding[i]].going_to_bid = FALSE;
-                        bidding_players--;
-                        if (bidding_players == 0) {
-                            break;
-                        }
-                        printf("%s withdraws.\n", players[bidding[i]].name);
+                    }
+                }
+
+                printf("\n");
+            }
+        }
+
+        // resetting auction parameters
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
+            players[i].going_to_bid = FALSE;
+        }
+
+        if (bidder != NONE) {
+            if (beneficiary != BANK_OF_CEYLON) {
+                for (int i = 0; i < NO_OF_PLAYERS; i++) {
+                    if (players[i].id == beneficiary) {
+                        players[i].cash += highest_bid;
+                        destroy_property(place);
+                        printf("%s sold %s for LKR %i in the auction.\n", players[i].name, place->name, highest_bid);
+                        printf("Cash Balance : LKR %i.\n\n", players[i].cash);
+                        break;
                     }
                 }
             }
 
-            printf("\n");
-        }
-    }
+            place->owner = players[bidder].id;
+            place->ownerptr = &players[bidder];
+            players[bidder].cash -= highest_bid;
 
-    // resetting auction parameters
-    for (int i = 0; i < NO_OF_PLAYERS; i++) {
-        players[i].going_to_bid = FALSE;
-    }
+            printf("%s wins the auction.\n", players[bidder].name);
+            printf("%s purchased %s for LKR %i.\n", players[bidder].name, place->name, highest_bid);
+            printf("Remaining Balance : LKR %i.\n\n", players[bidder].cash);
 
-    if (bidder != NONE) {
-        if (beneficiary != BANK_OF_CEYLON) {
-            for (int i = 0; i < NO_OF_PLAYERS; i++) {
-                if (players[i].id == beneficiary) {
-                    players[i].cash += highest_bid;
-                    destroy_property(place);
-                    printf("%s sold %s for LKR %i in the auction.\n", players[i].name, place->name, highest_bid);
-                    printf("Cash Balance : LKR %i.\n\n", players[i].cash);
-                    break;
-                }
-            }
-        }
+            return TRUE;
 
-        place->owner = players[bidder].id;
-        place->ownerptr = &players[bidder];
-        players[bidder].cash -= highest_bid;
-
-        printf("%s wins the auction.\n", players[bidder].name);
-        printf("%s purchased %s for LKR %i.\n", players[bidder].name, place->name, highest_bid);
-        printf("Remaining Balance : LKR %i.\n\n", players[bidder].cash);
-
-        return TRUE;
-
-    } else {
-        if (beneficiary == BANK_OF_CEYLON) {
-            printf("No bidder property goes back to bank.\n\n");
         } else {
-            printf("No bidder property goes back to owner.\n\n");
-        }
+            if (beneficiary == BANK_OF_CEYLON) {
+                printf("No bidder property goes back to bank.\n\n");
+            } else {
+                printf("No bidder property goes back to owner.\n\n");
+            }
 
-        return FALSE;
+            return FALSE;
+        }
     }
+    return FALSE;
 }
 
 void raise_money(Player players[], Cell board[], Game game_status, int amount_to_be_raised) {
