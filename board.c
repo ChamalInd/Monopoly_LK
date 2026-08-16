@@ -106,11 +106,6 @@ void generate_board(Cell board[]) {
             }
         };
     }
-
-    // free memory used in strdup
-    for (int i = 0; i < NO_OF_CELLS; i++) {
-        free(cell_names[i]);
-    }
 }
 
 void initialize_players(Player players[]) {
@@ -154,12 +149,6 @@ void generate_event_cards(Events national_events[], Regional regional_cards[]) {
         };
     }
 
-    // free memory used in strdup
-    for (int i = 0; i < 20; i++) {
-        free(event_names[i]);
-        free(event_description[i]);
-    }
-
     char *regional_names[12];
     char *regional_values[12];
 
@@ -171,12 +160,6 @@ void generate_event_cards(Events national_events[], Regional regional_cards[]) {
             .name = regional_names[i],
             .value = regional_values[i]
         };
-    }
-
-    // free memory used in strdup
-    for (int i = 0; i < 12; i++) {
-        free(regional_names[i]);
-        free(regional_values[i]);
     }
       
 }
