@@ -20,6 +20,13 @@ and the player with the highest net worth wins.
 
 ## Quick Start
 
+Clone the project into you local machine and navigate inside it.
+
+```bash
+git clone https://github.com/ChamalInd/Monopoly_LK.git
+cd Monopoly_LK
+```
+
 Requires a C99-compatible compiler (GCC recommended). No external libraries.
 
 ```bash
