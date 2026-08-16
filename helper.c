@@ -38,6 +38,27 @@ void add_items(int int_array[], char *str_array[], char *file_name, int type) {
     }
 }
 
+void free_memory(Cell board[], Regional regional_cards[], Events national_events[]) {
+    for (int i = 0; i < NO_OF_CELLS; i++) {
+        free(board[i].name);
+        board[i].name = NULL;
+    }
+
+    for (int i = 0; i < 20; i++) {
+        free(national_events[i].name);
+        free(national_events[i].event);
+        national_events[i].name = NULL;
+        national_events[i].event = NULL;
+    }
+
+    for (int i = 0; i < 12; i++) {
+        free(regional_cards[i].name);
+        free(regional_cards[i].value);
+        regional_cards[i].name = NULL;
+        regional_cards[i].value = NULL;
+    }
+}
+
 void destroy_property(Cell *place) {
     place->mortgage.status = UNMORTGAGED;
     place->owner = BANK_OF_CEYLON;
