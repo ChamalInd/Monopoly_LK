@@ -117,7 +117,7 @@ void dynamic_property_market(Cell *property_groups[][3], Game *game_status, int 
 }
 
 void disaster_occurrence(Player players[], Cell board[], Game game_status) {
-    int property = rand() % 40, disaster = 0;
+    int property = 0, disaster = 0;
     int available[NO_OF_CELLS];
     int available_count = 0;
 

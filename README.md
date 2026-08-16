@@ -252,7 +252,7 @@ skipped; jailed players must pay LKR 300 bail, roll doubles, or wait out three t
 
 | File | Responsibility |
 |------|----------------|
-| `main.c` | Entry point — seeds the RNG (prints the seed) and starts the game. |
+| `main.c` | Entry point — seeds the RNG and starts the game. |
 | `types.h` | All shared types: `Player`, `Cell`, `Game`, plus enums for colours, ownership, mortgage status, insurance policies, events, regulations — and global constants (`STARTUP_CASH`, `MAX_ROUNDS`, `GO_REWARD`, …). |
 | `functions.h` | Prototypes for every function, grouped by implementation file. |
 | `board.c` | Builds the 40-square board and player state, loads card decks, and decides turn order. |
